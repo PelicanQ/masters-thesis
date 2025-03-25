@@ -1,0 +1,9 @@
+.venvgraph/
+.venv/
+__pycache__
+__hamilcache__
+/lib/
+*.csv
+*.tsv
+*.mw
+*.npy
