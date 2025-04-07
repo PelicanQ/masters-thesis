@@ -32,9 +32,13 @@ class Result2T(BaseModel):
 
 class Job3T(BaseModel):
     Ec2: float
+    Ec3: float
     Ej1: float
     Ej2: float
-    Eint: float
+    Ej3: float
+    Eint12: float
+    Eint23: float
+    Eint13: float
 
 
 class Data3T(BaseModel):
@@ -51,10 +55,10 @@ class Result3T(BaseModel):
     Eint12: float
     Eint23: float
     Eint13: float
-    zz12: float
-    zz23: float
-    zz13: float
-    zzz: float
+    zzGS12: float
+    zzGS23: float
+    zzGS13: float
+    zzzGS: float
 
 
 @app.get("/")
