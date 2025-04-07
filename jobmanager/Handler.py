@@ -6,6 +6,7 @@ import asyncio
 import timeit
 from abc import abstractmethod
 
+
 class HandlerBase:
     task: asyncio.Task
 
@@ -21,10 +22,10 @@ class HandlerBase:
         self.task = asyncio.create_task(self.run_batch_remote(jobs))
 
     async def submit(self, jobs: list[dict], batch_size: int):
-        testtime = timeit.timeit(lambda: self.local_run(jobs[0]), number=1)
+        # testtime = timeit.timeit(lambda: self.local_run(jobs[0]), number=1)
         progress = 0  # index of next job to be run
         numjobs = len(jobs)
-        print(f"Num jobs: {numjobs}. Est time: {round(numjobs*testtime)} s")
+        # print(f"Num jobs: {numjobs}. Est time: {round(numjobs*testtime)} s")
 
         results = []
         if numjobs > batch_size:
@@ -68,7 +69,8 @@ class HandlerBase:
             async with post as response:
                 response = await response.json()
                 return response
-            
+
+
 class Handler2T(HandlerBase):
     def local_run(self, job: dict):
         current = job.copy()
@@ -76,12 +78,14 @@ class Handler2T(HandlerBase):
         current.update([("zz", zz), ("zzGS", zzGS)])
         return current
 
+
 class Handler3T(HandlerBase):
     def local_run(self, job: dict):
         current = job.copy()
-        zz, zzGS = zz3T(**current, k=self.k)
-        current.update([("zz", zz), ("zzGS", zzGS)])
+        zz12, zz23, zz13, zzz = zz3T(**current, k=self.k)
+        current.update([("zzGS12", zz12), ("zzGS23", zz23), ("zzGS13", zz13), ("zzzGS", zzz)])
         return current
+
 
 if __name__ == "__main__":
     h = Handler2T("http://127.0.0.1:81/2T", 12)
