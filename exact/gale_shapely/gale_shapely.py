@@ -2,9 +2,10 @@ import numpy as np
 from numpy.typing import NDArray
 import cupy
 from exact.gale_shapely.loop_cython import cython_loop
+import numba
 
 
-# @numba.jit
+@numba.jit
 def jitted_loop(ranked_preference, number_of_states, preference):
     bare_to_dressed_index = number_of_states * [-1]
     dressed_assigned = number_of_states * [False]  # Initialize all states as unassigned.
@@ -43,8 +44,8 @@ def state_assignment(eigen_states: NDArray) -> tuple[int]:
     preference = np.abs(eigen_states)
 
     ranked_preference = cupy.asnumpy(cupy.argsort(cupy.asarray(preference), axis=0))
-    return cython_loop(ranked_preference, number_of_states, preference)
-    # return jitted_loop(ranked_preference, number_of_states, preference)
+    # return cython_loop(ranked_preference, number_of_states, preference)
+    return jitted_loop(ranked_preference, number_of_states, preference)
 
 
 def state_assignment2(eigen_states: NDArray) -> tuple[tuple[int], tuple[int]]:
