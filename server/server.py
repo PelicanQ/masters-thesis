@@ -28,7 +28,9 @@ class Result(BaseModel):
     Eint: float
     zz: float
     zzGS: float
-
+@app.get("/")
+def hello():
+    return "Hello!"
 
 @app.post("/2T", response_model=list[Result])
 def route(data: Data):
@@ -52,4 +54,4 @@ def route(data: Data):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=81)
+    uvicorn.run(app, port=82,host="0.0.0.0")
