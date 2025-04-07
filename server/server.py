@@ -92,7 +92,8 @@ def three(data: Data3TEnergy):
     for job in data.jobs:
         dic = job.model_dump()
         levels = zz3T_energy(**dic)
-        resp.append(levels[data.level_select])
+        dic.update([("levels", levels[data.level_select])])
+        resp.append(dic)
     print("Time taken:", time.perf_counter() - t1)
     return resp
 

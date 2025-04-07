@@ -86,7 +86,7 @@ class Handler3TEnergy(HandlerBase):
     def local_run(self, job: dict):
         current = job.copy()
         levels = zz3T_energy(**current)
-        current.update(("levels", levels[self.level_select]))
+        current.update([("levels", levels[self.level_select])])
         return current
 
 
