@@ -58,8 +58,8 @@ class Store_zz3t:
     @classmethod
     def insert_many(cls, results: list[dict]):
         for res in results:
-            fields = [(field, res[field]) for field in cls.all_keys.concat(cls.all_vals)]
-            cls.insert(**fields)
+            fields = [(field, res[field]) for field in (cls.all_keys + cls.all_vals)]
+            cls.insert(**dict(fields))
 
     @staticmethod
     def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, zzGS12, zzGS23, zzGS13, zzzGS):

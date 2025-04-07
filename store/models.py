@@ -64,5 +64,5 @@ class ZZ3T(Model):
 
 
 if __name__ == "__main__":
-    db.create_tables([ZZ3T])
+    # db.create_tables([ZZ3T])
     pass
