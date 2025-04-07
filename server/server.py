@@ -11,6 +11,7 @@ app = FastAPI()
 
 
 class Job2T(BaseModel):
+    k: int
     Ec2: float
     Ej1: float
     Ej2: float
@@ -19,10 +20,10 @@ class Job2T(BaseModel):
 
 class Data2T(BaseModel):
     jobs: list[Job2T]
-    k: int
 
 
 class Result2T(BaseModel):
+    k: int
     Ec2: float
     Ej1: float
     Ej2: float
@@ -32,6 +33,7 @@ class Result2T(BaseModel):
 
 
 class Job3T(BaseModel):
+    k: int
     Ec2: float
     Ec3: float
     Ej1: float
@@ -40,7 +42,6 @@ class Job3T(BaseModel):
     Eint12: float
     Eint23: float
     Eint13: float
-    k: int
 
 
 class Data3TEnergy(BaseModel):
@@ -53,6 +54,7 @@ class Data3T(BaseModel):
 
 
 class Result3TEnergy(BaseModel):
+    k: int
     Ec2: float
     Ec3: float
     Ej1: float
@@ -65,6 +67,7 @@ class Result3TEnergy(BaseModel):
 
 
 class Result3T(BaseModel):
+    k: int
     Ec2: float
     Ec3: float
     Ej1: float
@@ -102,8 +105,6 @@ def three(data: Data3TEnergy):
 def three(data: Data3T):
     resp = []
     t1 = time.perf_counter()
-    if data.k < 1:
-        raise HTTPException("k parameter too small")
     print("Recieved jobs: ", len(data.jobs))
     for job in data.jobs:
         dic = job.model_dump()
@@ -118,18 +119,10 @@ def three(data: Data3T):
 def two(data: Data2T):
     resp = []
     t1 = time.time()
-    if data.k < 1:
-        raise HTTPException("k parameter too small")
     print("Recieved jobs: ", len(data.jobs))
     for job in data.jobs:
-        zz, zzGS = zz2T(
-            Ej1=job.Ej1,
-            Ej2=job.Ej2,
-            Ec2=job.Ec2,
-            Eint=job.Eint,
-            k=data.k,
-        )
         dic = job.model_dump()
+        zz, zzGS = zz2T(**dic)
         dic.update([("zz", zz), ("zzGS", zzGS)])
         resp.append(dic)
     print("Time taken:", time.time() - t1)

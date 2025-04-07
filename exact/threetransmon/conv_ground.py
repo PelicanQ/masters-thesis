@@ -26,6 +26,7 @@ results = asyncio.run(
         3,
     )
 )
+print("the res")
 for r in results:
     print(r)
 
