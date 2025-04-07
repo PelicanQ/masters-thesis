@@ -2,7 +2,7 @@
 from exact.twotransmon.zz.sweep import single_zz
 import aiohttp
 import asyncio
-import time
+import timeit
 
 
 class Handler:
@@ -12,8 +12,8 @@ class Handler:
         self.url = url
         self.k = k
 
-    def local_run(self, args: dict):
-        current = args.copy()
+    def local_run(self, job: dict):
+        current = job.copy()
         zz, zzGS = single_zz(**current, k=self.k)
         current.update([("zz", zz), ("zzGS", zzGS)])
         return current
@@ -22,8 +22,11 @@ class Handler:
         self.task = asyncio.create_task(self.run_batch_remote(jobs))
 
     async def submit(self, jobs: list[dict], batch_size: int):
+        testtime = timeit.timeit(lambda: self.local_run(jobs[0]), number=1)
         progress = 0  # index of next job to be run
         numjobs = len(jobs)
+        print(f"Num jobs: {numjobs}. Est time: {round(numjobs*testtime)} s")
+
         results = []
         if numjobs > batch_size:
             self.schedule(jobs[progress : progress + batch_size])
@@ -36,9 +39,8 @@ class Handler:
         while progress < numjobs:
             res = await asyncio.to_thread(lambda: self.local_run(jobs[progress]))
             results.append(res)
-            print("local done")
-
             progress += 1
+            print(f"local done. Progress: {progress}/{numjobs}")
             if progress >= numjobs:
                 break
             await asyncio.sleep(0)
@@ -56,6 +58,7 @@ class Handler:
         res = await self.task
         print("residual task done")
         results.extend(res)
+        print(f"All done. Num results: {len(results)}/{numjobs}")
         return results
 
     async def run_batch_remote(self, jobs: list[dict]):
