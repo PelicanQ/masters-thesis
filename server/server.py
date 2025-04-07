@@ -30,6 +30,11 @@ class Result(BaseModel):
     zzGS: float
 
 
+@app.get("/")
+def hello():
+    return "Hello!"
+
+
 @app.post("/2T", response_model=list[Result])
 def route(data: Data):
     resp = []
