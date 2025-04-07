@@ -8,8 +8,8 @@ from store.store import Store_zz3t
 
 
 def local_collect():
-    Ejs = np.arange(30, 90, 10)
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.1)
+    Ejs = np.arange(30, 90, 0.5).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2)
     for job in jobs:
         zz12, zz23, zz13, zzz = single_zz(**job, k=10)
         # For 3T I only do GS so it's implicit
@@ -26,7 +26,7 @@ def collect():
 
 
 if __name__ == "__main__":
-    collect()
+    local_collect()
     # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2)
     # plt.rc("lines", marker=".", lw=0)
     # plt.plot(vars, zz1, label="zz1")
