@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import NDArray
 import cupy
-from exact.gale_shapely.loop_cython import cython_loop
+# from exact.gale_shapely.loop_cython import cython_loop
 import numba
 
 
