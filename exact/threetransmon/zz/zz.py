@@ -1,6 +1,6 @@
 from exact.threetransmon.hamil import eig_clever
 import numpy as np
-from exact.gale_shapely import state_assignment
+from exact.gale_shapely.gale_shapely import state_assignment
 from exact.util import index_map3T
 import time
 
@@ -9,6 +9,7 @@ def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=12):
     N = 2 * k + 1  # transmon states per subspace
     idx_map = index_map3T(N)
     t1 = time.perf_counter()
+    print("start eig")
     levels, vecs = eig_clever(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k)
     t2 = time.perf_counter()
     print("Eig: ", t2 - t1)

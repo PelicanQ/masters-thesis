@@ -1,11 +1,10 @@
 import numpy as np
 from numpy.typing import NDArray
 import cupy
-import time
-import numba
+from exact.gale_shapely.loop_cython import cython_loop
 
 
-@numba.jit
+# @numba.jit
 def jitted_loop(ranked_preference, number_of_states, preference):
     bare_to_dressed_index = number_of_states * [-1]
     dressed_assigned = number_of_states * [False]  # Initialize all states as unassigned.
@@ -40,36 +39,12 @@ def jitted_loop(ranked_preference, number_of_states, preference):
 
 
 def state_assignment(eigen_states: NDArray) -> tuple[int]:
-    """Computes a 1-to-1 assignment map between the dressed states (eigenstates) and bare states.
-    The map is computed by reducing the assignment problem to a Stable Marriage Problem,
-    which is solved by the Gale-Shapley algorithm. The Gale-Shapley algorithm is implemented
-    with using the state overlap between the dressed and bare states as preference metric.
-
-    Note, the computed map is the optimal map for the dressed states,
-    meaning that every dressed state is stably assigned to their bare state with highest possible preference.
-    To get the optimal map for the bare states, the inverse of 'eigen_states' should be given as argument.
-
-    Args:
-        eigen_states (NDArray): The eigenstates stored as column vectors expressed in the bare-state basis.
-
-    Returns:
-        bare_to_dressed_index (tuple): A map from the Hamiltonian indices of the bare states to the dressed states.
-        dressed_to_bare_index (tuple): A map from the Hamiltonian indices of the dressed states to the bare states.
-    """
-    # Initialize requisites for the Gale-Shapley algorithm.
     number_of_states = eigen_states.shape[0]
     preference = np.abs(eigen_states)
 
-    ranked_preference = cupy.asnumpy(
-        cupy.argsort(cupy.asarray(preference), axis=0)
-    )  # Eigenvectors are stored as column vectors.
-    return jitted_loop(ranked_preference, number_of_states, preference)
-    # ranked_preference = cupy.asnumpy(
-    #     cupy.argsort(cupy.asarray(preference), axis=0)
-    # )  # Eigenvectors are stored as column vectors.
-    # The Gale-Shapley algorithm.
-    # The dressed states (proposers) propose to the bare states (proposee),
-    # to find matches until all states are assigned.
+    ranked_preference = cupy.asnumpy(cupy.argsort(cupy.asarray(preference), axis=0))
+    return cython_loop(ranked_preference, number_of_states, preference)
+    # return jitted_loop(ranked_preference, number_of_states, preference)
 
 
 def state_assignment2(eigen_states: NDArray) -> tuple[tuple[int], tuple[int]]:

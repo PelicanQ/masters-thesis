@@ -1,7 +1,7 @@
 from exact.twotransmon.hamil import eig_clever
 import numpy as np
 from matplotlib import pyplot as plt
-from exact.gale_shapely import state_assignment
+from exact.gale_shapely.gale_shapely import state_assignment
 from exact.util import index_map
 
 
@@ -19,6 +19,7 @@ def single_zz(Ec2, Ej1, Ej2, Eint, k=15):
     zz = levels[4] - (levels[1] + levels[2]) + levels[0]
     zzGS = levels[d3] - (levels[d2] + levels[d1]) + levels[d0]  # ZZ after gale shapely state assignment
     return zz, zzGS
+
 
 if __name__ == "__main__":
     pass

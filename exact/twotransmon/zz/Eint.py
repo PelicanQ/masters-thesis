@@ -1,7 +1,7 @@
 from ..hamil import eig_clever
 import numpy as np
 from matplotlib import pyplot as plt
-from exact.gale_shapely import state_assignment
+from exact.gale_shapely.gale_shapely import state_assignment
 from analysis.plot import grid_plot2d
 
 # here we sweep Eint also

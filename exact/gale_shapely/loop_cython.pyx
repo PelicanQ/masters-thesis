@@ -1,7 +1,7 @@
 import numpy as np
 cimport numpy as np
 
-def jitted_loop(np.ndarray[np.int64_t, ndim=2] ranked_preference, int number_of_states, np.ndarray[np.float64_t, ndim=2] preference):
+def cython_loop(np.ndarray[np.int64_t, ndim=2] ranked_preference, int number_of_states, np.ndarray[np.float64_t, ndim=2] preference):
     # Initialize arrays
     cdef np.ndarray[np.int32_t, ndim=1] bare_to_dressed_index = np.full(number_of_states, -1, dtype=np.int32)
     cdef np.ndarray[np.npy_bool, ndim=1] dressed_assigned = np.zeros(number_of_states, dtype=np.bool_)
