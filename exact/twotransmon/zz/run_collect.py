@@ -6,15 +6,15 @@ import asyncio
 
 Ejs = np.arange(30, 100, 2)
 Ecs = np.arange(0.2, 10, 0.1)
+if __name__ == "__main__":
+    jobs = collect_jobs(Ej1=50, Ej2=[40, 50], Eint=0.2, Ec2=[1, 2])
+    print("all jobs", jobs)
+    H = Handler("http://25.9.103.201:82/2T", k=40)
+    r = asyncio.run(H.submit(jobs, batch_size=2))
+    print("DONE", r)
+    # Store_zz2t.insert_many(r)
 
-jobs = collect_jobs(Ej1=50, Ej2=[40, 50], Eint=0.2, Ec2=[1, 2])
-print(jobs)
-H = Handler("http://127.0.0.1:81/2T", k=13)
-r = asyncio.run(H.submit(jobs, batch_size=2))
-# print("asdf", r)
-Store_zz2t.insert_many(r)
-
-# collect_sweep(13, Ej1=50, Ej2=Ejs, Eint=0.2, Ec2=Ecs)
+    # collect_sweep(13, Ej1=50, Ej2=Ejs, Eint=0.2, Ec2=Ecs)
 
 
 def plane():

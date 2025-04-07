@@ -52,4 +52,4 @@ def route(data: Data):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=81)
+    uvicorn.run(app, port=81, host="0.0.0.0")
