@@ -5,15 +5,19 @@ from matplotlib import pyplot as plt
 import asyncio
 from jobmanager.util import collect_jobs
 from store.store import Store_zz3t
+import time
 
 
 def local_collect():
     Ejs = np.arange(30, 90, 0.5).tolist()  # numpy types cannot be json serialized
     jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2)
     for job in jobs:
+
+        t = time.perf_counter()
         zz12, zz23, zz13, zzz = single_zz(**job, k=10)
+        print("total", time.perf_counter() - t)
         # For 3T I only do GS so it's implicit
-        Store_zz3t.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
+        # Store_zz3t.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
 
 
 def collect():

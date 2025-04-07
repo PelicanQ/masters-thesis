@@ -1,5 +1,8 @@
 import numpy as np
 from numpy.typing import NDArray
+import cupy
+import time
+
 
 def state_assignment(eigen_states: NDArray) -> tuple[tuple[int], tuple[int]]:
     """Computes a 1-to-1 assignment map between the dressed states (eigenstates) and bare states.
@@ -18,22 +21,19 @@ def state_assignment(eigen_states: NDArray) -> tuple[tuple[int], tuple[int]]:
         bare_to_dressed_index (tuple): A map from the Hamiltonian indices of the bare states to the dressed states.
         dressed_to_bare_index (tuple): A map from the Hamiltonian indices of the dressed states to the bare states.
     """
-
     # Initialize requisites for the Gale-Shapley algorithm.
     number_of_states = eigen_states.shape[0]
     dressed_to_bare_index = number_of_states * [-1]
     bare_to_dressed_index = number_of_states * [-1]
     preference = np.abs(eigen_states)
-    ranked_preference = np.argsort(
-        preference, axis=0
+    ranked_preference = cupy.asnumpy(
+        cupy.argsort(cupy.asarray(preference), axis=0)
     )  # Eigenvectors are stored as column vectors.
 
     # The Gale-Shapley algorithm.
     # The dressed states (proposers) propose to the bare states (proposee),
     # to find matches until all states are assigned.
-    dressed_assigned = number_of_states * [
-        False
-    ]  # Initialize all states as unassigned.
+    dressed_assigned = number_of_states * [False]  # Initialize all states as unassigned.
     bare_assigned = number_of_states * [False]
     while not all(dressed_assigned):
         dressed_proposer = dressed_assigned.index(False)
@@ -50,10 +50,7 @@ def state_assignment(eigen_states: NDArray) -> tuple[tuple[int], tuple[int]]:
             # If the bare proposee is assigned -> check if proposee prefers proposer over currently assigned.
             else:
                 dressed_current = bare_to_dressed_index[bare_proposee]
-                if (
-                    preference[bare_proposee, dressed_proposer]
-                    > preference[bare_proposee, dressed_current]
-                ):
+                if preference[bare_proposee, dressed_proposer] > preference[bare_proposee, dressed_current]:
                     # Unassign currently assigned dressed state.
                     dressed_assigned[dressed_current] = False
                     dressed_to_bare_index[dressed_current] = -1
