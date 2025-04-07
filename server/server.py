@@ -3,7 +3,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
-from exact.twotransmon.zz.sweep import single_zz
+from exact.twotransmon.zz.zz import single_zz
 import time
 
 app = FastAPI()

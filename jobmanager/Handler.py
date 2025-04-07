@@ -1,22 +1,21 @@
 # Here we manage numeric jobs
-from exact.twotransmon.zz.sweep import single_zz
+from exact.twotransmon.zz.zz import single_zz as zz2T
+from exact.threetransmon.zz.zz import single_zz as zz3T
 import aiohttp
 import asyncio
 import timeit
+from abc import abstractmethod
 
-
-class Handler:
+class HandlerBase:
     task: asyncio.Task
 
     def __init__(self, url, k):
         self.url = url
         self.k = k
 
+    @abstractmethod
     def local_run(self, job: dict):
-        current = job.copy()
-        zz, zzGS = single_zz(**current, k=self.k)
-        current.update([("zz", zz), ("zzGS", zzGS)])
-        return current
+        pass
 
     def schedule(self, jobs):
         self.task = asyncio.create_task(self.run_batch_remote(jobs))
@@ -69,16 +68,22 @@ class Handler:
             async with post as response:
                 response = await response.json()
                 return response
-            # try:
-            # except aiohttp.ClientError as e:
-            #     print("Client error: ", e)
-            # except asyncio.TimeoutError as e:
-            #     print("Timeout error", e)
-            # except Exception as e:
-            #     print("Unknown error", e)
+            
+class Handler2T(HandlerBase):
+    def local_run(self, job: dict):
+        current = job.copy()
+        zz, zzGS = zz2T(**current, k=self.k)
+        current.update([("zz", zz), ("zzGS", zzGS)])
+        return current
 
+class Handler3T(HandlerBase):
+    def local_run(self, job: dict):
+        current = job.copy()
+        zz, zzGS = zz3T(**current, k=self.k)
+        current.update([("zz", zz), ("zzGS", zzGS)])
+        return current
 
 if __name__ == "__main__":
-    h = Handler("http://127.0.0.1:81/2T")
+    h = Handler2T("http://127.0.0.1:81/2T", 12)
     d1 = {"Ej1": 1, "Ej2": 1, "Ec2": 1, "Eint": 1}
-    asyncio.run(h.submit([d1 for _ in range(20)], 4, 13))
+    asyncio.run(h.submit([d1 for _ in range(20)], 4))

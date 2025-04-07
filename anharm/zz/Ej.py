@@ -2,7 +2,7 @@ import sympy as sp
 import numpy as np
 from matplotlib import pyplot as plt
 from anharm.Hamiltonian import Hamil
-from exact.twotransmon.zz.sweep import sweep_Ej1
+from exact.twotransmon.zz.zz import sweep_Ej1
 from exact.util import omega_alphas, Eint_to_g_Ej
 
 # Here we compare exact and swt ZZ while sweeping Ej

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from anharm.Hgen import Hgen
-from exact.twotransmon.zz.sweep import sweep_Ej1
+from exact.twotransmon.zz.zz import sweep_Ej1
 import timeit
 
 # This are the parameters which generated the file

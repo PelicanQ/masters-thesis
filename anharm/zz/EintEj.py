@@ -2,7 +2,7 @@ import sympy as sp
 import numpy as np
 from matplotlib import pyplot as plt
 from anharm.Hamiltonian import Hamil
-from exact.twotransmon.zz.sweep import sweep_Eint
+from exact.twotransmon.zz.zz import sweep_Eint
 from exact.util import omega_alphas
 
 # 2D scan of Ej and Eint

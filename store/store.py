@@ -52,7 +52,7 @@ class Store_levels2t:
 
 class Store_zz3t:
     all_keys = ["Ec2", "Ec3", "Ej1", "Ej2", "Ej3", "Eint12", "Eint23", "Eint13"]
-    all_vals = ["zz12", "zz23", "zz13", "zzGS12", "zzGS23", "zzGS13"]
+    all_vals = ["zzGS12", "zzGS23", "zzGS13", "zzzGS"]
     model = ZZ3T
 
     @classmethod
@@ -62,7 +62,7 @@ class Store_zz3t:
             cls.insert(**fields)
 
     @staticmethod
-    def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, zz12, zz23, zz13, zzGS12, zzGS23, zzGS13):
+    def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, zzGS12, zzGS23, zzGS13, zzzGS):
         return ZZ3T.replace(
             Ec2=round(Ec2, 2),
             Ec3=round(Ec3, 2),
@@ -72,12 +72,10 @@ class Store_zz3t:
             Eint12=round(Eint12, 2),
             Eint23=round(Eint23, 2),
             Eint13=round(Eint13, 2),
-            zz12=zz12,
-            zz23=zz23,
-            zz13=zz13,
             zzGS12=zzGS12,
             zzGS23=zzGS23,
             zzGS13=zzGS13,
+            zzzGS=zzzGS,
         ).execute()
 
     @classmethod

@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from exact.twotransmon.zz.sweep import sweep_Ej1
+from exact.twotransmon.zz.zz import sweep_Ej1
 from exact.util import omega_alphas, gconstant
 
 # Ec1 = Ec2 = 1 the unit

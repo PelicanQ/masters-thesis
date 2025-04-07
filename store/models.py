@@ -52,13 +52,10 @@ class ZZ3T(Model):
     Eint23 = DoubleField()
     Eint13 = DoubleField()
 
-    zz12 = DoubleField()
-    zz23 = DoubleField()
-    zz13 = DoubleField()
     zzGS12 = DoubleField()
     zzGS23 = DoubleField()
     zzGS13 = DoubleField()
-    zzz = DoubleField()
+    zzzGS = DoubleField()
 
     class Meta:
         database = db
@@ -67,5 +64,5 @@ class ZZ3T(Model):
 
 
 if __name__ == "__main__":
-    # db.create_tables([ZZ3T])
+    db.create_tables([ZZ3T])
     pass

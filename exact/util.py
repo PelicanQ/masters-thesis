@@ -91,6 +91,13 @@ def index_map(N):
     idx_map = [[j + i * N for j in range(N)] for i in range(N)]
     return idx_map
 
+def index_map3T(N):
+    """
+    map for 3 qubits.
+    """
+    idx_map = [[[j + i * N + k*N**2 for j in range(N)] for i in range(N)] for k in range(N)]
+    return idx_map
+
 
 if __name__ == "__main__":
     ma = [spec.mathieu_a(m, -50 / (2 * 1)) for m in range(20)]
