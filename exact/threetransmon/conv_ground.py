@@ -2,11 +2,32 @@
 import numpy as np
 from exact.threetransmon.hamil import eig_clever
 from matplotlib import pyplot as plt
+from jobmanager.Handler import Handler3TEnergy
+import asyncio
 
-kk = np.arange(5, 15, 1)
 E = []
-for k in kk:
-    vals = eig_clever(1, 1, 50, 50, 50, 0.1, 0.1, 0.1, only_energy=True, k=k)
-    E.append(vals[0])
-plt.plot(kk, vals)
-plt.show()
+H = Handler3TEnergy("http://25.9.103.201:81/3T/energy", [0, 1, 2, 3, 4])
+results = asyncio.run(
+    H.submit(
+        [
+            {
+                "k": k,
+                "Ec2": 1,
+                "Ec3": 1,
+                "Ej1": 50,
+                "Ej2": 50,
+                "Ej3": 50,
+                "Eint12": 0.1,
+                "Eint23": 0.1,
+                "Eint13": 0.1,
+            }
+            for k in np.arange(5, 10, 1).tolist()
+        ],
+        3,
+    )
+)
+for r in results:
+    print(r)
+
+# plt.plot(kk, vals)
+# plt.show()

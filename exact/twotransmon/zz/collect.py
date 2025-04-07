@@ -1,17 +1,19 @@
 import numpy as np
 from jobmanager.Handler import Handler
 from jobmanager.util import collect_jobs
-from store.store import Store_zz2t
+from store.stores import Store_zz2t
 from exact.twotransmon.zz.zz import single_zz
 from matplotlib import pyplot as plt
 import asyncio
+
 
 def local_collect():
     Ejs = np.arange(30, 90, 1)
     jobs = collect_jobs(Ej1=50, Ej2=Ejs, Eint=0.1, Ec2=1)
     for job in jobs:
-        zz,zzGS = single_zz(**job, k=12)
+        zz, zzGS = single_zz(**job, k=12)
         Store_zz2t.insert(**job, zz=zz, zzGS=zzGS)
+
 
 if __name__ == "__main__":
     Ejs = np.arange(30, 90, 1).tolist()  # numpy types cannot be json serialized
@@ -22,7 +24,6 @@ if __name__ == "__main__":
     r = asyncio.run(H.submit(jobs, batch_size=50))
     Store_zz2t.insert_many(r)
     print("Done inserting")
-
 
 
 def plane():

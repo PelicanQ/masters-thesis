@@ -1,7 +1,7 @@
 from analysis.plot import grid3d
 from exact.twotransmon.hamil import eig_clever
 import numpy as np
-from store.store import Store_levels2t
+from store.stores import Store_levels2t
 
 # now we check the lowest levels for some Eint
 k = 13

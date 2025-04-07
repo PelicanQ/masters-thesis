@@ -1,6 +1,6 @@
 # Here we manage numeric jobs
 from exact.twotransmon.zz.zz import single_zz as zz2T
-from exact.threetransmon.zz.zz import single_zz as zz3T
+from exact.threetransmon.zz.zz import single_zz as zz3T, single_zz_energy as zz3T_energy
 import aiohttp
 import asyncio
 import timeit
@@ -10,9 +10,8 @@ from abc import abstractmethod
 class HandlerBase:
     task: asyncio.Task
 
-    def __init__(self, url, k):
+    def __init__(self, url):
         self.url = url
-        self.k = k
 
     @abstractmethod
     def local_run(self, job: dict):
@@ -65,7 +64,7 @@ class HandlerBase:
         # send a batch of jobs to remote server, await, then return results
         # this method should include retries
         async with aiohttp.ClientSession() as session:
-            post = session.post(self.url, json={"jobs": jobs, "k": self.k})
+            post = session.post(self.url, json={"jobs": jobs, "level_select": self.level_select})
             async with post as response:
                 response = await response.json()
                 return response
@@ -74,20 +73,32 @@ class HandlerBase:
 class Handler2T(HandlerBase):
     def local_run(self, job: dict):
         current = job.copy()
-        zz, zzGS = zz2T(**current, k=self.k)
+        zz, zzGS = zz2T(**current)
         current.update([("zz", zz), ("zzGS", zzGS)])
+        return current
+
+
+class Handler3TEnergy(HandlerBase):
+    def __init__(self, url, level_select):
+        super().__init__(url)
+        self.level_select = level_select
+
+    def local_run(self, job: dict):
+        current = job.copy()
+        levels = zz3T_energy(**current)
+        current.update(("levels", levels[self.level_select]))
         return current
 
 
 class Handler3T(HandlerBase):
     def local_run(self, job: dict):
         current = job.copy()
-        zz12, zz23, zz13, zzz = zz3T(**current, k=self.k)
+        zz12, zz23, zz13, zzz = zz3T(**current)
         current.update([("zzGS12", zz12), ("zzGS23", zz23), ("zzGS13", zz13), ("zzzGS", zzz)])
         return current
 
 
 if __name__ == "__main__":
     h = Handler2T("http://127.0.0.1:81/2T", 12)
-    d1 = {"Ej1": 1, "Ej2": 1, "Ec2": 1, "Eint": 1}
-    asyncio.run(h.submit([d1 for _ in range(20)], 4))
+    d1 = {"Ej1": 1, "Ej2": 1, "Ec2": 1, "Eint": 1, "k": 10}
+    asyncio.run(h.submit([d1 for _ in range(20)]))

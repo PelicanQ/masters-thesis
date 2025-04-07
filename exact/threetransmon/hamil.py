@@ -3,6 +3,7 @@ import numpy as np
 import cupy as cp
 from matplotlib import pyplot as plt
 import scipy.linalg as spalg
+from numpy.typing import NDArray
 
 
 def kron(*mats):
@@ -13,7 +14,9 @@ def kron(*mats):
 
 
 # this is the good one now
-def eig_clever(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=12):
+def eig_clever(
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=12
+) -> tuple[NDArray, NDArray] | NDArray:
     """
     k controls how many transmon eigenstates are included per qubit
     units of Ec1

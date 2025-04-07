@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 from exact.twotransmon.zz.zz import single_zz as zz2T
-from exact.threetransmon.zz.zz import single_zz as zz3T
+from exact.threetransmon.zz.zz import single_zz as zz3T, single_zz_energy as zz3T_energy
 import time
 
 app = FastAPI()
@@ -30,6 +30,7 @@ class Result2T(BaseModel):
     zz: float
     zzGS: float
 
+
 class Job3T(BaseModel):
     Ec2: float
     Ec3: float
@@ -39,11 +40,28 @@ class Job3T(BaseModel):
     Eint12: float
     Eint23: float
     Eint13: float
+    k: int
+
+
+class Data3TEnergy(BaseModel):
+    jobs: list[Job3T]
+    level_select: list[int]
 
 
 class Data3T(BaseModel):
     jobs: list[Job3T]
-    k: int
+
+
+class Result3TEnergy(BaseModel):
+    Ec2: float
+    Ec3: float
+    Ej1: float
+    Ej2: float
+    Ej3: float
+    Eint12: float
+    Eint23: float
+    Eint13: float
+    levels: list[float]
 
 
 class Result3T(BaseModel):
@@ -66,30 +84,34 @@ def hello():
     return "Hello!"
 
 
+@app.post("/3T/energy", response_model=list[Result3TEnergy])
+def three(data: Data3TEnergy):
+    resp = []
+    t1 = time.perf_counter()
+    print("Recieved jobs: ", len(data.jobs))
+    for job in data.jobs:
+        dic = job.model_dump()
+        levels = zz3T_energy(**dic)
+        resp.append(levels[data.level_select])
+    print("Time taken:", time.perf_counter() - t1)
+    return resp
+
+
 @app.post("/3T", response_model=list[Result3T])
 def three(data: Data3T):
     resp = []
-    t1 = time.time()
+    t1 = time.perf_counter()
     if data.k < 1:
         raise HTTPException("k parameter too small")
     print("Recieved jobs: ", len(data.jobs))
     for job in data.jobs:
-        zz12,zz23,zz13, zzz = zz3T(
-            Ej1=job.Ej1,
-            Ej2=job.Ej2,
-            Ej3=job.Ej3,
-            Ec2=job.Ec2,
-            Ec3=job.Ec3,
-            Eint12=job.Eint12,
-            Eint23=job.Eint23,
-            Eint13=job.Eint13,
-            k=data.k,
-        )
         dic = job.model_dump()
-        dic.update([("zzGS12", zz12), ("zzGS23", zz23),("zzGS13", zz13),("zzzGS", zzz)])
+        zz12, zz23, zz13, zzz = zz3T(**dic)
+        dic.update([("zzGS12", zz12), ("zzGS23", zz23), ("zzGS13", zz13), ("zzzGS", zzz)])
         resp.append(dic)
-    print("Time taken:", time.time() - t1)
+    print("Time taken:", time.perf_counter() - t1)
     return resp
+
 
 @app.post("/2T", response_model=list[Result2T])
 def two(data: Data2T):

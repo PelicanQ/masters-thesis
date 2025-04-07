@@ -59,6 +59,7 @@ class Store_zz3t:
     def insert_many(cls, results: list[dict]):
         for res in results:
             fields = [(field, res[field]) for field in (cls.all_keys + cls.all_vals)]
+            # this selection excludes k. We don't insert k
             cls.insert(**dict(fields))
 
     @staticmethod
