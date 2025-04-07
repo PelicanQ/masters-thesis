@@ -19,4 +19,4 @@ def task(size):
 
 t = timeit.timeit(lambda: task(10000), setup=lambda: task(10000),number=6)
 print("time:",t)
-# desktop: 54.6
+# desktop: 54.6 seconds

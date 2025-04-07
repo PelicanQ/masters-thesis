@@ -1,6 +1,6 @@
 # This server should recieve batches of parameters, run eigensolver and return the batch
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
 from exact.twotransmon.zz.sweep import single_zz
@@ -36,6 +36,8 @@ def hello():
 def route(data: Data):
     resp = []
     t1 = time.time()
+    if data.k < 1:
+        raise HTTPException("k parameter too small")
     print("Recieved jobs: ", len(data.jobs))
     for job in data.jobs:
         zz, zzGS = single_zz(
@@ -48,7 +50,6 @@ def route(data: Data):
         dic = job.model_dump()
         dic.update([("zz", zz), ("zzGS", zzGS)])
         resp.append(dic)
-    print(resp)
     print("Time taken:", time.time() - t1)
     return resp
 
