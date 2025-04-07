@@ -2,6 +2,13 @@ import numpy as np
 import itertools
 import networkx as nx
 import sympy as sp
+import re
+
+
+def extract_subscript(text):
+    """Extract subscript of a symbol name"""
+    pattern = re.escape("{") + r"(.*?)" + re.escape("}")
+    return re.findall(pattern, text)[0]
 
 
 def num2state(i, statesperbit, numbits):
@@ -43,9 +50,7 @@ def proc(mat_in: sp.Matrix, numbits: int, statesperbit: int, maxsum: int):
             i += 1
 
     basisnames = []
-    exc_subspaces = [
-        [] for _ in range(maxsum + 1)
-    ]  # element i contains hamiltonian indices for states with sum i
+    exc_subspaces = [[] for _ in range(maxsum + 1)]  # element i contains hamiltonian indices for states with sum i
 
     for comb in itertools.product(range(statesperbit), repeat=numbits):
         # product returns with the "natural counting" order
@@ -53,9 +58,7 @@ def proc(mat_in: sp.Matrix, numbits: int, statesperbit: int, maxsum: int):
         if summ > maxsum:
             continue
         basisnames.append("".join(map(str, comb)))
-        exc_subspaces[summ].append(
-            len(basisnames) - 1
-        )  # the latest index is added to its exc subspace
+        exc_subspaces[summ].append(len(basisnames) - 1)  # the latest index is added to its exc subspace
 
     return mat, basisnames, exc_subspaces
 
@@ -93,14 +96,8 @@ def proc_subspace(mat: sp.Matrix, excitation: int, numbits: int, statesperbit: i
 def subspace(summ: int, mid: complex, rad: float) -> list[tuple[str, complex]]:
     # return list of all ("12", 1+1j) in an excitation subspace
     interior_angle = (N - 2) * np.pi / N
-    combinations = [
-        comb
-        for comb in itertools.product(range(summ + 1), repeat=N)
-        if sum(comb) == summ
-    ]
-    lattice_vecs = [
-        rad * np.exp(1j * (-interior_angle / 2 + k * 2 * np.pi / N)) for k in range(N)
-    ]
+    combinations = [comb for comb in itertools.product(range(summ + 1), repeat=N) if sum(comb) == summ]
+    lattice_vecs = [rad * np.exp(1j * (-interior_angle / 2 + k * 2 * np.pi / N)) for k in range(N)]
     # lattice_vecs[1] *= 1.1
     nodes = []
     for i, comb in enumerate(combinations):

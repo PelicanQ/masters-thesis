@@ -41,17 +41,20 @@ def calc_eig(Ej, Eint=1, k=20):
 
 
 # this is the good one now
-def eig_clever(Ej1, k, Ej2, Eint, only_energy=False, ng1=0):
-    # ng2=0
-    # k controls how many transmon eigenstates are included per qubit
-    # delta: detuning. Ec1=Ec2=1, units of Ec
-    # returns eigenvalues and eigenvectors in bare basis
+def eig_clever(Ej1, Ej2, Eint, Ec2=1, only_energy=False, ng1=0, k=15):
+    """
+    k controls how many transmon eigenstates are included per qubit
+    ng2=0
+    delta: detuning. units of Ec1
+    Returns:
+        eigenvalues and eigenvectors in bare basis
+    """
 
-    C = 400  # charge trunc, I have done zero investigation to convergence wrt this param
+    C = 200  # charge trunc, I have done zero investigation to convergence wrt this param
     nstates = np.arange(-C, C + 1, step=1)
 
     vals1, vecs1 = spalg.eigh_tridiagonal(np.square(nstates - ng1) * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
-    vals2, vecs2 = spalg.eigh_tridiagonal(np.square(nstates) * 4 * 1, -np.ones(2 * C) * Ej2 / 2)
+    vals2, vecs2 = spalg.eigh_tridiagonal(np.square(nstates) * 4 * Ec2, -np.ones(2 * C) * Ej2 / 2)
 
     i1 = np.sum(np.imag(vecs1))
     i2 = np.sum(np.imag(vecs1))
@@ -82,8 +85,5 @@ def eig_clever(Ej1, k, Ej2, Eint, only_energy=False, ng1=0):
 
     vals, vecs = cp.linalg.eigh(H)
 
-    # index this map as map[i][j] to get H index for state |ij>
-    idx_map = [[j + i * N for j in range(N)] for i in range(N)]
-
     # return eigenvalues and vectors, order will be "kronecker counting"
-    return cp.asnumpy(vals), cp.asnumpy(vecs), idx_map
+    return cp.asnumpy(vals), cp.asnumpy(vecs)

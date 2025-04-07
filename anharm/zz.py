@@ -14,12 +14,7 @@ def zzorder2(alpha1, alpha2, g, delta):
 @np.vectorize
 def zzorder4(alpha1, alpha2, g, delta):
     simpleedge = 4 * g**4 * (1 / (delta + alpha1) ** 3 - 1 / (delta - alpha2) ** 3)
-    edge2 = (
-        4
-        * g**4
-        / ((delta + alpha1) * (delta - alpha2))
-        * (1 / (delta - alpha2) - 1 / (delta + alpha1))
-    )
+    edge2 = 4 * g**4 / ((delta + alpha1) * (delta - alpha2)) * (1 / (delta - alpha2) - 1 / (delta + alpha1))
     return simpleedge + edge2
 
 

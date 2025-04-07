@@ -1,5 +1,5 @@
 from .hamil import calc_eig
-from sim_store.analysis.levels import grid_plot, grid_plot2d
+from analysis.levels import grid_plot, grid_plot2d
 from matplotlib import pyplot as plt
 import numpy as np
 

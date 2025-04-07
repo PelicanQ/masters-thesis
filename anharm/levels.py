@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from diagrams import Hamil
+from anharm.Subspace import Hamil
 import sympy as sp
 import cupy as cp
 import pandas as pd

@@ -1,5 +1,5 @@
 from pathlib import Path
-from sim_store.analysis import ground, conv, levels
+from analysis import ground, conv, levels
 from sim_store.store import Store
 
 # Zero level convergence

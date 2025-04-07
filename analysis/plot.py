@@ -2,6 +2,13 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 
+def plot(x, y, xlabel, ylabel, title=""):
+    plt.plot(x, y)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+
+
 def num2shape(num):
     match num:
         case 2:

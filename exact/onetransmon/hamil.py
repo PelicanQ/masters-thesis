@@ -2,18 +2,14 @@
 
 import numpy as np
 import cupy as cp
-from scipy import linalg, integrate
-from matplotlib import pyplot as plt
-from matplotlib.axes import Axes
+from scipy import linalg
 
 
 # matrix for DC-SQUID in basis of number operator eigenbasis
 
 
 def Hgen(ng, ratio, k=60):
-    nstates = np.arange(
-        -k, k + 1, step=1
-    )  # (-k .. -1, 0, 1 .. k) is our order of basis
+    nstates = np.arange(-k, k + 1, step=1)  # (-k .. -1, 0, 1 .. k) is our order of basis
     Ec = 1
     # this matrix is normalized to Ec (Ec must equal 1)
     Ej = Ec * ratio
@@ -28,9 +24,7 @@ def calc_eigs(ratio, ng, k=60):
     # return only eigenvalues
 
     H = Hgen(ng, ratio, k)
-    H = cp.asarray(H)
-    eig = cp.linalg.eigvalsh(H)
-    eig = cp.asnumpy(eig)
+    eig = linalg.eigvalsh_tridiagonal(H.diagonal(), H.diagonal(1))
     sorted = np.sort(eig)
 
     return sorted
@@ -48,9 +42,7 @@ ngs = np.linspace(-2, 2, N)  # list of ng values
 
 def ng_sweep(ratio, k=60):
     # return eigenvalues vs ng
-    evals = np.empty(
-        shape=(2 * k + 1, N)
-    )  # column = ng value, row = n:th eig. 0th row should be smallest eigenvalue
+    evals = np.empty(shape=(2 * k + 1, N))  # column = ng value, row = n:th eig. 0th row should be smallest eigenvalue
 
     for i, ng in enumerate(ngs):
         H = Hgen(ng, ratio, k)

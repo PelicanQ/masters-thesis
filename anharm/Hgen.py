@@ -8,7 +8,7 @@ def getHintLine(a, c, numbits, statesperbit):
     Hint = Matrix.zeros(statesperbit**numbits)
     I = Matrix.eye(statesperbit)
     gs = []
-    for i in range(numbits):
+    for i in range(numbits - 1):
         seq = [a + c if k == i or k == i + 1 else I for k in range(numbits)]
         g = Symbol(f"g_{{{i},{i+1}}}")
         gs.append(g)
@@ -80,8 +80,8 @@ def Hbare(i: int, statesperbit=None, a=None, c=None):
     if a == None or c == None:
         a, c = anhicreat(statesperbit)
 
-    omega = Symbol(rf"\omega_{i}")
-    alpha = Symbol(rf"\alpha_{i}")
+    omega = Symbol(rf"\omega_{{{i}}}")
+    alpha = Symbol(rf"\alpha_{{{i}}}")
     H = (
         (omega * c * a)
         + alpha / 2 * (c * c * a * a)
@@ -96,6 +96,7 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
     """
     Returns:
         sympy symbolic Hamiltonian
+        symbols in order omegas, alphas, gs
     """
     I = Matrix.eye(statesperbit)
     a = sp.MutableDenseMatrix(statesperbit, statesperbit, lambda i, j: sp.sqrt(j) if j == i + 1 else 0)
@@ -105,16 +106,20 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
         seq = [Hbare(i, a=a, c=c) if i == k else I for k in range(numbits)]
         Hbaretot += kronecker_product(*seq)
 
-    if layout == "line":
-        Hint, moresymbols = getHintLine(a, c, numbits, statesperbit)
-    elif layout == "grid":
-        Hint, moresymbols = getHintGrid(a, c, numbits, statesperbit)
-    elif layout == "triang":
-        Hint, moresymbols = getHintTriang(a, c, numbits, statesperbit)
-    else:
-        raise Exception("Unrecognized layout")
-    symbols = [Symbol(rf"\omega_{i}") for i in range(numbits)]  # order is important
-    symbols.extend([Symbol(rf"\alpha_{i}") for i in range(numbits)])
-    symbols.extend(moresymbols)
-    Htot: sp.Matrix = Hbaretot + Hint
+    symbols = [Symbol(rf"\omega_{{{i}}}") for i in range(numbits)]  # order is important
+    symbols.extend([Symbol(rf"\alpha_{{{i}}}") for i in range(numbits)])
+
+    Htot: sp.Matrix = Hbaretot
+    if numbits >= 2:
+        if layout == "line":
+            Hint, moresymbols = getHintLine(a, c, numbits, statesperbit)
+        elif layout == "grid":
+            Hint, moresymbols = getHintGrid(a, c, numbits, statesperbit)
+        elif layout == "triang":
+            Hint, moresymbols = getHintTriang(a, c, numbits, statesperbit)
+        else:
+            raise Exception("Unrecognized layout")
+        symbols.extend(moresymbols)
+        Htot += Hint
+
     return Htot, symbols

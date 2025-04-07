@@ -7,3 +7,5 @@ __hamilcache__
 *.tsv
 *.mw
 *.npy
+/db.db
+/.env

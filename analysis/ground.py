@@ -3,6 +3,7 @@ import numpy as np
 from ..store import Store
 
 
+# this uses a Store
 def E0(store: Store, Ej_indices: list[int, int, int, int]):
     # Zero level convergence for four Ejs
     # check length compatible
@@ -33,8 +34,6 @@ def E0(store: Store, Ej_indices: list[int, int, int, int]):
         # plt.tight_layout(pad=0.7)  # Adjust the padding between plots
 
     # plt.subplots_adjust(top=0.85)  # Adjust the top to make space for suptitle
-    plt.suptitle(
-        f"Convergence of ground level for varying Ej, dashed low_cut at k={kk[low_cut]}"
-    )
+    plt.suptitle(f"Convergence of ground level for varying Ej, dashed low_cut at k={kk[low_cut]}")
 
     plt.show()

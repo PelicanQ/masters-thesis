@@ -1,30 +1,28 @@
-from sim_store.analysis.conv import grid3d
-from .hamil import calc_eig
+from analysis.plot import grid3d
+from exact.twotransmon.hamil import eig_clever
 import numpy as np
+from store.store import Store_levels2t
 
 # now we check the lowest levels for some Eint
-k = 25
-collection = []
-level_select = [1, 2, 3, 4, 5, 6]
-Ejs = [1, 10, 100]
-Eints = np.arange(0, 1.5, step=0.02)
-
-for j, Ej in enumerate(Ejs):
-    levels = np.zeros(shape=(len(level_select), len(Eints)))
-    levels[:] = np.nan
-    for i, Eint in enumerate(Eints):
-        vals = calc_eig(Ej=Ej, Eint=Eint, k=25)
-        levels[:, i] = vals[level_select] - vals[0]
-    collection.append(levels)
-
-grid3d(
-    xx=Eints,
-    collection=collection,
-    params=Ejs,
-    param_name="Ej",
-    suptitle=f"How do levels vary with Eint?, k={k}",
-    xlabel="Eint",
-    ylabel="En(k)-E0(k)",
-    labels=[f"E{l}" for l in level_select],
-    marker=None,
-)
+k = 13
+Ejs = np.arange(30, 90, 2)
+Ecs = np.arange(0.2, 1.5, 0.1)
+# Ejs = np.arange(30, 90, 2)
+# Ecs = np.arange(0.2, 1.5, 0.1)
+Ej2 = 50
+Eint = 0.1
+for j, Ej1 in enumerate(Ejs):
+    for i, Ec2 in enumerate(Ecs):
+        vals = eig_clever(Ej1=Ej1, Ej2=Ej2, Eint=Eint, Ec2=Ec2, k=k, only_energy=True)
+        Store_levels2t.insert(Ej1=Ej1, Ej2=Ej2, Eint=Eint, Ec2=Ec2, levels=vals[:8])
+# grid3d(
+#     xx=Eints,
+#     collection=collection,
+#     params=Ejs,
+#     param_name="Ej",
+#     suptitle=f"How do levels vary with Eint?, k={k}",
+#     xlabel="Eint",
+#     ylabel="En(k)-E0(k)",
+#     labels=[f"E{l}" for l in level_select],
+#     marker=None,
+# )

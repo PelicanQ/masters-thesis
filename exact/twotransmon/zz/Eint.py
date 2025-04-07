@@ -2,8 +2,9 @@ from ..hamil import eig_clever
 import numpy as np
 from matplotlib import pyplot as plt
 from ..gale_shapley import state_assignment
-from sim_store.analysis.plot import grid_plot2d
+from analysis.plot import grid_plot2d
 
+# here we sweep Eint also
 Ej1s = np.arange(10, 80, 1)
 k = 12
 Eints = [0.01, 0.05, 0.1, 0.5]
