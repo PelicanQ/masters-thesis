@@ -8,8 +8,12 @@ import time
 def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=12):
     N = 2 * k + 1  # transmon states per subspace
     idx_map = index_map3T(N)
+    t1 = time.perf_counter()
     levels, vecs = eig_clever(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k)
-    bare_to_dressed_index, _ = state_assignment(eigen_states=vecs)
+    t2 = time.perf_counter()
+    print("Eig: ", t2 - t1)
+    bare_to_dressed_index = state_assignment(eigen_states=vecs)
+    print("Gale: ", time.perf_counter() - t2)
     btd = bare_to_dressed_index  # maps bare hamil index to index in vecs/levels of dressed state
 
     def gslevel(n1, n2, n3):

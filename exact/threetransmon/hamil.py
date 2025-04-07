@@ -34,7 +34,6 @@ def eig_clever(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=Fals
     D3 = cp.diag(vals3[:N])
 
     n1 = np.diag(nstates)
-
     n1 = vecs1.T @ n1 @ vecs1  # change into transmon bare basis
     n2 = vecs2.T @ n1 @ vecs2
     n3 = vecs3.T @ n1 @ vecs3

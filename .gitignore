@@ -9,3 +9,4 @@ __hamilcache__
 *.npy
 /db.db
 /.env
+/pypy
