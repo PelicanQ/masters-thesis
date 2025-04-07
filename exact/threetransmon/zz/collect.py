@@ -15,6 +15,9 @@ def local_collect():
         # For 3T I only do GS so it's implicit
         Store_zz3t.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
 
+# using numba enhances gale shapely
+# Laptop: Total 15.8. Eig 14.7 Gale 0.7
+# runpod  SXM: Total 1.7. Eig 1.1 Gale 0.49
 
 def collect():
     Ejs = np.arange(30, 90, 0.5).tolist()  # numpy types cannot be json serialized
