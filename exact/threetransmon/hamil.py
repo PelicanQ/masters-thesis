@@ -24,7 +24,7 @@ def eig_clever(
         eigenvalues and eigenvectors in bare basis
     """
 
-    C = 200  # charge trunc, I have done zero investigation to convergence wrt this param
+    C = 100  # charge trunc, I have done zero investigation to convergence wrt this param
     nstates = np.arange(-C, C + 1, step=1)
     ndiag = np.square(nstates)
     vals1, vecs1 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej1 / 2)

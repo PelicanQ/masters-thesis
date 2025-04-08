@@ -6,15 +6,15 @@ from jobmanager.Handler import Handler3TEnergy
 import asyncio
 import time
 
-level_select = np.arange(0, 30, 1)
+level_select = np.arange(0, 50, 1)
 # level_select = [0, 1, 2, 3, 4, 10, 20, 30, 40, 50]
-kk = np.arange(5, 15, 1)
+kk = np.arange(5, 16, 1)
 Ej1 = 50
-Ej2 = 60
+Ej2 = 55
 Ej3 = 45
-Eint12 = 0.2
-Eint23 = 0.3
-Eint13 = 0.3
+Eint12 = 0.02
+Eint23 = 0.02
+Eint13 = 0.02
 
 
 def save(results):
@@ -39,8 +39,8 @@ def local_collect():
         levels = single_zz_energy(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k)
         print(f"Time: ", time.perf_counter() - t)
         Es[:, i] = levels[level_select]
-    np.save("3Tkconv_kk_dense", ks)
-    np.save("3Tkconv_Es_dense", Es)
+    np.save("3Tkconv_kk_dense2", ks)
+    np.save("3Tkconv_Es_dense2", Es)
 
 
 # 3T energy time: (k, laptop time): (8,2) (9,3) (10, 8) (11, 26) (12, 317)
@@ -67,26 +67,33 @@ def collect_kk():
     save(results)
 
 
-# def deltas():
-#     kk = np.load("3Tkconv_kk2.npy")
-#     Es = np.load("3Tkconv_Es2.npy")  # along one row is E vs k
+def deltas():
+    kk = np.load("3Tkconv_kk_dense.npy")
+    Es = np.load("3Tkconv_Es_dense.npy")  # along one row is E vs k
+    Erel = Es - Es[0, :]
+    for i in range(30):
+        plt.plot(kk, Erel[i, :])
+        # plt.title("Lowest 10 deltas [Ec1]")
+        plt.xlabel("k")
+    plt.show()
 
-#     for i in range(len(Es)):
-#         plt.plot(kk, Erel[i, :])
-#         plt.title(f"Level {level_select[i]} [Ec1]")
-#         plt.xlabel("k")
-#     plt.show()
+
+def a():
+    kk = np.load("3Tkconv_kk2.npy")
+    Es = np.load("3Tkconv_Es2.npy")  # along one row is E vs k
+    Erel = Es - Es[0, :]  # relative ground
+
+    for i in range(len(Es)):
+        plt.figure()
+        plt.plot(kk, Erel[i, :])
+        plt.title(f"Level {level_select[i]} [Ec1]")
+        plt.xlabel("k")
+    plt.show()
 
 
 if __name__ == "__main__":
+    # deltas()
     local_collect()
-    # kk = np.load("3Tkconv_kk2.npy")
-    # Es = np.load("3Tkconv_Es2.npy")  # along one row is E vs k
-    # Erel = Es  # - Es[0, :]  # relative ground
+    # a()
 
-    # for i in range(len(Es)):
-    #     plt.figure()
-    #     plt.plot(kk, Erel[i, :])
-    #     plt.title(f"Level {level_select[i]} [Ec1]")
-    #     plt.xlabel("k")
-    # plt.show()
+    pass
