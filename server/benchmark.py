@@ -25,10 +25,11 @@ def task(size):
 
 
 t = timeit.timeit(lambda: cpu(2000), setup=lambda: cpu(2000), number=6)
+# This may not be accurate time measuremnet!
+# Consider synchronizing gpu and perf_counter or just cupyx benchmark
 # CPU 2000x2000:
 # laptop 4.1
 # H100 SXM 12.9 11.1 9.5 9.7
-
 
 # GPU 10'000 x 10'000
 # t = timeit.timeit(lambda: task(10000), setup=lambda: task(10000), number=6)
