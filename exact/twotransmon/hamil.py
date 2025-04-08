@@ -41,16 +41,16 @@ def calc_eig(Ej, Eint=1, k=20):
 
 
 # this is the good one now
-def eig_clever(Ej1, Ej2, Eint, Ec2=1, only_energy=False, ng1=0, k=15):
+def eig_clever(Ej1, Ej2, Eint, Ec2=1, only_energy=False, ng1=0, k=15, C=200):
     """
     k controls how many transmon eigenstates are included per qubit
+    C: charge trunc
     ng2=0
     delta: detuning. units of Ec1
     Returns:
         eigenvalues and eigenvectors in bare basis
     """
 
-    C = 200  # charge trunc, I have done zero investigation to convergence wrt this param
     nstates = np.arange(-C, C + 1, step=1)
 
     vals1, vecs1 = spalg.eigh_tridiagonal(np.square(nstates - ng1) * 4 * 1, -np.ones(2 * C) * Ej1 / 2)

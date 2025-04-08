@@ -15,16 +15,16 @@ def kron(*mats):
 
 # this is the good one now
 def eig_clever(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=12
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, C=20
 ) -> tuple[NDArray, NDArray] | NDArray:
     """
-    k controls how many transmon eigenstates are included per qubit
+    k: controls how many transmon eigenstates are included per qubit
+    C: charge truncation
     units of Ec1
     Returns:
         eigenvalues and eigenvectors in bare basis
     """
 
-    C = 100  # charge trunc, I have done zero investigation to convergence wrt this param
     nstates = np.arange(-C, C + 1, step=1)
     ndiag = np.square(nstates)
     vals1, vecs1 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
@@ -36,10 +36,10 @@ def eig_clever(
     D2 = cp.diag(vals2[:N])
     D3 = cp.diag(vals3[:N])
 
-    n1 = np.diag(nstates)
-    n1 = vecs1.T @ n1 @ vecs1  # change into transmon bare basis
-    n2 = vecs2.T @ n1 @ vecs2
-    n3 = vecs3.T @ n1 @ vecs3
+    ndiag = np.diag(nstates)
+    n1 = vecs1.T @ ndiag @ vecs1  # change into transmon bare basis
+    n2 = vecs2.T @ ndiag @ vecs2
+    n3 = vecs3.T @ ndiag @ vecs3
 
     n1 = cp.asarray(n1[:N, :N])  # truncate
     n2 = cp.asarray(n2[:N, :N])
@@ -52,8 +52,6 @@ def eig_clever(
     Hint13 = 4 * Eint13 * kron(n1, ID, n3)
 
     H = kron(D1, ID, ID) + kron(ID, D2, ID) + kron(ID, ID, D3) + Hint12 + Hint23 + Hint13
-
-    # H = cp.asarray(H)
 
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
