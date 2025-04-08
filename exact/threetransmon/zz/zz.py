@@ -5,12 +5,12 @@ from exact.util import index_map3T
 import time
 
 
-def single_zz_energy(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=12):
-    t1 = time.perf_counter()
-    print("start eig")
+def single_zz_energy(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=8):
+    # t1 = time.perf_counter()
+    # print("start eig")
     levels = eig_clever(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k, only_energy=True)
-    t2 = time.perf_counter()
-    print("Eig: ", t2 - t1)
+    # t2 = time.perf_counter()
+    # print("Eig: ", t2 - t1)
     return levels
 
 

@@ -63,8 +63,11 @@ class HandlerBase:
     async def run_batch_remote(self, jobs: list[dict]):
         # send a batch of jobs to remote server, await, then return results
         # this method should include retries
+        json = {"jobs": jobs}
+        if hasattr(self, "level_select"):
+            json["level_select"] = self.level_select
         async with aiohttp.ClientSession() as session:
-            post = session.post(self.url, json={"jobs": jobs, "level_select": self.level_select})
+            post = session.post(self.url, json=json)
             async with post as response:
                 response = await response.json()
                 return response
@@ -91,6 +94,14 @@ class Handler3TEnergy(HandlerBase):
 
 
 class Handler3T(HandlerBase):
+    async def test_remote(self):
+        print("Testing remote")
+        res = await self.run_batch_remote(
+            [{"k": 2, "Ec2": 1, "Ec3": 1, "Ej1": 50, "Ej2": 50, "Ej3": 50, "Eint12": 0.1, "Eint23": 0.1, "Eint13": 0.1}]
+        )
+        print("Remote done")
+        return res
+
     def local_run(self, job: dict):
         current = job.copy()
         zz12, zz23, zz13, zzz = zz3T(**current)

@@ -13,6 +13,8 @@ print(f"Multiprocessors: {props['multiProcessorCount']}")
 print(f"Compute Capability: {props['major']}.{props['minor']}")
 print(f"Clock Rate: {props['clockRate'] / 1e3:.0f} MHz")
 
+print(props.keys())
+
 
 def cpu(size):
     a = np.random.rand(size, size)
@@ -24,7 +26,7 @@ def task(size):
     cp.linalg.eigh(cp.asarray(a))
 
 
-t = timeit.timeit(lambda: cpu(2000), setup=lambda: cpu(2000), number=6)
+# t = timeit.timeit(lambda: cpu(2000), setup=lambda: cpu(2000), number=6)
 # This may not be accurate time measuremnet!
 # Consider synchronizing gpu and perf_counter or just cupyx benchmark
 # CPU 2000x2000:
@@ -33,7 +35,7 @@ t = timeit.timeit(lambda: cpu(2000), setup=lambda: cpu(2000), number=6)
 
 # GPU 10'000 x 10'000
 # t = timeit.timeit(lambda: task(10000), setup=lambda: task(10000), number=6)
-print("time:", t)
+# print("time:", t)
 # desktop: 54.6 s
 # laptop 101.5 s
 # PodRun:
