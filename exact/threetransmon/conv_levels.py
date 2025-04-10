@@ -1,6 +1,5 @@
 # let's see when the ground level stablizes with k. I wanna keep k low due to slow numerics
 import numpy as np
-from exact.threetransmon.zz.zz import single_zz_energy
 from exact.threetransmon.hamil import eig_clever
 from matplotlib import pyplot as plt
 from jobmanager.Handler import Handler3TEnergy
@@ -81,7 +80,7 @@ def local_collect():
     for i, k in enumerate(kk):
         ks[i] = k
         t = time.perf_counter()
-        levels = single_zz_energy(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k)
+        levels = eig_clever(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k, only_energy=True)
         print(f"Time: ", time.perf_counter() - t)
         Es[:, i] = levels[level_select]
     np.save("3Tkconv_kk_dense2", ks)

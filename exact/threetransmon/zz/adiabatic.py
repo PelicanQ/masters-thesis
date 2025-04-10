@@ -1,5 +1,5 @@
 # in the case of line layout, equal Ej1,3 and good bit lower Ej2, this is the bare ordering
-from exact.threetransmon.hamil import eig_clever_chargetrunc
+from exact.threetransmon.hamil import eig_excitation_trunc
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -9,7 +9,7 @@ r23 = []
 r13 = []
 rzzz = []
 for Ej in Ejs:
-    levels = eig_clever_chargetrunc(1, 1, Ej, 50, 52, 0.1, 0.1, 0.1, only_energy=True)
+    levels, _ = eig_excitation_trunc(1, 1, Ej, 50, 52, 0.1, 0.1, 0.1, only_energy=True)
     levels = levels - levels[0]
     zz12 = levels[5] - (levels[1] + levels[2])
     zz23 = levels[9] - (levels[2] + levels[3])
