@@ -7,8 +7,8 @@ def make_axslid(x, y):
     return plt.axes([x, y, sliderwidth, 0.03])
 
 
-def makeslid(ax_slid, name, init):
-    return Slider(ax_slid, name, init - 2, init + 2, valinit=init)
+def makeslid(ax_slid, name, init, step, space: int = 2):
+    return Slider(ax_slid, name, init - space, init + space, valinit=init, valstep=step)
 
 
 def makeline(height, col, state: str, bare: bool = False):

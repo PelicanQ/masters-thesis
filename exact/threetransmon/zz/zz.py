@@ -14,7 +14,7 @@ def single_zz_energy(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=8):
     return levels
 
 
-def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=12):
+def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=8):
     N = 2 * k + 1  # transmon states per subspace
     idx_map = index_map3T(N)
     t1 = time.perf_counter()
