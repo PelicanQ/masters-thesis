@@ -85,7 +85,8 @@ class Store_zz3t:
             cls.insert(**dict(fields))
 
     @staticmethod
-    def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, zzGS12, zzGS23, zzGS13, zzzGS):
+    def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, zzGS12, zzGS23, zzGS13, zzzGS, k=None):
+        # accept k parameter but ignore
         return ZZ3T.replace(
             Ec2=round(Ec2, 2),
             Ec3=round(Ec3, 2),

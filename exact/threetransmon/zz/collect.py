@@ -9,14 +9,26 @@ import time
 
 
 def local_collect():
-    Ejs = np.arange(30, 90, 0.5).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2, k=10)
-    for job in jobs:
-        t = time.perf_counter()
+    Ejs = np.arange(40, 55, 0.5).tolist()  # numpy types cannot be json serialized
+
+    jobs = collect_jobs(
+        Ec2=1,
+        Ec3=1,
+        Ej1=Ejs,
+        Ej2=50,
+        Ej3=[60.5, 61.5, 62.5, 63, 63.5, 64, 64.5, 65],
+        Eint12=0.1,
+        Eint23=0.1,
+        Eint13=0.1,
+        k=8,
+    )
+    for i, job in enumerate(jobs):
+        print(i, len(jobs))
+        # t = time.perf_counter()
         zz12, zz23, zz13, zzz = single_zz(**job)
-        print("total", time.perf_counter() - t)
+        # print("total", time.perf_counter() - t)
         # For 3T I only do GS so it's implicit
-        # Store_zz3t.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
+        Store_zz3t.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
 
 
 # using numba enhances gale shapely
@@ -38,7 +50,7 @@ def collect_levels():
 
 def collect():
     Ejs = np.arange(30, 90, 0.5).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2, k=3)
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=60, Eint12=0.1, Eint23=0.1, Eint13=0.1, k=3)
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
     # print(test)
@@ -49,22 +61,18 @@ def collect():
 
 if __name__ == "__main__":
     # local_collect()
-    collect_levels()
-    # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2)
+    # collect_levels()
+    vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=65, Eint12=0.1, Eint23=0.1, Eint13=0.1)
     # plt.rc("lines", marker=".", lw=0)
     # plt.plot(vars, zz1, label="zz1")
     # plt.plot(vars, zz2, label="zz2")
     # plt.plot(vars, zz3, label="zz3")
-    # plt.plot(vars, zzz, label="zzz")
+    plt.plot(vars, zzz, label="zzz", marker=".", lw=0)
+    # plt.title("units Ec Ej1=50 Ej3=55, Line layout, Eints=0.2")
+    # # plt.title("units Ec, triangle layout, Ej2=50 Ej3=62 Eints=0.1")
     # plt.legend()
-    # plt.title("zz and zzz vs Ej1, Ej2=55,Ej3=60, Eint12=0.1,Eint23=0.15,Eint13=0.2, Ec2=Ec3=1")
-    # plt.xlabel("Ej1")
-    # plt.show()
+    # plt.xlabel("Ej2")
+    plt.show()
 
 # def plane():
 #     res = Store_zz3t.plane("Ec2", Ecs, "Ej2", Ejs, Ej1=50, Eint=0.2)
-
-
-def line():
-    vars, res = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Eint12=0.1, Eint23=0.1, Eint13=0.1)
-    print(vars, res)
