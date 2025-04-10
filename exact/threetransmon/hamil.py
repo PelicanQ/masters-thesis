@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import scipy.linalg as spalg
 from numpy.typing import NDArray
 import itertools
-
+import time
 
 def kron(*mats):
     total = mats[0]
@@ -14,14 +14,14 @@ def kron(*mats):
     return total
 
 
-def trunc(statesperbit: int, max_excitation: int):
-    inds = []
+def excitation_trunc_indices(statesperbit: int, max_excitation: int):
+    """Return Hamiltonian indices of states with too high excitation"""
+    indices = []
     N = statesperbit
-    M = max_excitation
-    for i, j, k in itertools.product(range(N), range(N), range(N)):
-        if i + j + k > M:
-            inds.append(i + j * N + k * N**2)
-    return inds
+    for i, j, k in itertools.product(range(N), repeat=3):
+        if i + j + k > max_excitation:
+            indices.append(i + j * N + k * N**2)
+    return indices
 
 
 def sorted_vals(vals1, vals2, vals3):
@@ -79,7 +79,7 @@ def eig_clever_vis(
 
     # now let's remove states with too large excitation sum
     # gather indices and delete at once
-    indices = trunc(N, M)
+    indices = excitation_trunc_indices(N, M)
     H = cp.delete(H, indices, axis=0)
     H = cp.delete(H, indices, axis=1)
     if only_energy:
@@ -90,17 +90,35 @@ def eig_clever_vis(
     # Note that with excitation trunc we get have to count differently
     return cp.asnumpy(vals), cp.asnumpy(vecs)
 
+caches_idx_maps: dict[int,dict[tuple, int]] = {} # global variable not the most elegant 
 
-def eig_clever_chargetrunc(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, C=20, M=10
+def make_excitation_idx_map(max_excitation:int):
+    idx_dict = {}
+    i = 0
+    # the order we use is the one after filtering itertools.product output
+    for comb in itertools.product(range(max_excitation+1), repeat=3):
+        if sum(comb) <= max_excitation:
+            idx_dict[comb] = i
+            i += 1
+    return idx_dict
+
+def get_excitation_idx_map(max_excitation:int):
+    # index this map with 3-tuples to get the hamiltonian index of that state
+    if max_excitation not in caches_idx_maps:
+        caches_idx_maps[max_excitation] = make_excitation_idx_map(max_excitation)
+    return caches_idx_maps[max_excitation]
+
+
+def eig_excitation_trunc(
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, M=30
 ) -> tuple[NDArray, NDArray] | NDArray:
     """
     k: controls how many transmon eigenstates are included per qubit
-    C: charge truncation
     units of Ec1
     Returns:
         eigenvalues and eigenvectors in bare basis
     """
+    C=20
     nstates = np.arange(-C, C + 1, step=1)
     ndiag = np.square(nstates)
     vals1, vecs1 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
@@ -126,21 +144,21 @@ def eig_clever_chargetrunc(
     Hint12 = 4 * Eint12 * kron(n1, n2, ID)
     Hint23 = 4 * Eint23 * kron(ID, n2, n3)
     Hint13 = 4 * Eint13 * kron(n1, ID, n3)
-
-    H = kron(D1, ID, ID) + kron(ID, D2, ID) + kron(ID, ID, D3) + Hint12 + Hint23 + Hint13
+    ID2 = kron(ID,ID)  # kronecker products can take time so this optimizes a bit
+    H = kron(D1, ID2) + kron(ID, D2, ID) + kron(ID2, D3) + Hint12 + Hint23 + Hint13
 
     # now let's remove states with too large excitation sum
-    # gather indices and delete at once
-    indices = trunc(N, M)
+    indices = excitation_trunc_indices(N, M)
     H = cp.delete(H, indices, axis=0)
     H = cp.delete(H, indices, axis=1)
+    
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
-        return cp.asnumpy(vals)
+        return cp.asnumpy(vals), get_excitation_idx_map(M)
     vals, vecs = cp.linalg.eigh(H)
 
     # Note that with excitation trunc we get have to count differently
-    return cp.asnumpy(vals), cp.asnumpy(vecs)
+    return cp.asnumpy(vals), cp.asnumpy(vecs), get_excitation_idx_map(M)
 
 
 # this is the good one now
@@ -190,3 +208,16 @@ def eig_clever(
 
     # return eigenvalues and vectors, order will be "kronecker counting"
     return cp.asnumpy(vals), cp.asnumpy(vecs)
+
+if __name__ == "__main__":
+    start = time.perf_counter()
+    for _ in range(3):
+        eig_clever(1, 1, 50, 55, 60, 0.2, 0.4, 0.6, k=10)
+    end = time.perf_counter()
+    print(f"eig_clever execution time: {end - start:.4f} seconds")
+
+    start = time.perf_counter()
+    for _ in range(3):
+        eig_excitation_trunc(1, 1, 50, 55, 60, 0.2, 0.4, 0.6, k=10)
+    end = time.perf_counter()
+    print(f"eig_excitation_trunc execution time: {end - start:.4f} seconds")

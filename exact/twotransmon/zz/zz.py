@@ -15,9 +15,9 @@ def single_zz(Ec2, Ej1, Ej2, Eint, k=15):
     d1 = btd[idx_map[0][1]]
     d2 = btd[idx_map[1][0]]
     d3 = btd[idx_map[1][1]]
-
-    zz = levels[4] - (levels[1] + levels[2]) + levels[0]
-    zzGS = levels[d3] - (levels[d2] + levels[d1]) + levels[d0]  # ZZ after gale shapely state assignment
+    levels = levels - levels[0]
+    zz = levels[4] - (levels[1] + levels[2]) 
+    zzGS = levels[d3] - (levels[d2] + levels[d1])  # ZZ after gale shapely state assignment
     return zz, zzGS
 
 
