@@ -1,50 +1,72 @@
 # Let's make a Postgres storage system for sim data
 from matplotlib import pyplot as plt
 import numpy as np
-from store.models import Levels2T, ZZ2T, ZZ3T
+from store.models import Levels2T, ZZ2T, ZZ3T, Levels3T
 from functools import reduce
 from operator import or_
 
 tol = 1e-6  # tolerance for search in float/double columns
 
 
-class Store_levels2t:
-    all_keys = ["Ec2", "Ej1", "Ej2", "Eint"]
-    model = Levels2T
-
+class Store_levels3t:
+    all_keys = ["Ec2", "Ec3", "Ej1", "Ej2","Ej3", "Eint12","Eint23","Eint13"]
+    model = Levels3T
+    max_level = 10 
     @staticmethod
-    def insert(Ec2, Ej1, Ej2, Eint, levels):
+    def insert(Ec2,Ec3, Ej1, Ej2,Ej3, Eint12,Eint23, Eint13,levels):
+        level_dict = dict([(f"E{i}", levels[i]) for i in range(len(levels))])
         return Levels2T.replace(
-            Ec2=Ec2,
-            Ej1=Ej1,
-            Ej2=Ej2,
-            Eint=Eint,
-            E0=levels[0],
-            E1=levels[1],
-            E2=levels[2],
-            E3=levels[3],
-            E4=levels[4],
-            E5=levels[5],
-            E6=levels[6],
-            E7=levels[7],
+            Ec2=round(Ec2, 2),
+            Ec3=round(Ec3, 2),
+            Ej1=round(Ej1, 1),
+            Ej2=round(Ej2, 1),
+            Ej3=round(Ej3, 1),
+            Eint12=round(Eint12, 2),
+            Eint23=round(Eint23, 2),
+            Eint13=round(Eint13, 2),
+            **level_dict
         ).execute()
 
     @classmethod
     def line(cls, **kwargs):
         missing_key, query = get_missing_key(kwargs, cls)
         vars = []
-        levels = np.zeros((len(query), 8))
+        levels = np.zeros((len(query), cls.max_level+1))
 
         for i, entry in enumerate(query):
             vars.append(getattr(entry, missing_key))
-            levels[i, 0] = entry.E0
-            levels[i, 1] = entry.E1
-            levels[i, 2] = entry.E2
-            levels[i, 3] = entry.E3
-            levels[i, 4] = entry.E4
-            levels[i, 5] = entry.E5
-            levels[i, 6] = entry.E6
-            levels[i, 7] = entry.E7
+            for j in range(cls.max_level+1):
+                levels[i,j] = getattr(entry, f"E{j}")
+        if len(vars) < 1:
+            raise Exception("It seems given values were not found")
+        return vars, levels
+
+class Store_levels2t:
+    all_keys = ["Ec2", "Ej1", "Ej2", "Eint"]
+    model = Levels2T
+    max_level = 7
+
+    @staticmethod
+    def insert(Ec2, Ej1, Ej2, Eint, levels):
+        level_dict = dict([(f"E{i}", levels[i]) for i in range(len(levels))])
+        return Levels2T.replace(
+            Ec2=round(Ec2, 2), 
+            Ej1=round(Ej1, 1), 
+            Ej2=round(Ej2), 
+            Eint=round(Eint, 2), 
+            **level_dict
+        ).execute()
+
+    @classmethod
+    def line(cls, **kwargs):
+        missing_key, query = get_missing_key(kwargs, cls)
+        vars = []
+        levels = np.zeros((len(query), cls.max_level + 1))
+
+        for i, entry in enumerate(query):
+            vars.append(getattr(entry, missing_key))
+            for j in range(cls.max_level + 1):
+                levels[i,j] = getattr(entry, f"E{j}")
         if len(vars) < 1:
             raise Exception("It seems given values were not found")
         return vars, levels
