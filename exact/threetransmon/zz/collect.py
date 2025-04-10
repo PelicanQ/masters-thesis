@@ -9,14 +9,13 @@ import time
 
 
 def local_collect():
-    Ejs = np.arange(40, 55, 0.5).tolist()  # numpy types cannot be json serialized
-
+    Ejs = np.arange(30, 80, 0.5).tolist()  # numpy types cannot be json serialized
     jobs = collect_jobs(
         Ec2=1,
         Ec3=1,
         Ej1=Ejs,
         Ej2=50,
-        Ej3=[60.5, 61.5, 62.5, 63, 63.5, 64, 64.5, 65],
+        Ej3=50,
         Eint12=0.1,
         Eint23=0.1,
         Eint13=0.1,
