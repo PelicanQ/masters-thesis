@@ -22,6 +22,7 @@ def local_collect():
         k=8,
     )
     for i, job in enumerate(jobs):
+        print(job)
         print(i, len(jobs))
         # t = time.perf_counter()
         zz12, zz23, zz13, zzz = single_zz(**job)
@@ -59,17 +60,17 @@ def collect():
 
 
 if __name__ == "__main__":
-    # local_collect()
+    local_collect()
     # collect_levels()
-    vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=65, Eint12=0.1, Eint23=0.1, Eint13=0.1)
+    vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.1)
     # plt.rc("lines", marker=".", lw=0)
-    # plt.plot(vars, zz1, label="zz1")
-    # plt.plot(vars, zz2, label="zz2")
-    # plt.plot(vars, zz3, label="zz3")
+    plt.plot(vars, zz1, label="zz1", lw=0, marker=".")
+    plt.plot(vars, zz2, label="zz2", lw=0, marker=".")
+    plt.plot(vars, zz3, label="zz3", lw=0, marker=".")
     plt.plot(vars, zzz, label="zzz", marker=".", lw=0)
     # plt.title("units Ec Ej1=50 Ej3=55, Line layout, Eints=0.2")
     # # plt.title("units Ec, triangle layout, Ej2=50 Ej3=62 Eints=0.1")
-    # plt.legend()
+    plt.legend()
     # plt.xlabel("Ej2")
     plt.show()
 

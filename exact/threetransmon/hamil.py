@@ -7,6 +7,7 @@ from numpy.typing import NDArray
 import itertools
 import time
 
+
 def kron(*mats):
     total = mats[0]
     for i in range(1, len(mats)):
@@ -90,23 +91,26 @@ def eig_clever_vis(
     # Note that with excitation trunc we get have to count differently
     return cp.asnumpy(vals), cp.asnumpy(vecs)
 
-caches_idx_maps: dict[int,dict[tuple, int]] = {} # global variable not the most elegant 
 
-def make_excitation_idx_map(max_excitation:int):
+caches_idx_maps: dict[(int, int), dict[tuple, int]] = {}  # global variable not the most elegant
+
+
+def make_excitation_idx_map(statesperbit: int, max_excitation: int):
     idx_dict = {}
     i = 0
     # the order we use is the one after filtering itertools.product output
-    for comb in itertools.product(range(max_excitation+1), repeat=3):
+    for comb in itertools.product(range(statesperbit), repeat=3):
         if sum(comb) <= max_excitation:
             idx_dict[comb] = i
             i += 1
     return idx_dict
 
-def get_excitation_idx_map(max_excitation:int):
+
+def get_excitation_idx_map(statesperbit: int, max_excitation: int):
     # index this map with 3-tuples to get the hamiltonian index of that state
-    if max_excitation not in caches_idx_maps:
-        caches_idx_maps[max_excitation] = make_excitation_idx_map(max_excitation)
-    return caches_idx_maps[max_excitation]
+    if (statesperbit, max_excitation) not in caches_idx_maps:
+        caches_idx_maps[(statesperbit, max_excitation)] = make_excitation_idx_map(statesperbit, max_excitation)
+    return caches_idx_maps[(statesperbit, max_excitation)]
 
 
 def eig_excitation_trunc(
@@ -118,7 +122,7 @@ def eig_excitation_trunc(
     Returns:
         eigenvalues and eigenvectors in bare basis
     """
-    C=20
+    C = 20
     nstates = np.arange(-C, C + 1, step=1)
     ndiag = np.square(nstates)
     vals1, vecs1 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
@@ -144,21 +148,21 @@ def eig_excitation_trunc(
     Hint12 = 4 * Eint12 * kron(n1, n2, ID)
     Hint23 = 4 * Eint23 * kron(ID, n2, n3)
     Hint13 = 4 * Eint13 * kron(n1, ID, n3)
-    ID2 = kron(ID,ID)  # kronecker products can take time so this optimizes a bit
+    ID2 = kron(ID, ID)  # kronecker products can take time so this optimizes a bit
     H = kron(D1, ID2) + kron(ID, D2, ID) + kron(ID2, D3) + Hint12 + Hint23 + Hint13
 
     # now let's remove states with too large excitation sum
     indices = excitation_trunc_indices(N, M)
     H = cp.delete(H, indices, axis=0)
     H = cp.delete(H, indices, axis=1)
-    
+
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
-        return cp.asnumpy(vals), get_excitation_idx_map(M)
+        return cp.asnumpy(vals), get_excitation_idx_map(N, M)
     vals, vecs = cp.linalg.eigh(H)
 
     # Note that with excitation trunc we get have to count differently
-    return cp.asnumpy(vals), cp.asnumpy(vecs), get_excitation_idx_map(M)
+    return cp.asnumpy(vals), cp.asnumpy(vecs), get_excitation_idx_map(N, M)
 
 
 # this is the good one now
@@ -208,6 +212,7 @@ def eig_clever(
 
     # return eigenvalues and vectors, order will be "kronecker counting"
     return cp.asnumpy(vals), cp.asnumpy(vecs)
+
 
 if __name__ == "__main__":
     start = time.perf_counter()
