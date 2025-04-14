@@ -4,7 +4,7 @@ from jobmanager.Handler import Handler3T, Handler3TEnergy
 from matplotlib import pyplot as plt
 import asyncio
 from jobmanager.util import collect_jobs
-from store.stores import Store_zz3t
+from store.stores import Store_zz3T
 from typing import Iterable
 
 
@@ -28,7 +28,7 @@ def local_collect():
         zz12, zz23, zz13, zzz = single_zz(**job)
         # print("total", time.perf_counter() - t)
         # For 3T I only do GS so it's implicit
-        Store_zz3t.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
+        Store_zz3T.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
 
 
 # using numba enhances gale shapely
@@ -57,7 +57,7 @@ def collect():
     # test = asyncio.run(H.test_remote())
     # print(test)
     r = asyncio.run(H.submit(jobs, batch_size=20))
-    Store_zz3t.insert_many(r)
+    Store_zz3T.insert_many(r)
     print("Done inserting")
 
 
@@ -85,7 +85,7 @@ def plot_plane():
     Ej1s = np.arange(30, 90, 0.5)
     Ej3s = np.arange(30, 70, 0.5)
 
-    zz1, zz2, zz3, zzz = Store_zz3t.plane(
+    zz1, zz2, zz3, zzz = Store_zz3T.plane(
         "Ej1", Ej1s, "Ej3", Ej3s, Ec2=1, Ec3=1, Ej2=50, Eint12=0.1, Eint23=0.1, Eint13=0.1
     )
     plt.pcolor(Ej1s, Ej3s, np.abs(zzz - (zz1 + zz2 + zz3)) < 0.01)

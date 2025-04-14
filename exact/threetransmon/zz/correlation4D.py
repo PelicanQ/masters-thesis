@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from store.stores import Store_zz3t
+from store.stores import Store_zz3T
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 Ej1s = np.arange(30, 90, 0.5)
 Ej3s = np.arange(30, 70, 0.5)
-zz12, zz23, zz13, zzz = Store_zz3t.plane(
+zz12, zz23, zz13, zzz = Store_zz3T.plane(
     "Ej1", Ej1s, "Ej3", Ej3s, Ec2=1, Ec3=1, Ej2=50, Eint12=0.1, Eint23=0.1, Eint13=0.1
 )
 

@@ -9,7 +9,7 @@ from typing import Iterable
 tol = 1e-6  # tolerance for search in float/double columns
 
 
-class Store_levels3t:
+class StoreLevels3T:
     all_keys = ["Ec2", "Ec3", "Ej1", "Ej2", "Ej3", "Eint12", "Eint23", "Eint13"]
     model = Levels3T
     max_level = 10
@@ -44,7 +44,7 @@ class Store_levels3t:
         return vars, levels
 
 
-class Store_levels2t:
+class StoreLevels2T:
     all_keys = ["Ec2", "Ej1", "Ej2", "Eint"]
     model = Levels2T
     max_level = 7
@@ -55,6 +55,11 @@ class Store_levels2t:
         return Levels2T.replace(
             Ec2=round(Ec2, 2), Ej1=round(Ej1, 1), Ej2=round(Ej2), Eint=round(Eint, 2), **level_dict
         ).execute()
+
+    @staticmethod
+    def insert_many(cls, results: list[dict]):
+        for res in results:
+            cls.insert(res["Ec2"], res["Ej1"], res["Ej2"], res["Eint"], res["levels"])
 
     @classmethod
     def line(cls, **kwargs):
@@ -80,8 +85,23 @@ class Store_levels2t:
                 levels[i, j] = getattr(entry, f"E{j}")
         return levels  # along a column is a certain energy level vs the iterable
 
+    @classmethod
+    def plane(cls, var1: str, val1: Iterable, var2: str, val2: Iterable, **kwargs):
+        """Make a meshline over var2 then repeat for different var1.
+        Note: the iterables are assumed to be in increasing order"""
 
-class Store_zz3t:
+        kwargs[var2] = val2
+        # all thesea are gale shapely
+        level_planes = [np.zeros((len(val2), len(val1))) for _ in range(cls.max_level + 1)]
+        for i, val in enumerate(val1):
+            kwargs[var1] = val
+            energies = cls.meshline(**kwargs)  # a line as function of var2
+            for j in range(energies.shape[1]):
+                level_planes[j][:, i] = energies[:, j]
+        return level_planes
+
+
+class Store_zz3T:
     all_keys = ["Ec2", "Ec3", "Ej1", "Ej2", "Ej3", "Eint12", "Eint23", "Eint13"]
     all_vals = ["zzGS12", "zzGS23", "zzGS13", "zzzGS"]
     model = ZZ3T
@@ -167,7 +187,7 @@ class Store_zz3t:
         return zz12, zz23, zz13, zzz
 
 
-class Store_zz2t:
+class Store_zz2T:
     all_keys = ["Ec2", "Ej1", "Ej2", "Eint"]
     all_vals = ["zz", "zzGS"]
     model = ZZ2T
@@ -297,7 +317,7 @@ def view():
 if __name__ == "__main__":
     x = np.arange(0, 0.9, 0.05)
     y = np.arange(30, 70, 2)
-    vars, zz, zzGS = Store_zz2t.line(Eint=0.1, Ej1=50, Ej2=50)
+    vars, zz, zzGS = Store_zz2T.line(Eint=0.1, Ej1=50, Ej2=50)
     print(vars)
     plt.plot(vars, zzGS)
     plt.show()

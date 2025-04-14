@@ -83,9 +83,9 @@ class Handler2T(HandlerBase):
 
 
 class Handler2TEnergy(HandlerBase):
-    def __init__(self, url):
+    def __init__(self, url, level_select):
         super().__init__(url)
-        self.level_select = [0, 1, 2, 3, 4, 5, 6, 7]
+        self.level_select = level_select
 
     def local_run(self, job: dict):
         current = job.copy()
