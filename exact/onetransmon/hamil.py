@@ -3,10 +3,9 @@
 import numpy as np
 import cupy as cp
 from scipy import linalg
-
+from matplotlib import pyplot as plt
 
 # matrix for DC-SQUID in basis of number operator eigenbasis
-
 
 def Hgen(ng, ratio, k=60):
     nstates = np.arange(-k, k + 1, step=1)  # (-k .. -1, 0, 1 .. k) is our order of basis
@@ -28,6 +27,19 @@ def calc_eigs(ratio, ng, k=60):
     sorted = np.sort(eig)
 
     return sorted
+
+if __name__ == "__main__":
+    Ejs = np.arange(30,90,1)
+    alphas = []
+    for Ej in Ejs:
+        vals = calc_eigs(Ej, 0, 60)
+        vals = vals - vals[0]
+        alphas.append((vals[2]-2*vals[1]))
+    
+    plt.plot(Ejs, alphas)
+    plt.xlabel("Ej")
+    plt.ylim([-2,0])
+    plt.show()
 
 
 def calc_cond(ng, Ej, k):

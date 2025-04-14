@@ -39,7 +39,7 @@ def jitted_loop(ranked_preference, number_of_states, preference):
     return bare_to_dressed_index
 
 
-def state_assignment(eigen_states: NDArray) -> tuple[int]:
+def state_assignment(eigen_states: NDArray) -> tuple:
     number_of_states = eigen_states.shape[0]
     preference = np.abs(eigen_states)
 

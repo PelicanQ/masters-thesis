@@ -41,7 +41,7 @@ def calc_eig(Ej, Eint=1, k=20):
 
 
 # this is the good one now
-def eig_clever(Ej1, Ej2, Eint, Ec2=1, only_energy=False, ng1=0, k=15, C=200):
+def eig_clever(Ej1, Ej2, Eint, Ec2=1, only_energy=False, ng1=0, k=8, C=50):
     """
     k controls how many transmon eigenstates are included per qubit
     C: charge trunc
