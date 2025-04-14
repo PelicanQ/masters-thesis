@@ -4,16 +4,18 @@ import numpy as np
 from store.models import Levels2T, ZZ2T, ZZ3T, Levels3T
 from functools import reduce
 from operator import or_
+from typing import Iterable
 
 tol = 1e-6  # tolerance for search in float/double columns
 
 
 class Store_levels3t:
-    all_keys = ["Ec2", "Ec3", "Ej1", "Ej2","Ej3", "Eint12","Eint23","Eint13"]
+    all_keys = ["Ec2", "Ec3", "Ej1", "Ej2", "Ej3", "Eint12", "Eint23", "Eint13"]
     model = Levels3T
-    max_level = 10 
+    max_level = 10
+
     @staticmethod
-    def insert(Ec2,Ec3, Ej1, Ej2,Ej3, Eint12,Eint23, Eint13,levels):
+    def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, levels):
         level_dict = dict([(f"E{i}", levels[i]) for i in range(len(levels))])
         return Levels2T.replace(
             Ec2=round(Ec2, 2),
@@ -24,37 +26,7 @@ class Store_levels3t:
             Eint12=round(Eint12, 2),
             Eint23=round(Eint23, 2),
             Eint13=round(Eint13, 2),
-            **level_dict
-        ).execute()
-
-    @classmethod
-    def line(cls, **kwargs):
-        missing_key, query = get_missing_key(kwargs, cls)
-        vars = []
-        levels = np.zeros((len(query), cls.max_level+1))
-
-        for i, entry in enumerate(query):
-            vars.append(getattr(entry, missing_key))
-            for j in range(cls.max_level+1):
-                levels[i,j] = getattr(entry, f"E{j}")
-        if len(vars) < 1:
-            raise Exception("It seems given values were not found")
-        return vars, levels
-
-class Store_levels2t:
-    all_keys = ["Ec2", "Ej1", "Ej2", "Eint"]
-    model = Levels2T
-    max_level = 7
-
-    @staticmethod
-    def insert(Ec2, Ej1, Ej2, Eint, levels):
-        level_dict = dict([(f"E{i}", levels[i]) for i in range(len(levels))])
-        return Levels2T.replace(
-            Ec2=round(Ec2, 2), 
-            Ej1=round(Ej1, 1), 
-            Ej2=round(Ej2), 
-            Eint=round(Eint, 2), 
-            **level_dict
+            **level_dict,
         ).execute()
 
     @classmethod
@@ -66,7 +38,34 @@ class Store_levels2t:
         for i, entry in enumerate(query):
             vars.append(getattr(entry, missing_key))
             for j in range(cls.max_level + 1):
-                levels[i,j] = getattr(entry, f"E{j}")
+                levels[i, j] = getattr(entry, f"E{j}")
+        if len(vars) < 1:
+            raise Exception("It seems given values were not found")
+        return vars, levels
+
+
+class Store_levels2t:
+    all_keys = ["Ec2", "Ej1", "Ej2", "Eint"]
+    model = Levels2T
+    max_level = 7
+
+    @staticmethod
+    def insert(Ec2, Ej1, Ej2, Eint, levels):
+        level_dict = dict([(f"E{i}", levels[i]) for i in range(len(levels))])
+        return Levels2T.replace(
+            Ec2=round(Ec2, 2), Ej1=round(Ej1, 1), Ej2=round(Ej2), Eint=round(Eint, 2), **level_dict
+        ).execute()
+
+    @classmethod
+    def line(cls, **kwargs):
+        missing_key, query = get_missing_key(kwargs, cls)
+        vars = []
+        levels = np.zeros((len(query), cls.max_level + 1))
+
+        for i, entry in enumerate(query):
+            vars.append(getattr(entry, missing_key))
+            for j in range(cls.max_level + 1):
+                levels[i, j] = getattr(entry, f"E{j}")
         if len(vars) < 1:
             raise Exception("It seems given values were not found")
         return vars, levels
@@ -103,6 +102,16 @@ class Store_zz3t:
         ).execute()
 
     @classmethod
+    def get_all(cls):
+        results = {key: [] for key in cls.all_vals}
+        query = cls.model.select()
+        for entry in query:
+            for column in cls.all_vals:
+                results[column].append(getattr(entry, column))
+
+        return (results["zzGS12"], results["zzGS23"], results["zzGS13"], results["zzzGS"])
+
+    @classmethod
     def line(cls, **kwargs):
         missing_key, query = get_missing_key(kwargs, cls)
         vars = []
@@ -123,22 +132,29 @@ class Store_zz3t:
         for entry in query:
             for column in cls.all_vals:
                 results[column].append(getattr(entry, column))
-        return (results[val] for val in cls.all_vals)
+        return (results["zzGS12"], results["zzGS23"], results["zzGS13"], results["zzzGS"])
 
-    # @classmethod
-    # def plane(cls, var1: str, val1, var2: str, val2, **kwargs):
-    #     # repeated var2 meshlines
-    #     kwargs[var2] = val2  # this enters meshline as the sweep
-    #     zzplane = np.zeros((len(val2), len(val1)))
-    #     zzGSplane = np.zeros((len(val2), len(val1)))
-    #     zzplane[:] = np.nan
-    #     zzGSplane[:] = np.nan
-    #     for i, val in enumerate(val1):
-    #         kwargs[var1] = val
-    #         zz, zzGS = cls.meshline(**kwargs)  # a line as function of var2
-    #         zzplane[:, i] = zz
-    #         zzGSplane[:, i] = zzGS
-    #     return zzplane, zzGSplane
+    @classmethod
+    def plane(cls, var1: str, val1: Iterable, var2: str, val2: Iterable, **kwargs):
+        # make a meshline over var2 then repeat for different var1
+        kwargs[var2] = val2
+        # all thesea are gale shapely
+        zz12 = np.zeros((len(val2), len(val1)))
+        zz23 = np.zeros((len(val2), len(val1)))
+        zz13 = np.zeros((len(val2), len(val1)))
+        zzz = np.zeros((len(val2), len(val1)))
+        zz12[:] = np.nan
+        zz23[:] = np.nan
+        zz13[:] = np.nan
+        zzz[:] = np.nan
+        for i, val in enumerate(val1):
+            kwargs[var1] = val
+            zz12_line, zz23_line, zz13_line, zzz_line = cls.meshline(**kwargs)  # a line as function of var2
+            zz12[:, i] = zz12_line
+            zz23[:, i] = zz23_line
+            zz13[:, i] = zz13_line
+            zzz[:, i] = zzz_line
+        return zz12, zz23, zz13, zzz
 
 
 class Store_zz2t:
