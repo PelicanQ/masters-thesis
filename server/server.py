@@ -5,7 +5,8 @@ from pydantic import BaseModel
 import uvicorn
 from exact.twotransmon.zz.zz import single_zz as zz2T
 from exact.threetransmon.zz.zz import single_zz as zz3T
-from exact.threetransmon.hamil import eig_excitation_trunc as eig3T_excitation
+from exact.threetransmon.hamil import eig_excitation_trunc as eig3T
+from exact.twotransmon.hamil import eig_clever as eig2T
 import time
 
 app = FastAPI()
@@ -45,6 +46,11 @@ class Job3T(BaseModel):
     Eint13: float
 
 
+class Data2TEnergy(BaseModel):
+    jobs: list[Job2T]
+    level_select: list[int]
+
+
 class Data3TEnergy(BaseModel):
     jobs: list[Job3T]
     level_select: list[int]
@@ -52,6 +58,15 @@ class Data3TEnergy(BaseModel):
 
 class Data3T(BaseModel):
     jobs: list[Job3T]
+
+
+class Result2TEnergy(BaseModel):
+    k: int
+    Ec2: float
+    Ej1: float
+    Ej2: float
+    Eint: float
+    levels: list[float]
 
 
 class Result3TEnergy(BaseModel):
@@ -96,8 +111,8 @@ def three(data: Data3TEnergy):
     for job in data.jobs:
         dic = job.model_dump()
         t1 = time.perf_counter()
-        levels, _ = eig3T_excitation(**dic, only_energy=True)
-        print("Time job: ",time.perf_counter() - t1)
+        levels, _ = eig3T(**dic, only_energy=True)
+        print("Time job: ", time.perf_counter() - t1)
         dic.update([("levels", levels[data.level_select])])
         resp.append(dic)
     print("Total time:", time.perf_counter() - total_t)
@@ -114,9 +129,25 @@ def three(data: Data3T):
         t1 = time.perf_counter()
         zz12, zz23, zz13, zzz = zz3T(**dic)
         dic.update([("zzGS12", zz12), ("zzGS23", zz23), ("zzGS13", zz13), ("zzzGS", zzz)])
-        print("Job time: ",time.perf_counter()-t1)
+        print("Job time: ", time.perf_counter() - t1)
         resp.append(dic)
     print("Total time:", time.perf_counter() - total_t)
+    return resp
+
+
+@app.post("/2T/energy", response_model=list[Result2TEnergy])
+def two(data: Data2TEnergy):
+    resp = []
+    # total_t = time.perf_counter()
+    # print("Recieved jobs: ", len(data.jobs))
+    for job in data.jobs:
+        dic = job.model_dump()
+        # t1 = time.perf_counter()
+        levels = eig2T(**dic, only_energy=True)
+        # print("Time job: ", time.perf_counter() - t1)
+        dic.update([("levels", levels[data.level_select])])
+        resp.append(dic)
+    # print("Total time:", time.perf_counter() - total_t)
     return resp
 
 

@@ -70,6 +70,16 @@ class Store_levels2t:
             raise Exception("It seems given values were not found")
         return vars, levels
 
+    @classmethod
+    def meshline(cls, **kwargs):
+        # query along a one dimensional mesh. Exception is raised upon missing values
+        levels = np.zeros((len(query), cls.max_level + 1))
+        query = meshline_query(cls, kwargs)
+        for i, entry in enumerate(query):
+            for j in range(cls.max_level + 1):
+                levels[i, j] = getattr(entry, f"E{j}")
+        return levels  # along a column is a certain energy level vs the iterable
+
 
 class Store_zz3t:
     all_keys = ["Ec2", "Ec3", "Ej1", "Ej2", "Ej3", "Eint12", "Eint23", "Eint13"]
@@ -220,7 +230,7 @@ def approx_in(field, values):
 
 
 def meshline_query(cls, kwargs):
-    print(kwargs)
+    # the idea is that one of kwargs is an iterable and we return entries with those values in ascending order
     iterable = get_iterable_key(kwargs)
     query = cls.model.select()
     for key, val in kwargs.items():
@@ -228,6 +238,7 @@ def meshline_query(cls, kwargs):
         if key != iterable:
             query = query.where(getattr(cls.model, key).between(val - tol, val + tol))
     query = query.where(approx_in(getattr(cls.model, iterable), kwargs[iterable]))
+    query = query.order_by(getattr(cls.model, iterable))
     if len(query) != len(kwargs[iterable]):
         raise Exception("Requested variables could not be found")
     return query
@@ -247,9 +258,9 @@ def get_missing_key(kwargs, cls):
     return missing_key, query
 
 
-def get_iterable_key(kwargs):
+def get_iterable_key(kwargs: dict) -> str:
     # intended for when one key is iterable
-    iterable_name = None
+    iterable_name: str = None
     for key, val in kwargs.items():
         try:
             iter(val)

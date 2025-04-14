@@ -1,7 +1,8 @@
 # Here we manage numeric jobs
 from exact.twotransmon.zz.zz import single_zz as zz2T
 from exact.threetransmon.zz.zz import single_zz as zz3T
-from exact.threetransmon.hamil import eig_excitation_trunc
+from exact.twotransmon.hamil import eig_clever as energy2T
+from exact.threetransmon.hamil import eig_excitation_trunc as energy3T
 import aiohttp
 import asyncio
 import timeit
@@ -49,7 +50,7 @@ class HandlerBase:
                     res = self.task.result()
                     results.extend(res)
                 except Exception as e:
-                    print("Remote batch failed!" ,e) # accept missing data and continue
+                    print("Remote batch failed!", e)  # accept missing data and continue
                 self.schedule(jobs[progress : progress + batch_size])
                 progress += batch_size
                 await asyncio.sleep(0)
@@ -81,6 +82,18 @@ class Handler2T(HandlerBase):
         return current
 
 
+class Handler2TEnergy(HandlerBase):
+    def __init__(self, url):
+        super().__init__(url)
+        self.level_select = [0, 1, 2, 3, 4, 5, 6, 7]
+
+    def local_run(self, job: dict):
+        current = job.copy()
+        levels = energy2T(**current, only_energy=True)
+        current.update([("levels", levels[self.level_select].tolist())])
+        return current
+
+
 class Handler3TEnergy(HandlerBase):
     def __init__(self, url, level_select):
         super().__init__(url)
@@ -88,7 +101,7 @@ class Handler3TEnergy(HandlerBase):
 
     def local_run(self, job: dict):
         current = job.copy()
-        levels = eig_excitation_trunc(**current, only_energy=True)
+        levels = energy3T(**current, only_energy=True)
         current.update([("levels", levels[self.level_select].tolist())])
         return current
 

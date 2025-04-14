@@ -1,17 +1,14 @@
 import matplotlib.pyplot as plt
 from exact.twotransmon.zz.zz import single_zz
 import numpy as np
+from store.stores import Store_zz2t
 
-Ejs = np.arange(30, 90, 1)
-Eints = np.arange(0, 1, 0.1)
-p = np.zeros((len(Eints), len(Ejs)))
-for i, Eint in enumerate(Eints):
-    for j, Ej in enumerate(Ejs):  
-        zz, zzGS = single_zz(1, Ej, 50, Eint, k=8)
-        p[i, j] = zzGS
-
-plt.pcolor(Ejs, Eints, p)
-plt.xlabel("Ej")
+Ejs = np.arange(30, 90, 0.2)
+Eints = np.arange(0, 0.8, 0.02)
+zz, zzGS = Store_zz2t.plane("Ej1", Ejs, "Eint", Eints, Ej2=50, Ec2=1)
+plt.pcolor(Ejs, Eints, zzGS)
+plt.xlabel("Ej1")
 plt.ylabel("Eint")
 plt.colorbar()
+plt.title("ZZ Ej2=50")
 plt.show()
