@@ -14,8 +14,13 @@ def single_zz_energy(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=8):
 
 
 def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=8):
+    t1 = time.perf_counter()
     levels, vecs, index_map = eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k)
+    t2 = time.perf_counter()
     bare_to_dressed_index = state_assignment(eigen_states=vecs)
+    t3 = time.perf_counter()
+    print("Eig", t2 - t1)
+    print("GS", t3 - t2)
     levels = levels - levels[0]
 
     def gslevel(n1, n2, n3):
