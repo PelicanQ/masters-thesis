@@ -42,9 +42,9 @@ def Eints_to_g_Ej(Ej1s: np.ndarray, Ej2, Ej3, Eint12, Eint23, Eint13):
     g13 = np.zeros_like(Ej1s)
     for i in range(len(Ej1s)):
         n1, n2, n3 = interaction_ops(1, 1, Ej1s[i], Ej2, Ej3)
-        g12[i] = Eint12 * np.abs(n1[1, 0] * n2[0, 1])
-        g23[i] = Eint23 * np.abs(n2[1, 0] * n3[0, 1])
-        g13[i] = Eint13 * np.abs(n1[1, 0] * n3[0, 1])
+        g12[i] = 4 * Eint12 * np.abs(n1[1, 0] * n2[0, 1])
+        g23[i] = 4 * Eint23 * np.abs(n2[1, 0] * n3[0, 1])
+        g13[i] = 4 * Eint13 * np.abs(n1[1, 0] * n3[0, 1])
     # absolute because signs may flip during eig resulting in a flipping sign of g which is annoying.
     # I think this translation should make sense, that the sign of Eints and gs are the same
     return g12, g23, g13
