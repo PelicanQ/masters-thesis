@@ -3,8 +3,8 @@ from matplotlib import pyplot as plt
 from exact.onetransmon.hamil import calc_eigs
 from exact.util import exact_energy_a, exact_energy_b
 
-# how different are the SWT energies and exact numeric for one qubit?
-Ejs = np.arange(1, 70, 10)
+# how different are the  matheiu energies and exact numeric for one qubit?
+Ejs = np.arange(1, 70, 1)
 k = 60
 num_levels = 10
 exact = np.zeros((len(Ejs), num_levels))
@@ -15,10 +15,10 @@ for i, Ej in enumerate(Ejs):
 ma = [exact_energy_a(m, 1, Ejs) for m in range(5)]
 mb = [exact_energy_b(m, 1, Ejs) for m in range(5)]
 colors = ["b", "r", "g", "magenta", "orange"]
-plt.gca().set_prop_cycle(color=colors)
+plt.gca().set_prop_cycle(None)
 plt.plot(Ejs, exact)
 
-plt.gca().set_prop_cycle(color=colors)
+plt.gca().set_prop_cycle(None)
 for i in range(len(ma)):
     plt.plot(Ejs, ma[i], lw=0, marker="|", label=f"M a")
     plt.plot(Ejs, mb[i], lw=0, marker=".", label=f"M b")

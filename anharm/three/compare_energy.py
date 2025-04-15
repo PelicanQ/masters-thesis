@@ -64,12 +64,12 @@ def sw_energies(Ej1: np.ndarray, Ej2, Ej3, Eint12, Eint23, Eint13):
 
 if __name__ == "__main__":
     Ej1s = np.linspace(30, 80, 200)
-    Ej1s_small = np.linspace(30, 80, 40)
+    Ej1s_small = np.linspace(30, 80, 30)
     Ej2 = 50
     Ej3 = 60
     Eint12 = 0.2
     Eint23 = 0.1
-    Eint13 = 0.1
+    Eint13 = 0
 
     o1, _ = omega_alphas(1, Ej1s_small, True)
     o2, _ = omega_alphas(1, Ej2, True)
