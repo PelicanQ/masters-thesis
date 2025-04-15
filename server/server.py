@@ -111,7 +111,7 @@ def three(data: Data3TEnergy):
     for job in data.jobs:
         dic = job.model_dump()
         t1 = time.perf_counter()
-        levels, _ = eig3T(**dic, only_energy=True)
+        levels = eig3T(**dic, only_energy=True)
         print("Time job: ", time.perf_counter() - t1)
         dic.update([("levels", levels[data.level_select])])
         resp.append(dic)

@@ -155,19 +155,19 @@ class Hamil:
 
     def zzexpr(
         self,
-        state: str,
+        zzstate: str,
         order: None | int = None,
         keep_second_coupling: bool = False,
         type: Literal["edges", "birds", "legs", "second", "3loop", "4loop"] = None,
     ):
         # specify order OR type or neither.
         # assume we only care about states with 1 and 0
-        strlen = len(state)
-        topspace = self.state2space(state)
+        strlen = len(zzstate)
+        topspace = self.state2space(zzstate)
 
         bottomspace = self.get_subspace(1)
         bottomstates = []
-        for i, c in enumerate(state):
+        for i, c in enumerate(zzstate):
             if c == "1":
                 bottomstates.append(("0" * i) + "1" + ("0" * (strlen - i - 1)))
 
@@ -194,7 +194,7 @@ class Hamil:
             else:
                 return space.getall(state, keep_second_coupling)
 
-        toplevel = getterms(topspace, state)
+        toplevel = getterms(topspace, zzstate)
         botlevel = sp.sympify(0)
         for stat in bottomstates:
             botlevel += getterms(bottomspace, stat)

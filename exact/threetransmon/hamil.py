@@ -6,13 +6,7 @@ import scipy.linalg as spalg
 from numpy.typing import NDArray
 import itertools
 import time
-
-
-def kron(*mats):
-    total = mats[0]
-    for i in range(1, len(mats)):
-        total = cp.kron(total, mats[i])
-    return total
+from exact.util import kron
 
 
 def excitation_trunc_indices(statesperbit: int, max_excitation: int):
@@ -113,9 +107,7 @@ def get_excitation_idx_map(statesperbit: int, max_excitation: int):
     return caches_idx_maps[(statesperbit, max_excitation)]
 
 
-def eig_excitation_trunc(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, M=30
-) -> tuple[NDArray, NDArray] | NDArray:
+def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, M=30):
     """
     k: controls how many transmon eigenstates are included per qubit
     units of Ec1
@@ -158,7 +150,7 @@ def eig_excitation_trunc(
 
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
-        return cp.asnumpy(vals), get_excitation_idx_map(N, M)
+        return cp.asnumpy(vals)
     vals, vecs = cp.linalg.eigh(H)
 
     # Note that with excitation trunc we get have to count differently

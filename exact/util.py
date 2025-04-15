@@ -2,47 +2,16 @@ import scipy.special as spec
 import numpy as np
 import scipy.linalg as spalg
 from matplotlib import pyplot as plt
-
-# these functions are a bit specific at the moment
-
-
-def interaction_term(Ej1, Ej2):
-    # get g from matrices assuming Ec1=Ec2=1
-    C = 120  # charge trunc, I have done zero investigation to convergence wrt this param
-    nstates = np.arange(-C, C + 1, step=1)
-
-    _, vecs1 = spalg.eigh_tridiagonal(np.square(nstates) * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
-    _, vecs2 = spalg.eigh_tridiagonal(np.square(nstates) * 4 * 1, -np.ones(2 * C) * Ej2 / 2)
-
-    n1 = np.diag(nstates)
-    n2 = np.diag(nstates)
-    # change into transmon bare basis
-    n1 = vecs1.T @ n1 @ vecs1
-    n2 = vecs2.T @ n2 @ vecs2
-
-    trunc = 2  # transmon trunc
-    n1 = n1[:trunc, :trunc]  # truncate
-    n2 = n2[:trunc, :trunc]
-    interact = np.kron(n1, n2)
-    # return the interaction matrix between 00 01 10 11
-    return interact
+from exact.onetransmon.hamil import calc_eigs
+import cupy as cp
 
 
-def Eint_to_g_Ej(Ej1s: np.ndarray, Ej2, Eint):
-    gs = np.zeros_like(Ej1s)
-    imap = index_map(2)
-    for i in range(len(Ej1s)):
-        Hint = interaction_term(Ej1s[i], Ej2)
-        gs[i] = 4 * Eint * Hint[imap[0][1], imap[1][0]]
-    # absolute because signs may flip. Keep in mind for larger systems when sign of g can matter
-    return np.abs(gs)
-
-
-def Eint_to_g_Eint(Ej1, Ej2, Eints: np.ndarray):
-    Hint = interaction_term(Ej1, Ej2)
-    imap = index_map(2)
-    gs = 4 * Eints * Hint[imap[0][1], imap[1][0]]
-    return np.abs(gs)
+def kron(*mats):
+    """For CuPy matrices"""
+    total = mats[0]
+    for i in range(1, len(mats)):
+        total = cp.kron(total, mats[i])
+    return total
 
 
 def exact_energy(m, Ec, Ej):
@@ -71,7 +40,7 @@ def gconstant(Ec1, Ej1: np.ndarray, Ec2, Ej2, Eint):
 
 
 def omega_alphas(Ec, Ej: np.ndarray, fancy: bool):
-    # Ec is meant to be 1, the unit
+    """Given exact model, translate params to omega, alpha. Ec is meant to be 1, the unit"""
     if fancy:
         grounds = exact_energy_a(m=0, Ec=Ec, Ej=Ej)
         omegas = exact_energy_b(m=1, Ec=Ec, Ej=Ej) - grounds
@@ -82,7 +51,7 @@ def omega_alphas(Ec, Ej: np.ndarray, fancy: bool):
     return omegas, alphas  # given that Ec is unit, these also get the unit Ec
 
 
-def index_map(N):
+def index_map2T(N):
     """
     map for two qubits.
     N: number of states per qubit
@@ -91,11 +60,12 @@ def index_map(N):
     idx_map = [[j + i * N for j in range(N)] for i in range(N)]
     return idx_map
 
+
 def index_map3T(N):
     """
     map for 3 qubits.
     """
-    idx_map = [[[j + i * N + k*N**2 for j in range(N)] for i in range(N)] for k in range(N)]
+    idx_map = [[[j + i * N + k * N**2 for j in range(N)] for i in range(N)] for k in range(N)]
     return idx_map
 
 

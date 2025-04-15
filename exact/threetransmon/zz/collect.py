@@ -49,10 +49,9 @@ def collect_levels():
 
 
 def collect():
-    Ejs = np.arange(30, 90, 0.5).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(
-        Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=np.arange(60, 70, 0.5), Eint12=0.1, Eint23=0.1, Eint13=0.1, k=8
-    )
+    Ejs = np.arange(30, 80, 0.5).tolist()  # numpy types cannot be json serialized
+    Eints = np.arange(0, 0.8, 0.05).tolist()
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=140, Eint12=Eints, Eint23=0.2, Eint13=0, k=8)
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
     # print(test)
@@ -82,24 +81,23 @@ def plot_allzz(var1: Iterable, var2: Iterable, *args):
 
 
 def plot_plane():
-    Ej1s = np.arange(30, 90, 0.5)
-    Ej3s = np.arange(30, 70, 0.5)
-
-    zz1, zz2, zz3, zzz = Store_zz3T.plane(
-        "Ej1", Ej1s, "Ej3", Ej3s, Ec2=1, Ec3=1, Ej2=50, Eint12=0.1, Eint23=0.1, Eint13=0.1
+    Ejs = np.arange(30, 80, 0.5).tolist()  # numpy types cannot be json serialized
+    Eints = np.arange(0, 0.8, 0.05)
+    zz12, zz2, zz3, zzz = Store_zz3T.plane(
+        "Ej1", Ejs, "Eint12", Eints, Ec2=1, Ec3=1, Ej2=50, Ej3=140, Eint23=0.2, Eint13=0
     )
-    plt.pcolor(Ej1s, Ej3s, np.abs(zzz - (zz1 + zz2 + zz3)) < 0.01)
+    plt.pcolor(Ejs, Eints, zz12)
     # plt.pcolor(Ej1s, Ej3s, np.abs(zzz) < 0.01)
     plt.xlabel("Ej1")
-    plt.title(f"rel [Ec1]")
-    plt.ylabel("Ej3")
+    plt.title(f"zz12 [Ec1], Line, Ej3=140 Ej2=50 Eint23=0.2 ")
+    plt.ylabel("Eint12")
     plt.colorbar()
     plt.show()
     # plot_allzz(Ej1s, Ej3s, zz1, zz2, zz3, zzz)
 
 
 if __name__ == "__main__":
-    # local_collect()
+    # collect()
     plot_plane()
     # collect_levels(
     # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=2, Eint12=0.1, Eint23=0.1, Eint13=0.1)
