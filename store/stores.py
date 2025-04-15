@@ -5,6 +5,7 @@ from store.models import Levels2T, ZZ2T, ZZ3T, Levels3T
 from functools import reduce
 from operator import or_
 from typing import Iterable
+import math
 
 tol = 1e-6  # tolerance for search in float/double columns
 
@@ -53,10 +54,10 @@ class StoreLevels2T:
     def insert(Ec2, Ej1, Ej2, Eint, levels):
         level_dict = dict([(f"E{i}", levels[i]) for i in range(len(levels))])
         return Levels2T.replace(
-            Ec2=round(Ec2, 2), Ej1=round(Ej1, 1), Ej2=round(Ej2), Eint=round(Eint, 2), **level_dict
+            Ec2=round(Ec2, 2), Ej1=round(Ej1, 1), Ej2=round(Ej2, 1), Eint=round(Eint, 2), **level_dict
         ).execute()
 
-    @staticmethod
+    @classmethod
     def insert_many(cls, results: list[dict]):
         for res in results:
             cls.insert(res["Ec2"], res["Ej1"], res["Ej2"], res["Eint"], res["levels"])
@@ -78,8 +79,8 @@ class StoreLevels2T:
     @classmethod
     def meshline(cls, **kwargs):
         # query along a one dimensional mesh. Exception is raised upon missing values
-        levels = np.zeros((len(query), cls.max_level + 1))
         query = meshline_query(cls, kwargs)
+        levels = np.zeros((len(query), cls.max_level + 1))
         for i, entry in enumerate(query):
             for j in range(cls.max_level + 1):
                 levels[i, j] = getattr(entry, f"E{j}")
@@ -184,7 +185,7 @@ class Store_zz3T:
             zz23[:, i] = zz23_line
             zz13[:, i] = zz13_line
             zzz[:, i] = zzz_line
-        return zz12, zz23, zz13, zzz
+        return zz12, zz23, zz13, zzz  # note: these are all with Gale Shapely
 
 
 class Store_zz2T:
@@ -200,7 +201,7 @@ class Store_zz2T:
     @staticmethod
     def insert(Ec2, Ej1, Ej2, Eint, zz, zzGS):
         return ZZ2T.replace(
-            Ec2=round(Ec2, 2), Ej1=round(Ej1, 1), Ej2=round(Ej2), Eint=round(Eint, 2), zz=zz, zzGS=zzGS
+            Ec2=round(Ec2, 2), Ej1=round(Ej1, 1), Ej2=round(Ej2, 1), Eint=round(Eint, 2), zz=zz, zzGS=zzGS
         ).execute()
 
     @classmethod
@@ -251,15 +252,21 @@ def approx_in(field, values):
 
 def meshline_query(cls, kwargs):
     # the idea is that one of kwargs is an iterable and we return entries with those values in ascending order
-    iterable = get_iterable_key(kwargs)
+    iterable_key = get_iterable_key(kwargs)
     query = cls.model.select()
+    iterable = kwargs[iterable_key]
+    num = len(iterable)
     for key, val in kwargs.items():
         # the fixed ones
-        if key != iterable:
+        if key != iterable_key:
             query = query.where(getattr(cls.model, key).between(val - tol, val + tol))
-    query = query.where(approx_in(getattr(cls.model, iterable), kwargs[iterable]))
-    query = query.order_by(getattr(cls.model, iterable))
-    if len(query) != len(kwargs[iterable]):
+    chunk = 20
+    ranges = [iterable[chunk * i : chunk * (i + 1)] for i in range(math.ceil(num / chunk))]
+    # print(partial1, partial2)
+    iterable_field = getattr(cls.model, iterable_key)
+    query_parts = [query.where(approx_in(iterable_field, part_range)) for part_range in ranges]
+    query = reduce(lambda a, b: a.union(b), query_parts)
+    if len(query) != len(iterable):
         raise Exception("Requested variables could not be found")
     return query
 
