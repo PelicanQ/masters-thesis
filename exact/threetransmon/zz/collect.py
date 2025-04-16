@@ -10,7 +10,9 @@ from typing import Iterable
 
 def local_collect():
     Ej1s = np.arange(30, 80, 1).tolist()  # numpy types cannot be json serialized
-    Ej2s = np.arange(30, 80, 1).tolist()  # numpy types cannot be json serialized
+
+    Ej2s = np.arange(30, 80, 0.2).tolist()  # numpy types cannot be json serialized
+    Ej2s = list(filter(lambda n: abs(n - round(n)) > 1e-4, Ej2s))
     jobs = collect_jobs(
         Ec2=1,
         Ec3=1,

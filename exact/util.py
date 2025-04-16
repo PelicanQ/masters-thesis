@@ -4,13 +4,30 @@ import scipy.linalg as spalg
 from matplotlib import pyplot as plt
 from exact.onetransmon.hamil import calc_eigs
 import cupy as cp
+import cupyx.scipy.sparse
 
 
-def kron(*mats):
-    """For CuPy matrices"""
+def kron_sparse(*mats, format: str = "csr"):
+    """For CuPy sparse matrices"""
+    total = mats[0]
+    for i in range(1, len(mats)):
+        total = cupyx.scipy.sparse.kron(total, mats[i], format=format)
+    return total
+
+
+def kron_cp(*mats):
+    """For CuPy  matrices"""
     total = mats[0]
     for i in range(1, len(mats)):
         total = cp.kron(total, mats[i])
+    return total
+
+
+def kron(*mats):
+    """For numpy matrices"""
+    total = mats[0]
+    for i in range(1, len(mats)):
+        total = np.kron(total, mats[i])
     return total
 
 

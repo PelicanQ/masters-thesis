@@ -6,16 +6,16 @@ import scipy.linalg as spalg
 from numpy.typing import NDArray
 import itertools
 import time
-from exact.util import kron
+from exact.util import kron_cp
 
 
 def excitation_trunc_indices(statesperbit: int, max_excitation: int):
     """Return Hamiltonian indices of states with too high excitation"""
     indices = []
-    N = statesperbit
-    for i, j, k in itertools.product(range(N), repeat=3):
+    statesperbit
+    for i, j, k in itertools.product(range(statesperbit), repeat=3):
         if i + j + k > max_excitation:
-            indices.append(i + j * N + k * N**2)
+            indices.append(i + j * statesperbit + k * statesperbit**2)
     return indices
 
 
@@ -66,11 +66,11 @@ def eig_clever_vis(
 
     ID = cp.eye(N, N)
 
-    Hint12 = 4 * Eint12 * kron(n1, n2, ID)
-    Hint23 = 4 * Eint23 * kron(ID, n2, n3)
-    Hint13 = 4 * Eint13 * kron(n1, ID, n3)
+    Hint12 = 4 * Eint12 * kron_cp(n1, n2, ID)
+    Hint23 = 4 * Eint23 * kron_cp(ID, n2, n3)
+    Hint13 = 4 * Eint13 * kron_cp(n1, ID, n3)
 
-    H = kron(D1, ID, ID) + kron(ID, D2, ID) + kron(ID, ID, D3) + Hint12 + Hint23 + Hint13
+    H = kron_cp(D1, ID, ID) + kron_cp(ID, D2, ID) + kron_cp(ID, ID, D3) + Hint12 + Hint23 + Hint13
 
     # now let's remove states with too large excitation sum
     # gather indices and delete at once
@@ -137,17 +137,17 @@ def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_e
 
     ID = cp.eye(N, N)
 
-    Hint12 = 4 * Eint12 * kron(n1, n2, ID)
-    Hint23 = 4 * Eint23 * kron(ID, n2, n3)
-    Hint13 = 4 * Eint13 * kron(n1, ID, n3)
-    ID2 = kron(ID, ID)  # kronecker products can take time so this optimizes a bit
-    H = kron(D1, ID2) + kron(ID, D2, ID) + kron(ID2, D3) + Hint12 + Hint23 + Hint13
+    Hint12 = 4 * Eint12 * kron_cp(n1, n2, ID)
+    Hint23 = 4 * Eint23 * kron_cp(ID, n2, n3)
+    Hint13 = 4 * Eint13 * kron_cp(n1, ID, n3)
+    ID2 = kron_cp(ID, ID)  # kronecker products can take time so this optimizes a bit
+    H = kron_cp(D1, ID2) + kron_cp(ID, D2, ID) + kron_cp(ID2, D3) + Hint12 + Hint23 + Hint13
 
     # now let's remove states with too large excitation sum
     indices = excitation_trunc_indices(N, M)
     H = cp.delete(H, indices, axis=0)
     H = cp.delete(H, indices, axis=1)
-
+    print(H.shape)
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
         return cp.asnumpy(vals)
@@ -191,11 +191,11 @@ def eig_clever(
 
     ID = cp.eye(N, N)
 
-    Hint12 = 4 * Eint12 * kron(n1, n2, ID)
-    Hint23 = 4 * Eint23 * kron(ID, n2, n3)
-    Hint13 = 4 * Eint13 * kron(n1, ID, n3)
+    Hint12 = 4 * Eint12 * kron_cp(n1, n2, ID)
+    Hint23 = 4 * Eint23 * kron_cp(ID, n2, n3)
+    Hint13 = 4 * Eint13 * kron_cp(n1, ID, n3)
 
-    H = kron(D1, ID, ID) + kron(ID, D2, ID) + kron(ID, ID, D3) + Hint12 + Hint23 + Hint13
+    H = kron_cp(D1, ID, ID) + kron_cp(ID, D2, ID) + kron_cp(ID, ID, D3) + Hint12 + Hint23 + Hint13
 
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
@@ -207,14 +207,5 @@ def eig_clever(
 
 
 if __name__ == "__main__":
-    start = time.perf_counter()
-    for _ in range(3):
-        eig_clever(1, 1, 50, 55, 60, 0.2, 0.4, 0.6, k=10)
-    end = time.perf_counter()
-    print(f"eig_clever execution time: {end - start:.4f} seconds")
-
-    start = time.perf_counter()
-    for _ in range(3):
-        eig_excitation_trunc(1, 1, 50, 55, 60, 0.2, 0.4, 0.6, k=10)
-    end = time.perf_counter()
-    print(f"eig_excitation_trunc execution time: {end - start:.4f} seconds")
+    # eig_excitation_trunc(1, 1, 50, 55, 60, 0.2, 0.4, 0.6)
+    pass
