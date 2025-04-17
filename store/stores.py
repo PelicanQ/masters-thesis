@@ -266,7 +266,7 @@ def meshline_query(cls, kwargs):
     iterable_field = getattr(cls.model, iterable_key)
     query_parts = [query.where(approx_in(iterable_field, part_range)) for part_range in ranges]
     query = reduce(lambda a, b: a.union(b), query_parts)
-    print(kwargs)
+    # print(kwargs)
     if len(query) != len(iterable):
         raise Exception("Requested variables could not be found")
     return query

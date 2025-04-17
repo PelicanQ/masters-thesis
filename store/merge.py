@@ -6,7 +6,7 @@ from peewee import SqliteDatabase
 # Target database will be the one on the machine running this file
 # Source database
 source = SqliteDatabase(
-    "remotedata2.db",
+    "remotedata.db",
     pragmas={"foreign_keys": 1},  # Enforce foreign-key constraints
 )
 

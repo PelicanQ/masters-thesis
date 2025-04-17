@@ -107,21 +107,20 @@ def get_excitation_idx_map(statesperbit: int, max_excitation: int):
     return caches_idx_maps[(statesperbit, max_excitation)]
 
 
-def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, M=30):
+def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, M=30, N=None, C=20):
     """
     k: controls how many transmon eigenstates are included per qubit
     units of Ec1
     Returns:
         eigenvalues and eigenvectors in bare basis
     """
-    C = 20
     nstates = np.arange(-C, C + 1, step=1)
     ndiag = np.square(nstates)
     vals1, vecs1 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
     vals2, vecs2 = spalg.eigh_tridiagonal(ndiag * 4 * Ec2, -np.ones(2 * C) * Ej2 / 2)
     vals3, vecs3 = spalg.eigh_tridiagonal(ndiag * 4 * Ec3, -np.ones(2 * C) * Ej3 / 2)
-
-    N = 2 * k + 1  # transmon trunc
+    if N == None:
+        N = 2 * k + 1  # transmon trunc
     D1 = cp.diag(vals1[:N])  # vals are sorted in ascending order
     D2 = cp.diag(vals2[:N])
     D3 = cp.diag(vals3[:N])
@@ -147,7 +146,6 @@ def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_e
     indices = excitation_trunc_indices(N, M)
     H = cp.delete(H, indices, axis=0)
     H = cp.delete(H, indices, axis=1)
-    print(H.shape)
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
         return cp.asnumpy(vals)
