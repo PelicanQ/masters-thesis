@@ -7,9 +7,9 @@ __hamilcache__
 *.tsv
 *.mw
 *.npy
-/db.db
 */gale_shapely/*.c
 */gale_shapely/*.pyd
 */gale_shapely/build
 /.env
 /pypy
+/*.db
