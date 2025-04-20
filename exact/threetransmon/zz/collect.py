@@ -48,13 +48,13 @@ def collect_levels():
 
 
 def collect():
-    Ejs = np.arange(30, 80, 0.5).tolist()  # numpy types cannot be json serialized
-    Eints = np.arange(0, 0.8, 0.05).tolist()
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=140, Eint12=Eints, Eint23=0.2, Eint13=0, k=8)
+    Ejs = np.arange(30, 80, 0.2).tolist()  # numpy types cannot be json serialized
+    Eints = np.arange(0, 0.5, 0.01).tolist()
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=60, Eint12=Eints, Eint23=0.2, Eint13=0, k=7)
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
     # print(test)
-    r = asyncio.run(H.submit(jobs, batch_size=20))
+    r = asyncio.run(H.submit(jobs, batch_size=50))
     Store_zz3T.insert_many(r)
     print("Done inserting")
 
@@ -88,7 +88,7 @@ def plot_plane():
     plt.pcolor(Ejs, Eints, zz12)
     # plt.pcolor(Ej1s, Ej3s, np.abs(zzz) < 0.01)
     plt.xlabel("Ej1")
-    plt.title(f"zz12 [Ec1], Line, Ej3=140 Ej2=50 Eint23=0.2 ")
+    plt.title(f"zz12 [Ec1], Line, Ej3=140 Ej2=50 Eint23=0.2")
     plt.ylabel("Eint12")
     plt.colorbar()
     plt.show()
@@ -96,8 +96,8 @@ def plot_plane():
 
 
 if __name__ == "__main__":
-    # collect()
-    local_collect()
+    collect()
+    # local_collect()
     # plot_plane()
     # collect_levels(
     # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=2, Eint12=0.1, Eint23=0.1, Eint13=0.1)

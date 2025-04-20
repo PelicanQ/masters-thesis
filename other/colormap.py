@@ -3,6 +3,10 @@ import numpy as np
 from matplotlib import colors
 
 
+def Norm(ceil):
+    return colors.SymLogNorm(1e-5, vmin=-ceil, vmax=ceil)
+
+
 def OrBu_colormap():
     # First, sample 20 points from the Blues colormap in reverse order
     colors1 = plt.cm.Blues_r(np.linspace(0.0, 1, 20))

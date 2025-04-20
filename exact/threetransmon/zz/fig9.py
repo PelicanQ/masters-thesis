@@ -1,5 +1,5 @@
 # recreate figure 6 in ZZ paper
-from other.colormap import OrBu_colormap
+from other.colormap import OrBu_colormap, Norm
 import numpy as np
 from matplotlib import pyplot as plt
 from jobmanager.util import collect_jobs
@@ -18,6 +18,7 @@ Eint13 = 0
 zz12, zz23, zz13, zzz = Store_zz3T.plane(
     "Ej2", Ej2s, "Ej1", Ej1s, Ej3=Ej3, Eint12=Eint12, Eint23=Eint23, Eint13=Eint13, Ec2=1, Ec3=1
 )
+print("Fetch done")
 # o1, _ = omega_alphas(1, Ej1s, True)
 # o2, _ = omega_alphas(1, Ej2s, True)
 o3, _ = omega_alphas(1, Ej3, True)
@@ -38,15 +39,16 @@ for i in range(len(Ej1s)):
         detunegrid[i, j] = detun
 # o1, _ = omega_alphas(1, Ej1s, True)
 # o2, _ = omega_alphas(1, Ej2s, True)
-plt.pcolormesh(o2primgrid, detunegrid, zz13, norm=colors.SymLogNorm(1e-6, vmin=-1e-1, vmax=1e-1), cmap=OrBu_colormap())
-plt.xlabel("coupler prim [Ec]")
+plt.pcolormesh(o2primgrid, detunegrid, zzz, norm=Norm(1e1), cmap=OrBu_colormap())
+plt.title("ZZZ [Ec] Ej3=50 Eint13=0 Eint12=Eint23=0.1")
+plt.xlabel("omega2 prim [Ec]")
 plt.ylabel("Detuning [Ec]")
 plt.colorbar()
-plt.figure()
-vars, zz12, zz23, zz13, zzz = Store_zz3T.line(
-    Ej1=70, Ej3=Ej3, Eint12=Eint12, Eint23=Eint23, Eint13=Eint13, Ec2=1, Ec3=1
-)
+# plt.figure()
+# vars, zz12, zz23, zz13, zzz = Store_zz3T.line(
+#     Ej1=70, Ej3=Ej3, Eint12=Eint12, Eint23=Eint23, Eint13=Eint13, Ec2=1, Ec3=1
+# )
 
-plt.plot(vars, zz13)
+# plt.plot(vars, zz13)
 
 plt.show()

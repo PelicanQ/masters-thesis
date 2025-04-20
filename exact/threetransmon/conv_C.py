@@ -5,22 +5,22 @@ from analysis.plot import plot
 from matplotlib import pyplot as plt
 
 # Here we decide a reasonable C parameter
-M = 28
-N = 20
+M = 20
+N = 15
 points = [
     (50, 50, 50, 0.1, 0.1, 0.1),
-    # (50, 50, 50, 0.3, 0.3, 0.3),
-    # (50, 50, 50, 0.5, 0.5, 0.5),
-    # (50, 55, 60, 0.1, 0.1, 0.1),
-    # (50, 55, 60, 0.3, 0.3, 0.3),
-    # (50, 55, 60, 0.5, 0.5, 0.5),
-    # (40, 60, 70, 0.1, 0.1, 0.1),
-    # (40, 60, 70, 0.3, 0.3, 0.3),
-    # (40, 60, 70, 0.5, 0.5, 0.5),
+    (50, 50, 50, 0.3, 0.3, 0.3),
+    (50, 50, 50, 0.5, 0.5, 0.5),
+    (50, 55, 60, 0.1, 0.1, 0.1),
+    (50, 55, 60, 0.3, 0.3, 0.3),
+    (50, 55, 60, 0.5, 0.5, 0.5),
+    (40, 60, 70, 0.1, 0.1, 0.1),
+    (40, 60, 70, 0.3, 0.3, 0.3),
+    (40, 60, 70, 0.5, 0.5, 0.5),
 ]
-num_levels = 10  # number of levels above ground
+num_levels = 19  # number of levels above ground
 
-Cs = np.arange(7, 30, 4)
+Cs = np.arange(7, 25, 1)
 Es = np.zeros((len(Cs), num_levels))
 relative_errors = np.zeros((len(points), len(Cs), num_levels))
 
@@ -38,7 +38,7 @@ for p_i, point in enumerate(points):
 maxed = np.max(np.abs(relative_errors), axis=(0, 2)) + 1e-30
 # colors2 = plt.cm.Oranges(np.linspace(0, 0.75, 10))
 # mymap = colors.LinearSegmentedColormap.from_list("my_colormap", colors2)
-plt.plot(Cs, maxed)
+plt.semilogy(Cs[:-1], maxed[:-1], marker=".")
 
 plt.title("Relative error")
 plt.ylabel("as")

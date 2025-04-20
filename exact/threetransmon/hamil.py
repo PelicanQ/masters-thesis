@@ -35,7 +35,7 @@ def sorted_vals(vals1, vals2, vals3):
 
 
 def eig_clever_vis(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, C=20, M=30
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, C=20, M=20
 ) -> tuple[NDArray, NDArray] | NDArray:
     """
     k: controls how many transmon eigenstates are included per qubit
@@ -107,7 +107,7 @@ def get_excitation_idx_map(statesperbit: int, max_excitation: int):
     return caches_idx_maps[(statesperbit, max_excitation)]
 
 
-def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, M=30, N=None, C=20):
+def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, M=20, N=None, C=20):
     """
     k: controls how many transmon eigenstates are included per qubit
     units of Ec1
@@ -141,7 +141,6 @@ def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_e
     Hint13 = 4 * Eint13 * kron_cp(n1, ID, n3)
     ID2 = kron_cp(ID, ID)  # kronecker products can take time so this optimizes a bit
     H = kron_cp(D1, ID2) + kron_cp(ID, D2, ID) + kron_cp(ID2, D3) + Hint12 + Hint23 + Hint13
-
     # now let's remove states with too large excitation sum
     indices = excitation_trunc_indices(N, M)
     H = cp.delete(H, indices, axis=0)
@@ -205,5 +204,5 @@ def eig_clever(
 
 
 if __name__ == "__main__":
-    # eig_excitation_trunc(1, 1, 50, 55, 60, 0.2, 0.4, 0.6)
+    eig_excitation_trunc(1, 1, 50, 55, 60, 0.2, 0.4, 0.6)
     pass

@@ -109,7 +109,7 @@ def get_excitation_idx_map(statesperbit: int, max_excitation: int):
     return caches_idx_maps[(statesperbit, max_excitation)]
 
 
-def eig(Ej1, Ej2, Ej3, Ej4, Eint12, Eint23, Eint34, Eint14, only_energy=False, k=8, M=30):
+def eig(Ej1, Ej2, Ej3, Ej4, Eint12, Eint23, Eint34, Eint14, only_energy=False, N=15, M=20):
     """
     k: controls how many transmon eigenstates are included per qubit
     All Ec are equal to 1
@@ -124,7 +124,6 @@ def eig(Ej1, Ej2, Ej3, Ej4, Eint12, Eint23, Eint34, Eint14, only_energy=False, k
     vals2, vecs2 = spalg.eigh_tridiagonal(ndiagsqr * 4 * 1, -np.ones(2 * C) * Ej2 / 2)
     vals3, vecs3 = spalg.eigh_tridiagonal(ndiagsqr * 4 * 1, -np.ones(2 * C) * Ej3 / 2)
     vals4, vecs4 = spalg.eigh_tridiagonal(ndiagsqr * 4 * 1, -np.ones(2 * C) * Ej4 / 2)
-    N = 2 * k + 1  # transmon trunc
 
     # cupy sparse
     D1 = sparse.diags(vals1[:N], format="csr")
@@ -159,9 +158,9 @@ def eig(Ej1, Ej2, Ej3, Ej4, Eint12, Eint23, Eint34, Eint14, only_energy=False, k
     Hint = Hint12 + Hint23 + Hint34 + Hint14
     D = kron_sparse(D1, ID3) + kron_sparse(ID, D2, ID2) + kron_sparse(ID2, D3, ID) + kron_sparse(ID3, D4)
     H = D + Hint
-    indices = excitation_trunc_indices_keep(N, 20)
+    keep_idx = excitation_trunc_indices_keep(N, M)
 
-    H = H[:, indices][indices, :]
+    H = H[:, keep_idx][keep_idx, :]
 
     # convery truncated cpu matrix to gpu matrix
     # Idea is that only after truncation is matrix small enough to store on GPU memory

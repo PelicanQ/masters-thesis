@@ -25,7 +25,7 @@ for p_i, p in enumerate(points):
     v = np.zeros((len(NN), len(MM), num_levels))
     for i, N in enumerate(NN):
         for j, M in enumerate(MM):
-            vals = eig_excitation_trunc(1, 1, *p, only_energy=True, N=N, M=M)
+            vals = eig_excitation_trunc(1, 1, *p, only_energy=True, N=N, M=M, C=100)
             v[i, j, :] = vals[1 : num_levels + 1] - vals[0]
     final = v[-1, -1, :]
     relerr = (v - final) / final  # all relative to their final
@@ -45,7 +45,7 @@ for i in range(len(NN)):
 
 
 plt.colorbar()
-plt.title("Relative error")
+plt.title("Relative error, C=100")
 plt.ylabel("# Transmon eigenstates N")
 plt.xlabel("Maximum total excitation M")
 plt.show()

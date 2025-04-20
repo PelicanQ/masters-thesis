@@ -69,6 +69,7 @@ class Levels3T(Model):
         strict_tables = True
         primary_key = CompositeKey("Ec2", "Ec3", "Ej1", "Ej2", "Ej3", "Eint12", "Eint23", "Eint13")
 
+
 class ZZ3T(Model):
     Ec2 = DoubleField()
     Ec3 = DoubleField()
@@ -91,5 +92,4 @@ class ZZ3T(Model):
 
 
 if __name__ == "__main__":
-    # db.create_tables([ZZ3T])
     pass

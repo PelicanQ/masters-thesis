@@ -6,8 +6,7 @@ from functools import reduce
 from operator import or_
 from typing import Iterable
 import math
-
-tol = 1e-6  # tolerance for search in float/double columns
+from store.util import filter_grid, meshline_query, get_missing_key, get_where_query, line_query
 
 
 class StoreLevels3T:
@@ -32,7 +31,8 @@ class StoreLevels3T:
 
     @classmethod
     def line(cls, **kwargs):
-        missing_key, query = get_missing_key(kwargs, cls)
+        missing_key = get_missing_key(kwargs, cls)
+        query = get_where_query(kwargs, cls)
         vars = []
         levels = np.zeros((len(query), cls.max_level + 1))
 
@@ -64,7 +64,8 @@ class StoreLevels2T:
 
     @classmethod
     def line(cls, **kwargs):
-        missing_key, query = get_missing_key(kwargs, cls)
+        missing_key = get_missing_key(kwargs, cls)
+        query = get_where_query(kwargs, cls)
         vars = []
         levels = np.zeros((len(query), cls.max_level + 1))
 
@@ -144,16 +145,7 @@ class Store_zz3T:
 
     @classmethod
     def line(cls, **kwargs):
-        missing_key, query = get_missing_key(kwargs, cls)
-        vars = []
-        results = {key: [] for key in cls.all_vals}
-        for entry in query:
-            vars.append(getattr(entry, missing_key))
-            for column in cls.all_vals:
-                results[column].append(getattr(entry, column))
-        if len(vars) < 1:
-            raise Exception("It seems given values were not found")
-        return vars, *(results[val] for val in cls.all_vals)
+        return line_query(cls, kwargs)
 
     @classmethod
     def meshline(cls, **kwargs):
@@ -166,25 +158,28 @@ class Store_zz3T:
         return (results["zzGS12"], results["zzGS23"], results["zzGS13"], results["zzzGS"])
 
     @classmethod
-    def plane(cls, var1: str, val1: Iterable, var2: str, val2: Iterable, **kwargs):
-        # make a meshline over var2 then repeat for different var1
-        kwargs[var2] = val2
-        # all thesea are gale shapely
+    def plane_fast(
+        cls, var1: str, val1: np.ndarray, ndigits1: int, var2: str, val2: np.ndarray, ndigits2: int, **kwargs
+    ):
+        """val1 and val2 must be 1D numpy vectors"""
+        points, index_map1, index_map2 = filter_grid(cls, kwargs, var1, val2, ndigits1, var2, val2, ndigits2)
+
         zz12 = np.zeros((len(val2), len(val1)))
-        zz23 = np.zeros((len(val2), len(val1)))
-        zz13 = np.zeros((len(val2), len(val1)))
-        zzz = np.zeros((len(val2), len(val1)))
         zz12[:] = np.nan
-        zz23[:] = np.nan
-        zz13[:] = np.nan
-        zzz[:] = np.nan
-        for i, val in enumerate(val1):
-            kwargs[var1] = val
-            zz12_line, zz23_line, zz13_line, zzz_line = cls.meshline(**kwargs)  # a line as function of var2
-            zz12[:, i] = zz12_line
-            zz23[:, i] = zz23_line
-            zz13[:, i] = zz13_line
-            zzz[:, i] = zzz_line
+        zz23 = zz12.copy()
+        zz13 = zz12.copy()
+        zzz = zz12.copy()
+
+        for point in points:
+            varval1 = getattr(point, var1)
+            varval2 = getattr(point, var2)
+            index1 = index_map1[round(varval1, ndigits1)]
+            index2 = index_map2[round(varval2, ndigits2)]
+            zz12[index2, index1] = point.zzGS12
+            zz23[index2, index1] = point.zzGS23
+            zz13[index2, index1] = point.zzGS13
+            zzz[index2, index1] = point.zzzGS
+
         return zz12, zz23, zz13, zzz  # note: these are all with Gale Shapely
 
 
@@ -206,7 +201,8 @@ class Store_zz2T:
 
     @classmethod
     def line(cls, **kwargs):
-        missing_key, query = get_missing_key(kwargs, cls)
+        missing_key = get_missing_key(kwargs, cls)
+        query = get_where_query(kwargs, cls)
         vars = []
         zz = []
         zzGS = []
@@ -245,89 +241,5 @@ class Store_zz2T:
         return zzplane, zzGSplane
 
 
-def approx_in(field, values):
-    conditions = [field.between(v - tol, v + tol) for v in values]
-    return reduce(or_, conditions)
-
-
-def meshline_query(cls, kwargs):
-    # the idea is that one of kwargs is an iterable and we return entries with those values in ascending order
-    iterable_key = get_iterable_key(kwargs)
-    query = cls.model.select()
-    iterable = kwargs[iterable_key]
-    num = len(iterable)
-    for key, val in kwargs.items():
-        # the fixed ones
-        if key != iterable_key:
-            query = query.where(getattr(cls.model, key).between(val - tol, val + tol))
-    chunk = 20
-    ranges = [iterable[chunk * i : chunk * (i + 1)] for i in range(math.ceil(num / chunk))]
-    # print(partial1, partial2)
-    iterable_field = getattr(cls.model, iterable_key)
-    query_parts = [query.where(approx_in(iterable_field, part_range)) for part_range in ranges]
-    query = reduce(lambda a, b: a.union(b), query_parts)
-    # print(kwargs)
-    if len(query) != len(iterable):
-        raise Exception("Requested variables could not be found")
-    return query
-
-
-def get_missing_key(kwargs, cls):
-    keys = kwargs.keys()
-    missing_keys = list(filter(lambda s: s not in keys, cls.all_keys))
-    if len(missing_keys) != 1:
-        raise Exception("One key must be undefined")
-    missing_key = missing_keys[0]
-    print("variable: ", missing_key)
-
-    query = cls.model.select()
-    for key, val in kwargs.items():
-        query = query.where(getattr(cls.model, key).between(val - tol, val + tol))
-    return missing_key, query
-
-
-def get_iterable_key(kwargs: dict) -> str:
-    # intended for when one key is iterable
-    iterable_name: str = None
-    for key, val in kwargs.items():
-        try:
-            iter(val)
-            iterable = True
-        except:
-            iterable = False
-        if iterable:
-            iterable_name = key
-    if iterable_name == None:
-        raise Exception("Failed to find")
-    return iterable_name
-
-
-def view():
-    Ej2 = 50
-    Eint = 0.1
-    Ec2 = 1
-    q = ZZ2T.select().where(ZZ2T.Eint == Eint).where(ZZ2T.Ec2 == Ec2)
-    Ej1s = []
-    Ej2s = []
-    zzGS = []
-    for entry in q:
-        print(entry.Ej1, entry.Ej2)
-        Ej1s.append(entry.Ej1)
-        Ej2s.append(entry.Ej2)
-        zzGS.append(entry.zzGS)
-    X = np.array([[0, 1, 3], [0, 1, 2]])
-    Y = np.array([[0, 0, 0], [1, 1, 1]])
-    C = np.array([[1, 2, 3], [4, 5, 6]])
-    plt.pcolormesh(X, Y, C, shading="nearest")
-    plt.show()
-
-
 if __name__ == "__main__":
-    x = np.arange(0, 0.9, 0.05)
-    y = np.arange(30, 70, 2)
-    vars, zz, zzGS = Store_zz2T.line(Eint=0.1, Ej1=50, Ej2=50)
-    print(vars)
-    plt.plot(vars, zzGS)
-    plt.show()
-
     pass
