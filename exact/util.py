@@ -64,7 +64,7 @@ def omega_alphas(Ec, Ej: np.ndarray, fancy: bool):
         alphas = exact_energy_a(m=1, Ec=Ec, Ej=Ej) - grounds - 2 * omegas
     else:
         omegas = np.sqrt(8 * Ec * Ej) - Ec
-        alphas = np.ones_like(Ej) * (-Ec)
+        alphas = np.ones(Ej.shape) * (-Ec)
     return omegas, alphas  # given that Ec is unit, these also get the unit Ec
 
 

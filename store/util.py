@@ -39,7 +39,7 @@ def meshline_query(cls, kwargs):
 
 def line_query(cls, kwargs):
     missing_key = get_missing_key(kwargs, cls)
-    query = get_where_query(kwargs, cls)
+    query = get_where_query(cls, kwargs)
     vars = []
     results = {key: [] for key in cls.all_vals}
     for entry in query:
@@ -48,7 +48,7 @@ def line_query(cls, kwargs):
             results[column].append(getattr(entry, column))
     if len(vars) < 1:
         raise Exception("It seems no line was not found for given values")
-    return vars, *(results[val] for val in cls.all_vals)
+    return np.array(vars), *(results[val] for val in cls.all_vals)
 
 
 def get_missing_key(kwargs, cls):
@@ -62,7 +62,7 @@ def get_missing_key(kwargs, cls):
     return missing_key
 
 
-def get_where_query(kwargs, cls):
+def get_where_query(cls, kwargs):
     query = cls.model.select()
     for key, val in kwargs.items():
         query = query.where(getattr(cls.model, key).between(val - tol, val + tol))
@@ -105,7 +105,7 @@ def parameter_index_map(values: Iterable, ndecimals: int):
 
 def filter_grid(cls, kwargs, var1: str, val1: Iterable, ndigits1: int, var2: str, val2: Iterable, ndigits2: int):
     grid_size = len(val1) * len(val2)  # how many points in request grid?
-    query = get_where_query(kwargs, cls)
+    query = get_where_query(cls, kwargs)
     var1_candidates = np.ones((len(query),))
     var2_candidates = np.ones((len(query),))
     candidates = []

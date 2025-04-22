@@ -63,7 +63,7 @@ class Store_zz5T:
     @classmethod
     def line(cls, **kwargs):
         missing_key = get_missing_key(kwargs, cls)
-        query = get_where_query(kwargs, cls)
+        query = get_where_query(cls, kwargs)
         vars = []
         results = {key: [] for key in cls.all_vals}
         for entry in query:

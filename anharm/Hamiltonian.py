@@ -88,14 +88,14 @@ class Hamil:
     def omega_to_delta(expr):
         """Meant to combine omegas to (qubit) deltas in a simple denominator. Assumptions are made about expression"""
         # find the omegas in expression.
-        nums = set()
-        for s in expr.free_symbols:
-            if "omega" in s.name:
-                n = int(extract_subscript(s.name))
-                nums.add(n)
+        nums = set()  # the set of unique number e.g. omega1 omega2 ...
+        for sym in expr.free_symbols:
+            if "omega" in sym.name:
+                num = int(extract_subscript(sym.name))
+                nums.add(num)
         nums = sorted(list(nums))
         if len(nums) < 2:
-            return expr
+            return expr  # if there is only one unique omega in expression
         delta = Symbol(rf"\Delta_{{{nums[0]},{nums[1]}}}")
 
         return expr.subs(Symbol(rf"\omega_{{{nums[0]}}}"), delta + Symbol(rf"\omega_{{{nums[1]}}}"))
@@ -138,7 +138,6 @@ class Hamil:
         for comb in itertools.combinations(range(self.numbits), 2):
             delta = Symbol(rf"\Delta_{{{comb[0]},{comb[1]}}}")
             pair = (Symbol(rf"\omega_{{{comb[0]}}}"), delta + Symbol(rf"\omega_{{{comb[1]}}}"))
-            # pair = (Symbol(rf"\omega_{{{comb[0]}}}") - Symbol(rf"\omega_{{{comb[1]}}}"), delta)
             replace_pairs.append(pair)
 
         return expr.subs(replace_pairs)
@@ -192,6 +191,7 @@ class Hamil:
                 elif type == "second":
                     return space.getsecondedges(state, keep_second_coupling)
             else:
+                print("getall")
                 return space.getall(state, keep_second_coupling)
 
         toplevel = getterms(topspace, zzstate)
@@ -268,7 +268,7 @@ class Subspace:
             elif order == 4:
                 ex = -(gconst**4) / delta**3
             else:
-                ex = gconst**2 / delta - (gconst**4 / delta**3)
+                ex = gconst**2 / delta * (1 - (gconst**2 / delta**2))
 
             totalexpr += ex
             num += 1
@@ -413,10 +413,16 @@ class Subspace:
             delta3 = Hamil.omega_to_delta(delta3)
             delta4 = Hamil.omega_to_delta(delta4)
             ex = (
-                g1 * g2 * g3 * g4 / (delta2 * delta3 * delta4) / 4
-                + g1 * g2 * g3 * g4 / (delta1 * delta2 * delta3) / 4
-                - 3 * g1 * g2 * g3 * g4 / (delta1 * delta3 * delta4) / 4
-                + 3 * g1 * g2 * g3 * g4 / (delta1 * delta2 * delta4) / 4
+                g1
+                * g2
+                * g3
+                * g4
+                * (
+                    1 / (delta2 * delta3 * delta4) / 4
+                    + 1 / (delta1 * delta2 * delta3) / 4
+                    - 3 / (delta1 * delta3 * delta4) / 4
+                    + 3 / (delta1 * delta2 * delta4) / 4
+                )
             )
             total += ex
         return total

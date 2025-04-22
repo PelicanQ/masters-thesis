@@ -9,23 +9,22 @@ from typing import Iterable
 
 
 def local_collect():
-    Ej1s = np.arange(30, 80, 1).tolist()  # numpy types cannot be json serialized
-
-    Ej2s = np.arange(30, 80, 0.2).tolist()  # numpy types cannot be json serialized
-    Ej2s = list(filter(lambda n: abs(n - round(n)) > 1e-4, Ej2s))
+    Ej1s = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
     jobs = collect_jobs(
         Ec2=1,
         Ec3=1,
         Ej1=Ej1s,
-        Ej2=Ej2s,
+        Ej2=np.arange(30, 100, 1),
         Ej3=50,
         Eint12=0.1,
-        Eint23=0.1,
+        Eint23=0.05,
         Eint13=0,
-        k=8,
     )
     for i, job in enumerate(jobs):
         print(i, len(jobs))
+        if Store_zz3T.check_exists(**job):
+            print("exists", job)
+            continue
         zz12, zz23, zz13, zzz = single_zz(**job)
         Store_zz3T.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
 
@@ -96,8 +95,8 @@ def plot_plane():
 
 
 if __name__ == "__main__":
-    collect()
-    # local_collect()
+    # collect()
+    local_collect()
     # plot_plane()
     # collect_levels(
     # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=2, Eint12=0.1, Eint23=0.1, Eint13=0.1)

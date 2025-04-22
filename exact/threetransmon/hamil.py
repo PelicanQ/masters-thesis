@@ -12,16 +12,19 @@ from exact.util import kron_cp
 def excitation_trunc_indices(statesperbit: int, max_excitation: int):
     """Return Hamiltonian indices of states with too high excitation"""
     indices = []
-    statesperbit
     for i, j, k in itertools.product(range(statesperbit), repeat=3):
         if i + j + k > max_excitation:
-            indices.append(i + j * statesperbit + k * statesperbit**2)
+            indices.append(k + j * statesperbit + i * statesperbit**2)
     return indices
 
 
 def sorted_vals(vals1, vals2, vals3):
+    """For visualize only"""
     levels = []
     for comb in itertools.product(range(5), repeat=3):
+        n1 = comb[0]
+        n2 = comb[1]
+        n3 = comb[2]
         sortvals1 = np.sort(vals1)
         sortvals2 = np.sort(vals2)
         sortvals3 = np.sort(vals3)
@@ -29,7 +32,7 @@ def sorted_vals(vals1, vals2, vals3):
         sortvals2 = sortvals2 - sortvals2[0]
         sortvals3 = sortvals3 - sortvals3[0]
         if sum(comb) < 4:
-            levels.append((comb, sortvals1[comb[0]] + sortvals2[comb[1]] + sortvals3[comb[2]]))
+            levels.append(((n1, n2, n3), sortvals1[n1] + sortvals2[n2] + sortvals3[n3]))
     levels = sorted(levels, key=lambda item: item[1])
     return levels
 
@@ -156,7 +159,7 @@ def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_e
 
 # this is the good one now
 def eig_clever(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=8, C=20
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, C=20
 ) -> tuple[NDArray, NDArray] | NDArray:
     """
     k: controls how many transmon eigenstates are included per qubit

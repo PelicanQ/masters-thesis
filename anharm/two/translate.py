@@ -29,7 +29,7 @@ def interaction_term(Ej1, Ej2):
 
 
 def Eint_to_g_Ej(Ej1s: np.ndarray, Ej2, Eint):
-    gs = np.zeros_like(Ej1s)
+    gs = np.zeros(Ej1s.shape)
     imap = index_map2T(2)
     for i in range(len(Ej1s)):
         Hint = interaction_term(Ej1s[i], Ej2)

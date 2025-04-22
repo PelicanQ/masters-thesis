@@ -37,9 +37,9 @@ def interaction_ops(Ec2, Ec3, Ej1, Ej2, Ej3):
 
 
 def Eints_to_g_Ej(Ej1s: np.ndarray, Ej2, Ej3, Eint12, Eint23, Eint13):
-    g12 = np.zeros_like(Ej1s)
-    g23 = np.zeros_like(Ej1s)
-    g13 = np.zeros_like(Ej1s)
+    g12 = np.zeros(Ej1s.shape)
+    g23 = np.zeros(Ej1s.shape)
+    g13 = np.zeros(Ej1s.shape)
     for i in range(len(Ej1s)):
         n1, n2, n3 = interaction_ops(1, 1, Ej1s[i], Ej2, Ej3)
         g12[i] = 4 * Eint12 * np.abs(n1[1, 0] * n2[0, 1])

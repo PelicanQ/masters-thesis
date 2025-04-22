@@ -10,7 +10,7 @@ def getHintLine(a, c, numbits, statesperbit):
     gs = []
     for i in range(numbits - 1):
         seq = [a + c if k == i or k == i + 1 else I for k in range(numbits)]
-        g = Symbol(f"g_{{{i},{i+1}}}")
+        g = Symbol(f"g_{{{i},{i+1}}}")  # shift so first bit get subscript 1
         gs.append(g)
         Hint = Hint + g * kronecker_product(*seq)
     return Hint, gs
@@ -21,12 +21,12 @@ def getHintTriang(a, c, numbits, statesperbit):
     Hint = Matrix.zeros(statesperbit**numbits)
     zum = a + c
     if numbits == 3:
-        Hint += Symbol("g_{1,2}") * kronecker_product(zum, zum, I)
-        Hint += Symbol("g_{2,3}") * kronecker_product(I, zum, zum)
-        Hint += Symbol("g_{1,3}") * kronecker_product(zum, I, zum)
+        Hint += Symbol("g_{0,1}") * kronecker_product(zum, zum, I)
+        Hint += Symbol("g_{1,2}") * kronecker_product(I, zum, zum)
+        Hint += Symbol("g_{0,2}") * kronecker_product(zum, I, zum)
     else:
         raise Exception("not impl")
-    return Hint, [Symbol("g_{1,2}"), Symbol("g_{2,3}"), Symbol("g_{1,3}")]
+    return Hint, [Symbol("g_{0,1}"), Symbol("g_{1,2}"), Symbol("g_{0,2}")]
 
 
 def getHintGrid(a, c, numbits, statesperbit):
@@ -35,6 +35,7 @@ def getHintGrid(a, c, numbits, statesperbit):
     zum = a + c
     symbols = []
     if numbits == 4:
+        # TODO: Change indices to 0
         Hint += Symbol("g_{1,2}") * kronecker_product(zum, zum, I, I)
         Hint += Symbol("g_{2,3}") * kronecker_product(I, zum, zum, I)
         Hint += Symbol("g_{3,4}") * kronecker_product(I, I, zum, zum)
@@ -105,7 +106,7 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
     for i in range(numbits):
         seq = [Hbare(i, a=a, c=c) if i == k else I for k in range(numbits)]
         Hbaretot += kronecker_product(*seq)
-
+    # notice that the Hamiltonian order counts the first bit as the leftmost in the kronecker products
     symbols = [Symbol(rf"\omega_{{{i}}}") for i in range(numbits)]  # order is important
     symbols.extend([Symbol(rf"\alpha_{{{i}}}") for i in range(numbits)])
 

@@ -32,7 +32,7 @@ class StoreLevels3T:
     @classmethod
     def line(cls, **kwargs):
         missing_key = get_missing_key(kwargs, cls)
-        query = get_where_query(kwargs, cls)
+        query = get_where_query(cls, kwargs)
         vars = []
         levels = np.zeros((len(query), cls.max_level + 1))
 
@@ -65,7 +65,7 @@ class StoreLevels2T:
     @classmethod
     def line(cls, **kwargs):
         missing_key = get_missing_key(kwargs, cls)
-        query = get_where_query(kwargs, cls)
+        query = get_where_query(cls, kwargs)
         vars = []
         levels = np.zeros((len(query), cls.max_level + 1))
 
@@ -115,6 +115,16 @@ class Store_zz3T:
             # this selection excludes k. We don't insert k
             cls.insert(**dict(fields))
 
+    @classmethod
+    def check_exists(cls, **kwargs):
+        """To avoid duplicate work, use this to see if data already exists"""
+        keys = list(filter(lambda key: key in cls.all_keys, kwargs.keys()))
+        if len(keys) != len(cls.all_keys):
+            raise Exception("Please supply all keys")
+        query = get_where_query(cls, dict([(key, kwargs[key]) for key in keys]))
+        # in case some float rounding artifact has inserted what we consider duplicates
+        return query.count() >= 1
+
     @staticmethod
     def insert(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, zzGS12, zzGS23, zzGS13, zzzGS, k=None):
         # accept k parameter but ignore
@@ -158,9 +168,7 @@ class Store_zz3T:
         return (results["zzGS12"], results["zzGS23"], results["zzGS13"], results["zzzGS"])
 
     @classmethod
-    def plane_fast(
-        cls, var1: str, val1: np.ndarray, ndigits1: int, var2: str, val2: np.ndarray, ndigits2: int, **kwargs
-    ):
+    def plane(cls, var1: str, val1: np.ndarray, ndigits1: int, var2: str, val2: np.ndarray, ndigits2: int, **kwargs):
         """val1 and val2 must be 1D numpy vectors"""
         points, index_map1, index_map2 = filter_grid(cls, kwargs, var1, val2, ndigits1, var2, val2, ndigits2)
 
@@ -202,7 +210,7 @@ class Store_zz2T:
     @classmethod
     def line(cls, **kwargs):
         missing_key = get_missing_key(kwargs, cls)
-        query = get_where_query(kwargs, cls)
+        query = get_where_query(cls, kwargs)
         vars = []
         zz = []
         zzGS = []

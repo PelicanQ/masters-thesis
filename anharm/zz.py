@@ -66,7 +66,7 @@ def plotzzdelta():
         omega1 = delta + omega2
         E11 = omega1 + omega2
         E20 = 2 * omega1 + alpha1
-        E02 = np.ones_like(delta) * 2 * omega2 + alpha2
+        E02 = np.ones(delta.shape) * 2 * omega2 + alpha2
         return E02, E11, E20
 
     E02, E11, E20 = levels(deltas, omega2=20, alpha1=-0.5, alpha2=-0.5)

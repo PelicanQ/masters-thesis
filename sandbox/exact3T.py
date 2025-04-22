@@ -6,16 +6,22 @@ from util import makeslid, make_axslid, makeline
 from gale_shapley import state_assignment
 from matplotlib.widgets import CheckButtons
 from exact.threetransmon.hamil import eig_clever_vis
+from exact.util import omega_alphas
 import cupy as cp
 
 # Create figure and axis
 fig = plt.figure(1)
-ax = fig.subplots()
-
 plt.subplots_adjust(bottom=0.2)
+fig2 = plt.figure(2)
+ax = fig.subplots()
+ax2 = fig2.subplots()
+ax2.set_xlabel("o2prim")
+ax2.set_ylabel("delta13")
+(parampoint,) = ax2.plot(0, 0, marker="*")
+ax2.set_ylim(-6, 6)
+ax2.set_xlim(-6, 6)
 ax.set_ylim([10, 80])
 ax.set_title("3 transmon")
-
 Ej1_init = 50
 Ej2_init = 50
 Ej3_init = 50
@@ -28,8 +34,8 @@ lines = []
 linesbare = []
 
 for i in range(num_levels):
-    (line,) = makeline(0, "gray", "XXX")
-    (linebare,) = makeline(0, "gray", f"{i}", True)
+    (line,) = makeline(0, "gray", "XXX", ax=ax)
+    (linebare,) = makeline(0, "gray", f"{i}", True, ax=ax)
     lines.append(line)
     linesbare.append(linebare)
 
@@ -39,19 +45,19 @@ x1 = 0.6
 x2 = 0.1
 fontsize = 12
 # Add Slider
-ax_slid_Eint12 = make_axslid(x1, 0.05)
-ax_slid_Eint23 = make_axslid(x1, 0.1)
-ax_slid_Eint13 = make_axslid(x1, 0.15)
-ax_slidEj1 = make_axslid(x2, 0.05)
-ax_slidEj2 = make_axslid(x2, 0.1)
-ax_slidEj3 = make_axslid(x2, 0.15)
+ax_slid_Eint12 = make_axslid(x1, 0.05, fig)
+ax_slid_Eint23 = make_axslid(x1, 0.1, fig)
+ax_slid_Eint13 = make_axslid(x1, 0.15, fig)
+ax_slidEj1 = make_axslid(x2, 0.05, fig)
+ax_slidEj2 = make_axslid(x2, 0.1, fig)
+ax_slidEj3 = make_axslid(x2, 0.15, fig)
 
 slid_Eint12 = makeslid(ax_slid_Eint12, "Eint12", 0.5, 0.01, 0.5)
 slid_Eint23 = makeslid(ax_slid_Eint23, "Eint23", 0.5, 0.01, 0.5)
 slid_Eint13 = makeslid(ax_slid_Eint13, "Eint13", 0.5, 0.01, 0.5)
-slidEj1 = makeslid(ax_slidEj1, "Ej1", Ej1_init, 0.1, 20)
-slidEj2 = makeslid(ax_slidEj2, "Ej2", Ej2_init, 0.1, 20)
-slidEj3 = makeslid(ax_slidEj3, "Ej3", Ej3_init, 0.1, 20)
+slidEj1 = makeslid(ax_slidEj1, "Ej1", Ej1_init, 0.1, 30)
+slidEj2 = makeslid(ax_slidEj2, "Ej2", Ej2_init, 0.1, 30)
+slidEj3 = makeslid(ax_slidEj3, "Ej3", Ej3_init, 0.1, 30)
 
 textbares = []
 dx = 0.1
@@ -82,6 +88,9 @@ def update(val):
     Eint12 = slid_Eint12.val
     Eint23 = slid_Eint23.val
     Eint13 = slid_Eint13.val
+    Eint12 = 0
+    Eint23 = 0
+    Eint13 = 0
     levels, sortedbare = eig_clever_vis(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=True, k=7, M=20)
     # ignore ground state
     levels = levels - levels[0]
@@ -94,21 +103,24 @@ def update(val):
         E = levels[i]
         linesbare[i].set_ydata([bareE, bareE])
         lines[i].set_ydata([E, E])
-    # colors = np.array(["r", "g", "b"])[np.argsort([w1, w2, w3])]
-    # for i in range(3):
-    #     linesbare[i].set_color(colors[i])
-    #     lines[i].set_ydata([vals[i], vals[i]])
     for i in range(len(textbares)):
         textbares[i].set_text("".join(map(str, states[i])))
         textbares[i].set_y(bare_levels[i])
 
-    # for i in range(3):
-    #     text = texts[i]
-    #     line = lines[bare_to_dressed_index[i]] if galeshap else lines[i]
-    #     text.set_y(line.get_ydata()[1])
+    o1, _ = omega_alphas(1, Ej1, True)
+    o2, _ = omega_alphas(1, Ej2, True)
+    o3, _ = omega_alphas(1, Ej3, True)
+    d13 = o1 - o3
+    o2prim = o2 - (o3 + o1) / 2
+    print(d13, o2prim)
+    parampoint.set_data([o2prim, o2prim + 1e-6], [d13, d13])
     fig.canvas.draw_idle()
     ax.relim()
     ax.autoscale_view()
+
+    fig2.canvas.draw_idle()
+    ax2.relim()
+    ax2.autoscale_view()
 
 
 def toggle(val):
