@@ -47,13 +47,19 @@ def collect_levels():
 
 
 def collect():
-    Ejs = np.arange(30, 80, 0.2).tolist()  # numpy types cannot be json serialized
-    Eints = np.arange(0, 0.5, 0.01).tolist()
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=50, Ej3=60, Eint12=Eints, Eint23=0.2, Eint13=0, k=7)
+    Ejs = np.arange(50, 65, 0.2).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.05, Eint23=0.05, Eint13=0, k=7)
+    print("collected", len(jobs))
+    filtered = []
+    for i, job in enumerate(jobs):
+        print(i)
+        if not Store_zz3T.check_exists(**job):
+            filtered.append(job)
+    print("filtered", len(filtered))
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
     # print(test)
-    r = asyncio.run(H.submit(jobs, batch_size=50))
+    r = asyncio.run(H.submit(filtered, batch_size=50))
     Store_zz3T.insert_many(r)
     print("Done inserting")
 
@@ -95,8 +101,8 @@ def plot_plane():
 
 
 if __name__ == "__main__":
-    # collect()
-    local_collect()
+    collect()
+    # local_collect()
     # plot_plane()
     # collect_levels(
     # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=2, Eint12=0.1, Eint23=0.1, Eint13=0.1)

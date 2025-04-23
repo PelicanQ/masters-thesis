@@ -62,7 +62,7 @@ class Hamil:
 
     def getsecondedges(self, state, keep_2nd_coupling: bool):
         """2nd order couplings can be kept but not lambdified"""
-        return self.state2space(state).getsecondedges(state, keep_2nd_coupling)
+        return self.state2space(state).get_all_second_edges(state, keep_2nd_coupling)
 
     def getlegs(self, state):
         return self.state2space(state).getlegs(state)
@@ -189,9 +189,8 @@ class Hamil:
                 elif type == "4loop":
                     return space.get4cycles(state)
                 elif type == "second":
-                    return space.getsecondedges(state, keep_second_coupling)
+                    return space.get_all_second_edges(state, keep_second_coupling)
             else:
-                print("getall")
                 return space.getall(state, keep_second_coupling)
 
         toplevel = getterms(topspace, zzstate)
@@ -224,6 +223,9 @@ class Subspace:
                     graph.add_edge(self.basisnames[i], self.basisnames[j])
         self.graph = graph
 
+    def getcorrectedrepulsion(self, state1: str, state2: str):
+        total = self.getedge(state1, state2) + self.getedgecorrection(state1, state2)
+
     def getorder2(self, state):
         # get total SW energy expression
         return self.getedges(state, order=2)
@@ -239,7 +241,7 @@ class Subspace:
             + self.getlegs(state)
             + self.getbirds(state)
             + self.getedges(state, order=4)
-            + self.getsecondedges(state, keep_second_coupling)
+            + self.get_all_second_edges(state, keep_second_coupling)
         )
 
     def getall(self, state, keep_second_coupling: bool):
@@ -250,32 +252,78 @@ class Subspace:
             + self.getbirds(state)
             + self.get3cycles(state)
             + self.get4cycles(state)
-            + self.getsecondedges(state, keep_second_coupling)
+            + self.get_all_second_edges(state, keep_second_coupling)
         )
+
+    def get_4loop_contraction(self, state1, state2):
+        """
+        Get the contracted 4loop from state1 to state2.
+        Think about whether a contraction between give states is valid first.
+        """
+        delta12 = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta12 = Hamil.omega_to_delta(delta12)
+
+        middle_states: list[str] = []
+        for n in self.graph.neighbors(state1):
+            for nn in self.graph.neighbors(n):
+                if nn == state2:
+                    middle_states.append(n)
+
+        print("Middle states", middle_states)
+        if len(middle_states) > 3:
+            raise Exception("We have not proven this contraction for more than 3 middle states")
+        summ = sp.sympify(0)
+        for m in middle_states:
+            g1m = self.statemat.loc[state1, m]
+            gm2 = self.statemat.loc[m, state2]
+            delta1m = self.statemat.loc[state1, state1] - self.statemat.loc[m, m]
+            delta1m = Hamil.omega_to_delta(delta1m)
+            summ += g1m * gm2 / delta1m
+        return 1 / delta12 * summ**2
+
+    def get_all_edge_corrections(self, state1, state2):
+        """Get all half-birds which correct the edgee state1 to state2"""
+        total = sp.sympify(0)
+        for n in self.graph.neighbors(state1):
+            if n == state2:
+                continue
+            total += self.get_edge_correction(state1, state2, n)
+        return total
+
+    def get_edge_correction(self, state1, state2, state3):
+        """Get half-bird to state3 which corrects edge from state1 to state2"""
+        g12 = self.statemat.loc[state1, state2]
+        g13 = self.statemat.loc[state1, state3]
+        delta12 = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta13 = self.statemat.loc[state1, state1] - self.statemat.loc[state3, state3]
+        delta12 = Hamil.omega_to_delta(delta12)
+        delta13 = Hamil.omega_to_delta(delta13)
+
+        ex = -(g12**2) / delta12 * (g13 / delta13) ** 2
+        return ex
+
+    def getedge(self, state1, state2, order=None):
+        gconst = self.statemat.loc[state1, state2]
+        delta = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta = Hamil.omega_to_delta(delta)
+
+        if order == 2:
+            return gconst**2 / delta
+        elif order == 4:
+            return -(gconst**4) / delta**3
+        else:
+            return gconst**2 / delta * (1 - (gconst**2 / delta**2))
 
     def getedges(self, state, order: None | int = None):
         """If order not given: both 2nd 4th order terms"""
         totalexpr = sp.sympify(0)
-        num = 0
         for n in nx.neighbors(self.graph, state):
-            # create one edge
-            gconst = self.statemat.loc[state, n]
-            delta = self.statemat.loc[state, state] - self.statemat.loc[n, n]
-            delta = Hamil.omega_to_delta(delta)
-
-            if order == 2:
-                ex = gconst**2 / delta
-            elif order == 4:
-                ex = -(gconst**4) / delta**3
-            else:
-                ex = gconst**2 / delta * (1 - (gconst**2 / delta**2))
-
-            totalexpr += ex
-            num += 1
+            totalexpr += self.getedge(state, n, order)
 
         return totalexpr
 
     def secondcoupling(self, state: str, target: str):
+        """Get the second order coupling constant"""
         paths = nx.all_simple_paths(self.graph, state, target, 2)
         paths = list(filter(lambda path: len(path) == 3, paths))  # remove direct paths
         t = sp.sympify(0)
@@ -299,29 +347,31 @@ class Subspace:
             return s2, s1
         return s1, s2
 
-    def getsecondedges(self, state, keep_2nd_coupling: bool):
-        """Get '(2) edges'.
-        2nd order coupling constants can be kept symbolically but these expressions cannot be lambdified for now.
+    def get_second_edge(self, state1, state2, keep_2nd_coupling: bool):
+        """Get the second order edge from state1 to state2"""
+
+        if keep_2nd_coupling:
+            s1, s2 = self.order_states(state1, state2)
+            # We can choose
+            gconst = Symbol(f"g^{{(2)}}_{{{s1},{s2}}}")
+        else:
+            gconst = self.secondcoupling(state1, state2)
+        delta = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta = Hamil.omega_to_delta(delta)
+        delta = Hamil.omega_to_delta(delta)  # yes omega to delta, twice. Otherwise some omega is left
+        return gconst**2 / delta
+
+    def get_all_second_edges(self, state, keep_2nd_coupling: bool):
+        """Get second order repulsion edges.
+        2nd order coupling constants can be kept symbolically but these expressions cannot be lambdified at the moment.
         Order is 4.
         """
         totalexpr = sp.sympify(0)
-        secondneighbors: set[str] = set()
         for n in nx.neighbors(self.graph, state):
             for nn in nx.neighbors(self.graph, n):
-                if nn != state:
-                    secondneighbors.add(nn)  # of course state is its neighbors neighbour
-
-        for nn in secondneighbors:
-            if keep_2nd_coupling:
-                s1, s2 = self.order_states(state, nn)
-                # We can choose
-                gconst = Symbol(f"g^{{(2)}}_{{{s1},{s2}}}")
-            else:
-                gconst = self.secondcoupling(state, nn)  # calculate
-            delta = self.statemat.loc[state, state] - self.statemat.loc[nn, nn]
-            delta = Hamil.omega_to_delta(delta)
-            delta = Hamil.omega_to_delta(delta)  # yes, twice
-            totalexpr += gconst**2 / delta
+                if nn == state:
+                    continue  # of course state is its neighbors neighbour
+                totalexpr += self.get_second_edge(state, nn, keep_2nd_coupling)
         return totalexpr
 
     def getlegs(self, state):

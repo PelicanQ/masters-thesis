@@ -19,14 +19,30 @@ def getHintLine(a, c, numbits, statesperbit):
 def getHintTriang(a, c, numbits, statesperbit):
     I = Matrix.eye(statesperbit)
     Hint = Matrix.zeros(statesperbit**numbits)
+    g01 = Symbol("g_{0,1}")
+    g12 = Symbol("g_{1,2}")
+    g02 = Symbol("g_{0,2}")
+    symbols = [g01, g12, g02]
     zum = a + c
     if numbits == 3:
-        Hint += Symbol("g_{0,1}") * kronecker_product(zum, zum, I)
-        Hint += Symbol("g_{1,2}") * kronecker_product(I, zum, zum)
-        Hint += Symbol("g_{0,2}") * kronecker_product(zum, I, zum)
+        Hint += g01 * kronecker_product(zum, zum, I)
+        Hint += g12 * kronecker_product(I, zum, zum)
+        Hint += g02 * kronecker_product(zum, I, zum)
+    elif numbits == 5:
+        g23 = Symbol("g_{2,3}")
+        g34 = Symbol("g_{3,4}")
+        g24 = Symbol("g_{2,4}")
+        Hint += g01 * kronecker_product(zum, zum, I, I, I)
+        Hint += g12 * kronecker_product(I, zum, zum, I, I)
+        Hint += g02 * kronecker_product(zum, I, zum, I, I)
+
+        Hint += g23 * kronecker_product(I, I, zum, zum, I)
+        Hint += g34 * kronecker_product(I, I, I, zum, zum)
+        Hint += g24 * kronecker_product(I, I, zum, I, zum)
+        symbols.extend([g23, g34, g24])
     else:
         raise Exception("not impl")
-    return Hint, [Symbol("g_{0,1}"), Symbol("g_{1,2}"), Symbol("g_{0,2}")]
+    return Hint, symbols
 
 
 def getHintGrid(a, c, numbits, statesperbit):
@@ -40,33 +56,36 @@ def getHintGrid(a, c, numbits, statesperbit):
         Hint += Symbol("g_{2,3}") * kronecker_product(I, zum, zum, I)
         Hint += Symbol("g_{3,4}") * kronecker_product(I, I, zum, zum)
         Hint += Symbol("g_{1,4}") * kronecker_product(zum, I, I, zum)
-        symbols = [
-            Symbol("g_{1,2}"),
-            Symbol("g_{2,3}"),
-            Symbol("g_{3,4}"),
-            Symbol("g_{1,4}"),
-        ]
-    elif numbits == 6:
-
-        Hint += Symbol("g_{1,2}") * kronecker_product(zum, zum, I, I, I, I)
-        Hint += Symbol("g_{2,3}") * kronecker_product(I, zum, zum, I, I, I)
-        Hint += Symbol("g_{3,4}") * kronecker_product(I, I, zum, zum, I, I)
-        Hint += Symbol("g_{1,4}") * kronecker_product(zum, I, I, zum, I, I)
-
-        Hint += Symbol("g_{2,5}") * kronecker_product(I, zum, I, I, zum, I)
-        Hint += Symbol("g_{5,6}") * kronecker_product(I, I, I, I, zum, zum)
-        Hint += Symbol("g_{3,6}") * kronecker_product(I, I, zum, I, I, zum)
-        symbols = [
-            Symbol("g_{1,2}"),
-            Symbol("g_{2,3}"),
-            Symbol("g_{3,4}"),
-            Symbol("g_{1,4}"),
-            Symbol("g_{2,5}"),
-            Symbol("g_{5,6}"),
-            Symbol("g_{3,6}"),
-        ]
+        symbols = [Symbol("g_{1,2}"), Symbol("g_{2,3}"), Symbol("g_{3,4}"), Symbol("g_{1,4}")]
+    elif numbits == 8:
+        I2 = kronecker_product(I, I)
+        print(1)
+        I3 = kronecker_product(I2, I)
+        print(2)
+        I4 = kronecker_product(I3, I)
+        print(3)
+        I5 = kronecker_product(I4, I)
+        print(4)
+        I6 = kronecker_product(I5, I)
+        g01 = Symbol("g_{0,1}")
+        g12 = Symbol("g_{1,2}")
+        g23 = Symbol("g_{2,3}")
+        g34 = Symbol("g_{3,4}")
+        g45 = Symbol("g_{4,5}")
+        g56 = Symbol("g_{5,6}")
+        g67 = Symbol("g_{6,7}")
+        g07 = Symbol("g_{0,7}")
+        Hint += g01 * kronecker_product(zum, zum, I6)
+        Hint += g12 * kronecker_product(I, zum, zum, I5)
+        Hint += g23 * kronecker_product(I2, zum, zum, I4)
+        Hint += g34 * kronecker_product(I3, zum, zum, I3)
+        Hint += g45 * kronecker_product(I4, zum, zum, I2)
+        Hint += g56 * kronecker_product(I5, zum, zum, I)
+        Hint += g67 * kronecker_product(I6, zum, zum)
+        Hint += g07 * kronecker_product(zum, I6, zum)
+        symbols = [g01, g12, g23, g34, g45, g56, g67, g07]
     else:
-        raise Exception("Not impl  ")
+        raise Exception("Not impleented")
 
     return Hint, symbols
 
@@ -95,6 +114,7 @@ def Hbare(i: int, statesperbit=None, a=None, c=None):
 
 def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
     """
+    line layout is the only options which works with any number of bits
     Returns:
         sympy symbolic Hamiltonian
         symbols in order omegas, alphas, gs

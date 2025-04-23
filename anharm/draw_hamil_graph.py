@@ -8,6 +8,8 @@ from anharm.Hgen import Hgen
 from pyvis import network as pvn
 import pathlib
 
+# Draw RWA hamiltonain graphs
+
 
 def plot3d(G: nx.Graph):
     # Generate 3D positions for nodes (using spring layout)
@@ -40,16 +42,16 @@ def plot3d(G: nx.Graph):
 
 # matrix has to be in order i.e. (0,0) (0,1) (0,2) (1,0) (1,1) (1,2) ...
 
-N = 3  # number of qubits
-statesperbit = 5
-mat = Hgen(N, statesperbit, "triang")
+N = 5  # number of qubits
+statesperbit = 3
+mat, symbols = Hgen(N, statesperbit, "triang")
 
 # file = pathlib.Path("hamil_square4_5.csv").resolve()
 # statesperbit = round(mat.shape[0] ** (1 / N))  # num states per qubit
 # mat = pd.read_csv(file, index_col=None, header=None).to_numpy()
 
 
-exc = 3
+exc = 2
 submat, adjecency, subspace_names, idx_map = proc_subspace(mat, exc, N, statesperbit)
 g: nx.Graph = nx.Graph()
 
@@ -58,12 +60,21 @@ for i in range(adjecency.shape[0]):
     for j in range(i + 1, adjecency.shape[1]):
         if adjecency[i, j]:
             g.add_edge(subspace_names[i], subspace_names[j])
-
-
-# plot3d(g)
+todel = set()
+for n in list(g.nodes):
+    todel.add(n)
+print(todel)
+# remove double neighbors
+for n in g.neighbors("10100"):
+    print(n)
+    todel.discard(n)
+    for nn in g.neighbors(n):
+        todel.discard(nn)
+for n in todel:
+    print(g.nodes)
+    g.remove_node(n)
 
 plane, embedding = nx.check_planarity(g)
-
 print("Is planar?", plane)
 embedding: nx.PlanarEmbedding = embedding
 # labeldict = dict([(i, name) for i, name in enumerate(subspace_names)])
@@ -81,32 +92,32 @@ plt.show()
 
 
 # draw with graphviz, probably useful for pretty visual using lattice vectors on graphs where it works
-def draw():
-    nodes = []
-    g = Graph(format="png", engine="neato")
-    nodes.extend(subspace(0, -1j, 0.5))
-    nodes.extend(subspace(1, 4, 0.5))
-    nodes.extend(subspace(2, 1j, 0.5))
-    nodes.extend(subspace(3, 4 + 1j, 0.5))
-    nodes.extend(subspace(4, 2j, 0.5))
+# def draw():
+#     nodes = []
+#     g = Graph(format="png", engine="neato")
+#     nodes.extend(subspace(0, -1j, 0.5))
+#     nodes.extend(subspace(1, 4, 0.5))
+#     nodes.extend(subspace(2, 1j, 0.5))
+#     nodes.extend(subspace(3, 4 + 1j, 0.5))
+#     nodes.extend(subspace(4, 2j, 0.5))
 
-    for node in nodes:
-        pos = node[1]
-        g.node(
-            node[0],
-            pos=f"{np.real(pos)},{np.imag(pos)}!",
-            shape="box",
-            width="0.1",
-            height="0.05",
-        )
-    # g.save("graph")
-    # G: nx.Graph = nx.nx_agraph.read_dot("graph")
+#     for node in nodes:
+#         pos = node[1]
+#         g.node(
+#             node[0],
+#             pos=f"{np.real(pos)},{np.imag(pos)}!",
+#             shape="box",
+#             width="0.1",
+#             height="0.05",
+#         )
+#     # g.save("graph")
+#     # G: nx.Graph = nx.nx_agraph.read_dot("graph")
 
-    for i in range(mat.shape[0]):  # upper triangular part
-        for j in range(i + 1, mat.shape[1]):
-            print(basisnames[i], basisnames[j])
-            if mat[i, j] == "0":
-                continue
-            g.edge(basisnames[i], basisnames[j], label="a")
+#     for i in range(mat.shape[0]):  # upper triangular part
+#         for j in range(i + 1, mat.shape[1]):
+#             print(basisnames[i], basisnames[j])
+#             if mat[i, j] == "0":
+#                 continue
+#             g.edge(basisnames[i], basisnames[j], label="a")
 
-    g.render("graph")
+#     g.render("graph")
