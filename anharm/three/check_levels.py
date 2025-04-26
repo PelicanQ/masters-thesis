@@ -44,9 +44,9 @@ def sw_energies_1(Ej1: np.ndarray, Ej2, Ej3, Eint12, Eint23, Eint13):
     # print(g12, g23, g13)
     Ham = Hamil(3, 4, "line")
 
-    e001: sp.Expr = Ham.split_deltas(Ham.getall("001", keep_second_coupling=keep))
-    e010: sp.Expr = Ham.split_deltas(Ham.getall("010", keep_second_coupling=keep))
-    e100: sp.Expr = Ham.split_deltas(Ham.getall("100", keep_second_coupling=keep))
+    e001: sp.Expr = Ham.split_deltas(Ham.get_all("001", keep_second_coupling=keep))
+    e010: sp.Expr = Ham.split_deltas(Ham.get_all("010", keep_second_coupling=keep))
+    e100: sp.Expr = Ham.split_deltas(Ham.get_all("100", keep_second_coupling=keep))
 
     f100, var100 = Ham.lambdify_expr(e100)
     f010, var010 = Ham.lambdify_expr(e010)
@@ -70,13 +70,13 @@ def sw_energies_2(Ej1: np.ndarray, Ej2, Ej3, Eint12, Eint23, Eint13):
     # print(g12, g23, g13)
     Ham = Hamil(3, 4, "line")
 
-    e002: sp.Expr = Ham.split_deltas(Ham.getall("002", keep_second_coupling=keep))
-    e020: sp.Expr = Ham.split_deltas(Ham.getall("020", keep_second_coupling=keep))
-    e200: sp.Expr = Ham.split_deltas(Ham.getall("200", keep_second_coupling=keep))
+    e002: sp.Expr = Ham.split_deltas(Ham.get_all("002", keep_second_coupling=keep))
+    e020: sp.Expr = Ham.split_deltas(Ham.get_all("020", keep_second_coupling=keep))
+    e200: sp.Expr = Ham.split_deltas(Ham.get_all("200", keep_second_coupling=keep))
 
-    e110: sp.Expr = Ham.split_deltas(Ham.getall("110", keep_second_coupling=keep))
-    e101: sp.Expr = Ham.split_deltas(Ham.getall("101", keep_second_coupling=keep))
-    e011: sp.Expr = Ham.split_deltas(Ham.getall("011", keep_second_coupling=keep))
+    e110: sp.Expr = Ham.split_deltas(Ham.get_all("110", keep_second_coupling=keep))
+    e101: sp.Expr = Ham.split_deltas(Ham.get_all("101", keep_second_coupling=keep))
+    e011: sp.Expr = Ham.split_deltas(Ham.get_all("011", keep_second_coupling=keep))
 
     f200, var200 = Ham.lambdify_expr(e200)
     f020, var020 = Ham.lambdify_expr(e020)

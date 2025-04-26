@@ -44,36 +44,36 @@ class Hamil:
         # self.symbols gives the order of symbols. This extract symbols in expression following that order
         return list(filter(lambda symbol: symbol in expr.free_symbols, self.symbols_extended))
 
-    def getall(self, state, keep_second_coupling: bool):
+    def get_all(self, state, keep_second_coupling: bool):
         # get total SW energy expression. Only the correction to bare state!
-        return self.state2space(state).getall(state, keep_second_coupling)
+        return self.state2space(state).get_all(state, keep_second_coupling)
 
-    def getorder2(self, state):
+    def get_order2(self, state):
         return self.state2space(state).getorder2(state)
 
-    def getorder3(self, state):
+    def get_order3(self, state):
         return self.state2space(state).getorder3(state)
 
     def getorder4(self, state):
         return self.state2space(state).getorder4(state)
 
-    def getedges(self, state, order: int | None = None):
+    def get_edges(self, state, order: int | None = None):
         return self.state2space(state).getedges(state, order)
 
-    def getsecondedges(self, state, keep_2nd_coupling: bool):
+    def get_second_edges(self, state, keep_2nd_coupling: bool):
         """2nd order couplings can be kept but not lambdified"""
         return self.state2space(state).get_all_second_edges(state, keep_2nd_coupling)
 
-    def getlegs(self, state):
+    def get_legs(self, state):
         return self.state2space(state).getlegs(state)
 
-    def getbirds(self, state):
+    def get_birds(self, state):
         return self.state2space(state).getbirds(state)
 
-    def get3cycles(self, state):
-        return self.state2space(state).get3cycles(state)
+    def get_3cycles(self, state):
+        return self.state2space(state).get_3cycles(state)
 
-    def get4cycles(self, state):
+    def get_4cycles(self, state):
         return self.state2space(state).get4cycles(state)
 
     def get_subspace(self, excitation: int):
@@ -185,15 +185,16 @@ class Hamil:
                 elif type == "birds":
                     return space.getbirds(state)
                 elif type == "3loop":
-                    return space.get3cycles(state)
+                    return space.get_3cycles(state)
                 elif type == "4loop":
                     return space.get4cycles(state)
                 elif type == "second":
                     return space.get_all_second_edges(state, keep_second_coupling)
             else:
-                return space.getall(state, keep_second_coupling)
+                return space.get_all(state, keep_second_coupling)
 
         toplevel = getterms(topspace, zzstate)
+
         botlevel = sp.sympify(0)
         for stat in bottomstates:
             botlevel += getterms(bottomspace, stat)
@@ -232,7 +233,7 @@ class Subspace:
 
     def getorder3(self, state):
         # get total SW energy expression
-        return self.get3cycles(state)
+        return self.get_3cycles(state)
 
     def getorder4(self, state, keep_second_coupling: bool):
         # get total SW energy expression
@@ -244,13 +245,13 @@ class Subspace:
             + self.get_all_second_edges(state, keep_second_coupling)
         )
 
-    def getall(self, state, keep_second_coupling: bool):
+    def get_all(self, state, keep_second_coupling: bool):
         # get total SW energy expression
         return (
             self.getedges(state)
             + self.getlegs(state)
             + self.getbirds(state)
-            + self.get3cycles(state)
+            + self.get_3cycles(state)
             + self.get4cycles(state)
             + self.get_all_second_edges(state, keep_second_coupling)
         )
@@ -261,6 +262,7 @@ class Subspace:
         Think about whether a contraction between give states is valid first.
         """
         delta12 = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta12 = Hamil.omega_to_delta(delta12)
         delta12 = Hamil.omega_to_delta(delta12)
 
         middle_states: list[str] = []
@@ -277,6 +279,7 @@ class Subspace:
             g1m = self.statemat.loc[state1, m]
             gm2 = self.statemat.loc[m, state2]
             delta1m = self.statemat.loc[state1, state1] - self.statemat.loc[m, m]
+            delta1m = Hamil.omega_to_delta(delta1m)
             delta1m = Hamil.omega_to_delta(delta1m)
             summ += g1m * gm2 / delta1m
         return 1 / delta12 * summ**2
@@ -319,7 +322,6 @@ class Subspace:
         totalexpr = sp.sympify(0)
         for n in nx.neighbors(self.graph, state):
             totalexpr += self.getedge(state, n, order)
-
         return totalexpr
 
     def secondcoupling(self, state: str, target: str):
@@ -367,11 +369,15 @@ class Subspace:
         Order is 4.
         """
         totalexpr = sp.sympify(0)
+        secondneighbors: set[str] = set()
         for n in nx.neighbors(self.graph, state):
             for nn in nx.neighbors(self.graph, n):
-                if nn == state:
-                    continue  # of course state is its neighbors neighbour
-                totalexpr += self.get_second_edge(state, nn, keep_2nd_coupling)
+                if nn != state:
+                    secondneighbors.add(nn)  # of course state is its neighbors neighbour
+
+        totalexpr = sp.sympify(0)
+        for nn in secondneighbors:
+            totalexpr += self.get_second_edge(state, nn, keep_2nd_coupling)
         return totalexpr
 
     def getlegs(self, state):
@@ -413,7 +419,7 @@ class Subspace:
         # print("# birds: ", num)
         return totalexpr
 
-    def get3cycles(self, state):
+    def get_3cycles(self, state):
         total = sp.sympify(0)
 
         cycles: Generator[list[str], None, None] = nx.simple_cycles(self.graph, length_bound=3)

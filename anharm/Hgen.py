@@ -40,6 +40,26 @@ def getHintTriang(a, c, numbits, statesperbit):
         Hint += g34 * kronecker_product(I, I, I, zum, zum)
         Hint += g24 * kronecker_product(I, I, zum, I, zum)
         symbols.extend([g23, g34, g24])
+    elif numbits == 7:
+        g23 = Symbol("g_{2,3}")
+        g34 = Symbol("g_{3,4}")
+        g24 = Symbol("g_{2,4}")
+        g45 = Symbol("g_{4,5}")
+        g56 = Symbol("g_{5,6}")
+        g46 = Symbol("g_{4,6}")
+        Hint += g01 * kronecker_product(zum, zum, I, I, I, I, I)
+        Hint += g12 * kronecker_product(I, zum, zum, I, I, I, I)
+        Hint += g02 * kronecker_product(zum, I, zum, I, I, I, I)
+
+        Hint += g23 * kronecker_product(I, I, zum, zum, I, I, I)
+        Hint += g34 * kronecker_product(I, I, I, zum, zum, I, I)
+        Hint += g24 * kronecker_product(I, I, zum, I, zum, I, I)
+
+        Hint += g45 * kronecker_product(I, I, I, I, zum, zum, I)
+        Hint += g56 * kronecker_product(I, I, I, I, I, zum, zum)
+        Hint += g46 * kronecker_product(I, I, I, I, zum, I, zum)
+
+        symbols.extend([g23, g34, g24, g45, g56, g46])
     else:
         raise Exception("not impl")
     return Hint, symbols
@@ -58,15 +78,6 @@ def getHintGrid(a, c, numbits, statesperbit):
         Hint += Symbol("g_{1,4}") * kronecker_product(zum, I, I, zum)
         symbols = [Symbol("g_{1,2}"), Symbol("g_{2,3}"), Symbol("g_{3,4}"), Symbol("g_{1,4}")]
     elif numbits == 8:
-        I2 = kronecker_product(I, I)
-        print(1)
-        I3 = kronecker_product(I2, I)
-        print(2)
-        I4 = kronecker_product(I3, I)
-        print(3)
-        I5 = kronecker_product(I4, I)
-        print(4)
-        I6 = kronecker_product(I5, I)
         g01 = Symbol("g_{0,1}")
         g12 = Symbol("g_{1,2}")
         g23 = Symbol("g_{2,3}")
@@ -75,14 +86,14 @@ def getHintGrid(a, c, numbits, statesperbit):
         g56 = Symbol("g_{5,6}")
         g67 = Symbol("g_{6,7}")
         g07 = Symbol("g_{0,7}")
-        Hint += g01 * kronecker_product(zum, zum, I6)
-        Hint += g12 * kronecker_product(I, zum, zum, I5)
-        Hint += g23 * kronecker_product(I2, zum, zum, I4)
-        Hint += g34 * kronecker_product(I3, zum, zum, I3)
-        Hint += g45 * kronecker_product(I4, zum, zum, I2)
-        Hint += g56 * kronecker_product(I5, zum, zum, I)
-        Hint += g67 * kronecker_product(I6, zum, zum)
-        Hint += g07 * kronecker_product(zum, I6, zum)
+        Hint += g01 * kronecker_product(zum, zum, I, I, I, I, I, I)
+        Hint += g12 * kronecker_product(I, zum, zum, I, I, I, I, I)
+        Hint += g23 * kronecker_product(I, I, zum, zum, I, I, I, I)
+        Hint += g34 * kronecker_product(I, I, I, zum, zum, I, I, I)
+        Hint += g45 * kronecker_product(I, I, I, I, zum, zum, I, I)
+        Hint += g56 * kronecker_product(I, I, I, I, I, zum, zum, I)
+        Hint += g67 * kronecker_product(I, I, I, I, I, I, zum, zum)
+        Hint += g07 * kronecker_product(zum, I, I, I, I, I, I, zum)
         symbols = [g01, g12, g23, g34, g45, g56, g67, g07]
     else:
         raise Exception("Not impleented")
@@ -129,7 +140,7 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
     # notice that the Hamiltonian order counts the first bit as the leftmost in the kronecker products
     symbols = [Symbol(rf"\omega_{{{i}}}") for i in range(numbits)]  # order is important
     symbols.extend([Symbol(rf"\alpha_{{{i}}}") for i in range(numbits)])
-
+    print("Hbare done")
     Htot: sp.Matrix = Hbaretot
     if numbits >= 2:
         if layout == "line":
@@ -141,6 +152,8 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
         else:
             raise Exception("Unrecognized layout")
         symbols.extend(moresymbols)
+        print("Hint done")
         Htot += Hint
+        print("add done")
 
     return Htot, symbols

@@ -6,16 +6,14 @@ from jobmanager.util import collect_jobs
 from anharm.Hamiltonian import Hamil
 from matplotlib import colors
 from sandbox.util import make_axslid, makeslid
-import inspect
 from analysis.discover import make_hoverax_refreshable
+
 
 H = Hamil(3, 4, "triang")
 # e = H.get_all("111", False)
 e = H.zzexpr("111")
 e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
-print(inspect.getsource(f))
-print(f.__globals__["sqrt"] is np.sqrt)
 alpha = -1
 g12 = 0.4
 g23 = 0.4
@@ -70,14 +68,6 @@ vals3 = f3(*args)
 vals4 = f4(*args)
 
 
-def calculate(alpha, g12, g23, g13, d12, d23):
-    args = (alpha, alpha, alpha, g12, g23, g13, d12, d23)
-    return f(*args), f01(*args), f12(*args), f02(*args), f3(*args), f4(*args)
-
-
-vals, vals01, vals12, vals02, vals3, vals4 = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
-
-
 @np.vectorize
 def snapto0(v):
     if np.abs(v) < 1e-5:
@@ -85,36 +75,80 @@ def snapto0(v):
     return v
 
 
-vals = snapto0(vals)
+def calculate(alpha, g12, g23, g13, d12, d23):
+    args = (alpha, alpha, alpha, g12, g23, g13, d12, d23)
+
+    return snapto0(f(*args)), f01(*args), f12(*args), f02(*args), f3(*args), f4(*args)
+
+
+vals, vals01, vals12, vals02, vals3, vals4 = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
+
 
 fig = plt.figure()
 ((ax1, ax2, ax3), (ax4, ax5, ax6)) = fig.subplots(2, 3)
 fig.suptitle(f"ZZZ [alpha] g12={g12} g23={g23} g13={g13} alpha={alpha}")
 norm = colors.SymLogNorm(1e-5, vmin=-1e0, vmax=1e0)
 cmap = OrBu_colormap()
-
-c1 = make_hoverax(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap, ax=ax1)
+val_dict = {
+    "ZZZ": vals,
+    "01": vals01,
+    "12": vals12,
+    "02": vals02,
+    "3": vals3,
+    "4": vals4,
+}
+c1 = make_hoverax_refreshable(d2prim_grid, dd13_grid, val_dict, "ZZZ", norm=norm, cmap=cmap, ax=ax1)
 ax1.set_title("ZZZ")
 
-c2 = make_hoverax(d2prim_grid, dd13_grid, vals01, norm=norm, cmap=cmap, ax=ax2)
+c2 = make_hoverax_refreshable(d2prim_grid, dd13_grid, val_dict, "01", norm=norm, cmap=cmap, ax=ax2)
 ax2.set_title("01")
 
-c3 = make_hoverax(d2prim_grid, dd13_grid, vals12, norm=norm, cmap=cmap, ax=ax3)
+c3 = make_hoverax_refreshable(d2prim_grid, dd13_grid, val_dict, "12", norm=norm, cmap=cmap, ax=ax3)
 ax3.set_title("12")
 
-c4 = make_hoverax(d2prim_grid, dd13_grid, vals02, norm=norm, cmap=cmap, ax=ax4)
+c4 = make_hoverax_refreshable(d2prim_grid, dd13_grid, val_dict, "02", norm=norm, cmap=cmap, ax=ax4)
 ax4.set_title("02")
 
-c5 = make_hoverax(d2prim_grid, dd13_grid, vals3, norm=norm, cmap=cmap, ax=ax5)
+c5 = make_hoverax_refreshable(d2prim_grid, dd13_grid, val_dict, "3", norm=norm, cmap=cmap, ax=ax5)
 ax5.set_title("3loop")
 
-c6 = make_hoverax(d2prim_grid, dd13_grid, vals4, norm=norm, cmap=cmap, ax=ax6)
+c6 = make_hoverax_refreshable(d2prim_grid, dd13_grid, val_dict, "4", norm=norm, cmap=cmap, ax=ax6)
 ax6.set_title("Residual 4 contractions")
 fig.colorbar(c1, ax=[ax1, ax2, ax3, ax4, ax5, ax6])
 
 ax1.set_ylabel("delta13")
+ax4.set_ylabel("delta13")
 
+ax4.set_xlabel("omega2 prim")
+ax5.set_xlabel("omega2 prim")
 ax6.set_xlabel("omega2 prim")
+
+fig_control = plt.figure()
+fig_control.suptitle("Controls")
+axslid_g12 = make_axslid(0.2, 0.3, fig_control, 0.5)
+axslid_g23 = make_axslid(0.2, 0.2, fig_control, 0.5)
+axslid_g13 = make_axslid(0.2, 0.1, fig_control, 0.5)
+
+slid_g12 = makeslid(axslid_g12, "g12", 0, 0.01, 0.5)
+slid_g23 = makeslid(axslid_g23, "g23", 0, 0.01, 0.5)
+slid_g13 = makeslid(axslid_g13, "g13", 0, 0.001, 0.1)
+
+
+def update(val):
+    global g12, g23, g13
+    g12 = slid_g12.val
+    g23 = slid_g23.val
+    g13 = slid_g13.val
+    all_vals = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
+    for one_vals, c, key in zip(all_vals, [c1, c2, c3, c4, c5, c6], ["ZZZ", "01", "12", "02", "3", "4"]):
+        c.set_array(one_vals)
+        val_dict[key] = one_vals
+
+    fig.canvas.draw_idle()
+
+
+for s in [slid_g12, slid_g23, slid_g13]:
+    s.on_changed(update)
 
 
 plt.show()

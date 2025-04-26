@@ -19,3 +19,20 @@ def OrBu_colormap():
     # Finally, create a continuous map from the discrete one
     mymap = colors.LinearSegmentedColormap.from_list("my_colormap", colorss)
     return mymap
+
+
+def my_colors():
+    # Define custom boundaries
+    boundaries = [-10, -1, -1e-5, 1e-5, 1, 10]
+    c = [
+        "navy",  # very negative
+        "blue",  # moderately negative
+        "white",  # near zero
+        "red",  # moderately positive
+        "darkred",  # very positive
+    ]
+
+    # Create custom colormap and norm
+    cmap = colors.ListedColormap(c)
+    norm = colors.BoundaryNorm(boundaries, ncolors=len(c))
+    return norm, cmap
