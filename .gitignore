@@ -13,3 +13,4 @@ __hamilcache__
 /.env
 /pypy
 /*.db
+anharm/__func_cache__
