@@ -7,11 +7,22 @@ import cupy as cp
 import cupyx.scipy.sparse
 
 
+def getsparsegpumem(mat):
+    if cupyx.scipy.sparse.isspmatrix_coo(mat):
+        return mat.data.nbytes + mat.row.nbytes + mat.col.nbytes
+    elif cupyx.scipy.sparse.isspmatrix_dia(mat):
+        return mat.data.nbytes + mat.offsets.nbytes
+    else:
+        return mat.data.nbytes + mat.indices.nbytes + mat.indptr.nbytes
+
+
 def kron_sparse(*mats, format: str = "csr"):
     """For CuPy sparse matrices"""
     total = mats[0]
     for i in range(1, len(mats)):
         total = cupyx.scipy.sparse.kron(total, mats[i], format=format)
+        print("kron", i, getsparsegpumem(total))
+        cp.get_default_memory_pool().free_all_blocks()
     return total
 
 
