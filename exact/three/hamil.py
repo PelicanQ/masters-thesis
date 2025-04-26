@@ -38,7 +38,7 @@ def sorted_vals(vals1, vals2, vals3):
 
 
 def eig_clever_vis(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, C=20, M=20
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, C=30, M=20
 ) -> tuple[NDArray, NDArray] | NDArray:
     """
     k: controls how many transmon eigenstates are included per qubit
@@ -110,7 +110,7 @@ def get_excitation_idx_map(statesperbit: int, max_excitation: int):
     return caches_idx_maps[(statesperbit, max_excitation)]
 
 
-def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, M=20, N=None, C=20):
+def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, M=20, N=None, C=30):
     """
     k: controls how many transmon eigenstates are included per qubit
     units of Ec1
@@ -159,7 +159,7 @@ def eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_e
 
 # this is the good one now
 def eig_clever(
-    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, C=20
+    Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=False, k=7, C=30
 ) -> tuple[NDArray, NDArray] | NDArray:
     """
     k: controls how many transmon eigenstates are included per qubit

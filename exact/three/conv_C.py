@@ -1,6 +1,6 @@
 # It's time I investigate convergence of levels wrt charge basis truncation
 import numpy as np
-from exact.threetransmon.hamil import eig_excitation_trunc
+from exact.three.hamil import eig_excitation_trunc
 from analysis.plot import plot
 from matplotlib import pyplot as plt
 
