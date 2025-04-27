@@ -15,15 +15,18 @@ from cupyx.profiler import benchmark
 
 
 
-def run(A):
-    vals = cp.linalg.eigh(A)
-
-N = 17000
-print("Size:", N)
-A = cp.random.rand(N, N)
+N = 10000
+A = cp.random.rand(N,N)
 A = A + A.T
-t = benchmark(run, (A,), n_repeat=2, n_warmup=2)
-print(t)
+def run(A,k):
+    vals = cp.linalg.eigh(A*(1/k))
+
+print("Size:", N)
+t1 = benchmark(run, (A,1), n_repeat=1, n_warmup=1)
+t2 = benchmark(run, (A,1e10), n_repeat=1, n_warmup=1)
+print(t1)
+print(t2)
 # run()
 # t = timeit.timeit(run, number=1)
 # print(t)
+

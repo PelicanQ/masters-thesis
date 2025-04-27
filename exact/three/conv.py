@@ -1,12 +1,12 @@
 # Here I will gather what I need to make the decision on N and M
-from exact.threetransmon.hamil import eig_excitation_trunc
+from exact.three.hamil import eig_excitation_trunc
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
 
 NN = np.arange(8, 18, 1)
 MM = np.arange(10, 26, 2)
-
+C = 100
 # order Ej1 Ej2 Ej3 Eint12 Eint23 Eint13
 points = [
     (50, 50, 50, 0.1, 0.1, 0.1),
@@ -25,7 +25,7 @@ for p_i, p in enumerate(points):
     v = np.zeros((len(NN), len(MM), num_levels))
     for i, N in enumerate(NN):
         for j, M in enumerate(MM):
-            vals = eig_excitation_trunc(1, 1, *p, only_energy=True, N=N, M=M, C=100)
+            vals = eig_excitation_trunc(1, 1, *p, only_energy=True, N=N, M=M, C=C)
             v[i, j, :] = vals[1 : num_levels + 1] - vals[0]
     final = v[-1, -1, :]
     relerr = (v - final) / final  # all relative to their final
@@ -45,7 +45,7 @@ for i in range(len(NN)):
 
 
 plt.colorbar()
-plt.title("Relative error, C=100")
+plt.title(f"Relative error ZZ, C={C}")
 plt.ylabel("# Transmon eigenstates N")
 plt.xlabel("Maximum total excitation M")
 plt.show()
