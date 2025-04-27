@@ -14,15 +14,15 @@ from cupyx.profiler import benchmark
 # Mayybe slightly faster but numpy is already fast.
 
 
-
 def run(A):
     vals = cp.linalg.eigh(A)
 
-N = 17000
+
+N = 24000
 print("Size:", N)
 A = cp.random.rand(N, N)
 A = A + A.T
-t = benchmark(run, (A,), n_repeat=2, n_warmup=2)
+t = benchmark(run, (A,), n_repeat=1, n_warmup=1)
 print(t)
 # run()
 # t = timeit.timeit(run, number=1)

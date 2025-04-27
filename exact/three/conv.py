@@ -1,5 +1,5 @@
 # Here I will gather what I need to make the decision on N and M
-from exact.threetransmon.hamil import eig_excitation_trunc
+from exact.three.hamil import eig_excitation_trunc
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
