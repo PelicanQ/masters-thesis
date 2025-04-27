@@ -32,6 +32,7 @@ def make_mesh(X, Y, Z, norm, cmap, format_coord, ax=None):
     c = ax.pcolormesh(X, Y, Z, norm=norm, cmap=cmap)
     ax.format_coord = format_coord
     fig.colorbar(c)
+    return fig, ax, c
 
 
 def make_hoverax_refreshable(X, Y, vals: dict, key: str, norm, cmap, ax=None):

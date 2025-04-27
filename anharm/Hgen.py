@@ -72,11 +72,40 @@ def getHintGrid(a, c, numbits, statesperbit):
     symbols = []
     if numbits == 4:
         # TODO: Change indices to 0
-        Hint += Symbol("g_{1,2}") * kronecker_product(zum, zum, I, I)
-        Hint += Symbol("g_{2,3}") * kronecker_product(I, zum, zum, I)
-        Hint += Symbol("g_{3,4}") * kronecker_product(I, I, zum, zum)
-        Hint += Symbol("g_{1,4}") * kronecker_product(zum, I, I, zum)
-        symbols = [Symbol("g_{1,2}"), Symbol("g_{2,3}"), Symbol("g_{3,4}"), Symbol("g_{1,4}")]
+        g01 = Symbol("g_{0,1}")
+        g12 = Symbol("g_{1,2}")
+        g23 = Symbol("g_{2,3}")
+        g03 = Symbol("g_{0,3}")
+        Hint += g01 * kronecker_product(zum, zum, I, I)
+        Hint += g12 * kronecker_product(I, zum, zum, I)
+        Hint += g23 * kronecker_product(I, I, zum, zum)
+        Hint += g03 * kronecker_product(zum, I, I, zum)
+        symbols = [g01, g12, g23, g03]
+    elif numbits == 7:
+        g01 = Symbol("g_{0,1}")
+        g12 = Symbol("g_{1,2}")
+        g02 = Symbol("g_{0,2}")
+
+        g23 = Symbol("g_{2,3}")
+        g34 = Symbol("g_{3,4}")
+        g24 = Symbol("g_{2,4}")
+
+        g25 = Symbol("g_{2,5}")
+        g56 = Symbol("g_{5,6}")
+        g26 = Symbol("g_{2,6}")
+
+        Hint += g01 * kronecker_product(zum, zum, I, I, I, I, I)
+        Hint += g12 * kronecker_product(I, zum, zum, I, I, I, I)
+        Hint += g02 * kronecker_product(zum, I, zum, I, I, I, I)
+
+        Hint += g23 * kronecker_product(I, I, zum, zum, I, I, I)
+        Hint += g34 * kronecker_product(I, I, I, zum, zum, I, I)
+        Hint += g24 * kronecker_product(I, I, zum, I, zum, I, I)
+
+        Hint += g25 * kronecker_product(I, I, zum, I, I, zum, I)
+        Hint += g56 * kronecker_product(I, I, I, I, I, zum, zum)
+        Hint += g26 * kronecker_product(I, I, zum, I, I, I, zum)
+        symbols = [g01, g12, g02, g23, g34, g24, g25, g56, g26]
     elif numbits == 8:
         g01 = Symbol("g_{0,1}")
         g12 = Symbol("g_{1,2}")

@@ -7,65 +7,25 @@ from anharm.Hamiltonian import Hamil
 from matplotlib import colors
 from sandbox.util import make_axslid, makeslid
 from analysis.discover import make_hoverax_refreshable
-
+from anharm.three.fig6_zzz import zzzfunctions
 
 H = Hamil(3, 4, "triang")
-# e = H.get_all("111", False)
 e = H.zzexpr("111")
 e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
 alpha = -1
 g12 = 0.4
 g23 = 0.4
-g13 = 0.04
+g13 = 0.02
 
 dd13 = np.linspace(-8, 8, 200)
 o2prims = np.linspace(-10, 10, 200)
-# translate
-
-s = H.get_subspace(3)
-e1 = s.getedge("111", "021") + s.get_all_edge_corrections("111", "021")
-e2 = s.getedge("111", "201") + s.get_all_edge_corrections("111", "201")
-e3 = s.get_4loop_contraction("111", "021") + s.get_4loop_contraction("111", "201")
-group01 = e1 + e2 + e3
-e1 = s.getedge("111", "120") + s.get_all_edge_corrections("111", "120")
-e2 = s.getedge("111", "102") + s.get_all_edge_corrections("111", "102")
-e3 = s.get_4loop_contraction("111", "120") + s.get_4loop_contraction("111", "102")
-group12 = e1 + e2 + e3
-e1 = s.getedge("111", "210") + s.get_all_edge_corrections("111", "210")
-e2 = s.getedge("111", "012") + s.get_all_edge_corrections("111", "012")
-e3 = s.get_4loop_contraction("111", "210") + s.get_4loop_contraction("111", "012")
-group02 = e1 + e2 + e3
-group3 = s.get_3cycles("111")
-group4 = (
-    s.get_4loop_contraction("111", "003")
-    + s.get_4loop_contraction("111", "030")
-    + s.get_4loop_contraction("111", "300")
-)
-
-group01 = H.split_deltas(group01)
-group12 = H.split_deltas(group12)
-group02 = H.split_deltas(group02)
-group3 = H.split_deltas(group3)
-group4 = H.split_deltas(group4)
-
-f01, vars01 = H.lambdify_expr(group01)
-f12, vars12 = H.lambdify_expr(group12)
-f02, vars02 = H.lambdify_expr(group02)
-f3, vars3 = H.lambdify_expr(group3)
-f4, vars4 = H.lambdify_expr(group4)
-# print(vars3, vars4)
-
 d2prim_grid, dd13_grid = np.meshgrid(o2prims, dd13)
-
 d23_grid = d2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid
+
+
 args = (alpha, alpha, alpha, g12, g23, g13, d12_grid, d23_grid)
-vals01 = f01(*args)
-vals12 = f12(*args)
-vals02 = f02(*args)
-vals3 = f3(*args)
-vals4 = f4(*args)
 
 
 @np.vectorize
@@ -73,6 +33,9 @@ def snapto0(v):
     if np.abs(v) < 1e-5:
         return 0
     return v
+
+
+f01, f12, f02, f3, f4 = zzzfunctions()
 
 
 def calculate(alpha, g12, g23, g13, d12, d23):
@@ -84,11 +47,11 @@ def calculate(alpha, g12, g23, g13, d12, d23):
 vals, vals01, vals12, vals02, vals3, vals4 = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
 
 
-fig = plt.figure()
-((ax1, ax2, ax3), (ax4, ax5, ax6)) = fig.subplots(2, 3)
-fig.suptitle(f"ZZZ [alpha] g12={g12} g23={g23} g13={g13} alpha={alpha}")
 norm = colors.SymLogNorm(1e-5, vmin=-1e0, vmax=1e0)
 cmap = OrBu_colormap()
+fig = plt.figure()
+((ax1, ax2, ax3), (ax4, ax5, ax6)) = fig.subplots(2, 3)
+fig.suptitle(rf"Grouped contributions to ZZZ, units [-$\alpha$]")
 val_dict = {
     "ZZZ": vals,
     "01": vals01,
@@ -125,9 +88,9 @@ ax6.set_xlabel("omega2 prim")
 
 fig_control = plt.figure()
 fig_control.suptitle("Controls")
-axslid_g12 = make_axslid(0.2, 0.3, fig_control, 0.5)
-axslid_g23 = make_axslid(0.2, 0.2, fig_control, 0.5)
-axslid_g13 = make_axslid(0.2, 0.1, fig_control, 0.5)
+axslid_g12 = make_axslid(0.15, 0.7, fig_control, 0.75)
+axslid_g23 = make_axslid(0.15, 0.4, fig_control, 0.75)
+axslid_g13 = make_axslid(0.15, 0.1, fig_control, 0.75)
 
 slid_g12 = makeslid(axslid_g12, "g12", 0, 0.01, 0.5)
 slid_g23 = makeslid(axslid_g23, "g23", 0, 0.01, 0.5)

@@ -10,7 +10,7 @@ import inspect
 from analysis.discover import make_hoverax_refreshable, make_hoverax, make_mesh
 
 H = Hamil(3, 4, "triang")
-e = H.zzexpr("101")
+e = H.zzexpr("111")
 e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
 alpha = -1
@@ -25,17 +25,11 @@ d23_grid = d2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid
 
 
-# print(vars3, vars4)
-
-
 @np.vectorize
 def snapto0(v):
     if np.abs(v) < 1e-5:
         return 0
     return v
-
-
-vals, vals01, vals12, vals02, vals3, vals4 = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
 
 
 norm = colors.SymLogNorm(1e-5, vmin=-1e0, vmax=1e0)
@@ -44,6 +38,7 @@ cmap = OrBu_colormap()
 
 def only():
     plt.figure()
+    vals = f(alpha, alpha, alpha, g12, g23, g13, d12_grid, d23_grid)
     plt.pcolormesh(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap)
     plt.title(rf"ZZZ $g_{{12}}$={g12} $g_{{23}}$={g23} $g_{{13}}$={g13} $\alpha$={alpha} units [-$\alpha$]")
     plt.xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
@@ -52,7 +47,7 @@ def only():
     plt.show()
 
 
-def decomp():
+def zzzfunctions():
     s = H.get_subspace(3)
 
     e1 = s.getedge("111", "021") + s.get_all_edge_corrections("111", "021")
@@ -85,14 +80,24 @@ def decomp():
     f02, vars02 = H.lambdify_expr(group02)
     f3, vars3 = H.lambdify_expr(group3)
     f4, vars4 = H.lambdify_expr(group4)
+    return f01, f12, f02, f3, f4
+
+
+def decomp():
+    f01, f12, f02, f3, f4 = zzzfunctions()
 
     def calculate(alpha, g12, g23, g13, d12, d23):
         args = (alpha, alpha, alpha, g12, g23, g13, d12, d23)
         return snapto0(f(*args)), f01(*args), f12(*args), f02(*args), f3(*args), f4(*args)
 
+    vals, vals01, vals12, vals02, vals3, vals4 = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
+
     fig = plt.figure()
     ((ax1, ax2, ax3), (ax4, ax5, ax6)) = fig.subplots(2, 3)
-    fig.suptitle(f"ZZZ [alpha] g12={g12} g23={g23} g13={g13} alpha={alpha}")
+    fig.suptitle(
+        rf"Grouped contributions to ZZZ $g_{{12}}$={g12} $g_{{23}}$={g23} $g_{{13}}$={g13} $\alpha$={alpha} units [-$\alpha$]"
+    )
+
     c1 = make_hoverax(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap, ax=ax1)
     ax1.set_title("ZZZ")
 
@@ -110,10 +115,17 @@ def decomp():
 
     c6 = make_hoverax(d2prim_grid, dd13_grid, vals4, norm=norm, cmap=cmap, ax=ax6)
     ax6.set_title("Residual 4-contractions")
+
     fig.colorbar(c1, ax=[ax1, ax2, ax3, ax4, ax5, ax6])
-
-    ax1.set_ylabel("delta13")
-
-    ax6.set_xlabel("omega2 prim")
+    ax1.set_ylabel(r"$\Delta_{13}$ [-$\alpha$]")
+    ax4.set_ylabel(r"$\Delta_{13}$ [-$\alpha$]")
+    ax4.set_xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
+    ax5.set_xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
+    ax6.set_xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
 
     plt.show()
+
+
+if __name__ == "__main__":
+    # only()
+    decomp()

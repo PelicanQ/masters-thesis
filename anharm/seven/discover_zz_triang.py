@@ -9,7 +9,7 @@ from sandbox.util import make_axslid, makeslid
 from anharm.Cacher import Cacher
 from analysis.discover import make_hoverax_refreshable
 
-H = Hamil(5, 4, "triang")
+H = Hamil(7, 4, "triang")
 
 # e = H.zzexpr("10100")
 # e = H.split_deltas(e)  #
