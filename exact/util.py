@@ -1,8 +1,6 @@
 import scipy.special as spec
 import numpy as np
-import scipy.linalg as spalg
 from matplotlib import pyplot as plt
-from exact.onetransmon.hamil import calc_eigs
 import cupy as cp
 import cupyx.scipy.sparse
 
@@ -21,7 +19,7 @@ def kron_sparse(*mats, format: str = "csr"):
     total = mats[0]
     for i in range(1, len(mats)):
         total = cupyx.scipy.sparse.kron(total, mats[i], format=format)
-        print("kron", i, getsparsegpumem(total))
+        # print("kron", i, getsparsegpumem(total))
         cp.get_default_memory_pool().free_all_blocks()
     return total
 

@@ -1,4 +1,4 @@
-from exact.threetransmon.hamil import eig_clever, eig_excitation_trunc
+from exact.three.hamil import eig_clever, eig_excitation_trunc
 import numpy as np
 from exact.gale_shapely.gale_shapely import state_assignment
 import time
@@ -15,11 +15,6 @@ def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=7):
     zzGS12 = gslevel(1, 1, 0) - gslevel(1, 0, 0) - gslevel(0, 1, 0)
     zzGS23 = gslevel(0, 1, 1) - gslevel(0, 1, 0) - gslevel(0, 0, 1)
     zzGS13 = gslevel(1, 0, 1) - gslevel(1, 0, 0) - gslevel(0, 0, 1)
-    print(
-        bare_to_dressed_index[index_map[(0, 1, 1)]],
-        bare_to_dressed_index[index_map[(0, 0, 1)]],
-        bare_to_dressed_index[index_map[(0, 1, 0)]],
-    )
     zzzGS = gslevel(1, 1, 1) - (gslevel(1, 0, 0) + gslevel(0, 1, 0) + gslevel(0, 0, 1))
 
     return zzGS12, zzGS23, zzGS13, zzzGS
