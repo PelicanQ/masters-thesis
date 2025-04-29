@@ -13,8 +13,8 @@ from anharm.three.translate import Eints_to_g_Ej
 Ej3 = 50
 Ej1s = np.arange(30, 100, 0.5)
 Ej2s = np.arange(30, 100, 0.5)
-Eint12 = 0.1
-Eint23 = 0.1
+Eint12 = 0.05
+Eint23 = 0.05
 Eint13 = 0.01
 zz12, zz23, zz13, zzz = Store_zz3T.plane(
     "Ej2", Ej2s, 1, "Ej1", Ej1s, 1, Ej3=Ej3, Eint12=Eint12, Eint23=Eint23, Eint13=Eint13, Ec2=1, Ec3=1
@@ -34,8 +34,8 @@ def to_omega_grid(Ej1: np.ndarray, Ej2: np.ndarray, Ej3: float):
 
 o2primgrid, detunegrid = to_omega_grid(Ej1s, Ej2s, Ej3)
 
-plt.pcolormesh(o2primgrid, detunegrid, zz13, norm=Norm(1e-1), cmap=OrBu_colormap())
-plt.title(f"ZZ13 [Ec] Ej3={Ej3} Eint13={Eint13} Eint12={Eint12} Eint23={Eint23}")
+plt.pcolormesh(o2primgrid, detunegrid, zz13, norm=Norm(1e0), cmap=OrBu_colormap())
+plt.title(f"ZZZ [Ec] Ej3={Ej3} Eint13={Eint13} Eint12={Eint12} Eint23={Eint23}")
 
 plt.xlabel("omega2 prim [Ec]")
 plt.ylabel("Detuning [Ec]")
