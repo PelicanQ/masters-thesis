@@ -5,8 +5,8 @@ from exact.five.zz import single_zz
 
 
 def local_collect():
-    Ej1 = np.arange(30, 100, 4).tolist()
-    Ej2 = np.arange(30, 100, 4).tolist()
+    Ej1 = np.arange(30, 100, 1).tolist()
+    Ej2 = np.arange(30, 100, 1).tolist()
 
     jobs = collect_jobs(
         Ej1=Ej1,
@@ -16,10 +16,10 @@ def local_collect():
         Ej5=42,
         Eint12=0.1,
         Eint23=0.1,
-        Eint13=0.005,
+        Eint13=0.01,
         Eint34=0.1,
         Eint45=0.1,
-        Eint35=0.005,
+        Eint35=0.01,
     )
     for i, job in enumerate(jobs):
         print(i, len(jobs))

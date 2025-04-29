@@ -1,4 +1,4 @@
-from exact.twotransmon.hamil import eig_clever
+from exact.two.hamil import eig_clever
 import numpy as np
 from matplotlib import pyplot as plt
 from exact.gale_shapely.gale_shapely import state_assignment
