@@ -2,7 +2,6 @@ import scipy.special as spec
 import numpy as np
 import scipy.linalg as spalg
 from matplotlib import pyplot as plt
-from exact.onetransmon.hamil import calc_eigs
 from exact.util import index_map2T, index_map3T, kron_cp
 from numpy.typing import NDArray
 import cupy as cp

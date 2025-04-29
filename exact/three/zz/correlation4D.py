@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from store.stores import Store_zz3T
+from store.stores3T import Store_zz3T
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 

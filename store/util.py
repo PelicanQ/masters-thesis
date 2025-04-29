@@ -1,7 +1,6 @@
 # Let's make a Postgres storage system for sim data
 from matplotlib import pyplot as plt
 import numpy as np
-from store.models import Levels2T, ZZ2T, ZZ3T, Levels3T
 from functools import reduce
 from operator import or_
 from typing import Iterable

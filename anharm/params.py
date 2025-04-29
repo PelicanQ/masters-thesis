@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from exact.util import omega_alphas, gconstant
+
 # how do translated model parameters vary with exact model parameters
 # Ec1 = Ec2 = 1 the unit
 Ej2 = 60

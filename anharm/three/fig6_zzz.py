@@ -37,13 +37,11 @@ cmap = OrBu_colormap()
 
 
 def only():
-    plt.figure()
     vals = f(alpha, alpha, alpha, g12, g23, g13, d12_grid, d23_grid)
-    plt.pcolormesh(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap)
-    plt.title(rf"ZZZ $g_{{12}}$={g12} $g_{{23}}$={g23} $g_{{13}}$={g13} $\alpha$={alpha} units [-$\alpha$]")
-    plt.xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
-    plt.ylabel(r"$\Delta_{13}$ [-$\alpha$]")
-    plt.colorbar()
+    fig, ax, c = make_hoverax(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap)
+    ax.set_title(rf"ZZZ $g_{{12}}$={g12} $g_{{23}}$={g23} $g_{{13}}$={g13} $\alpha$={alpha} units [-$\alpha$]")
+    ax.set_xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
+    ax.set_ylabel(r"$\Delta_{13}$ [-$\alpha$]")
     plt.show()
 
 
@@ -127,5 +125,5 @@ def decomp():
 
 
 if __name__ == "__main__":
-    # only()
-    decomp()
+    only()
+    # decomp()

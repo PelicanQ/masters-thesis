@@ -1,4 +1,4 @@
-from exact.threetransmon.zz.zz import single_zz
+from exact.three.zz.zz import single_zz
 import numpy as np
 from jobmanager.Handler import Handler3T, Handler3TEnergy
 from matplotlib import pyplot as plt

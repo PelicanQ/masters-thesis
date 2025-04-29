@@ -5,17 +5,17 @@ from matplotlib import pyplot as plt
 from jobmanager.util import collect_jobs
 from anharm.Hamiltonian import Hamil
 from matplotlib import colors
-from exact.threetransmon.zz.zz import single_zz
-from store.stores import Store_zz3T
+from exact.three.zz.zz import single_zz
+from store.stores3T import Store_zz3T
 from exact.util import omega_alphas
 from anharm.three.translate import Eints_to_g_Ej
 
 Ej3 = 50
 Ej1s = np.arange(30, 100, 0.5)
 Ej2s = np.arange(30, 100, 0.5)
-Eint12 = 0.05
-Eint23 = 0.05
-Eint13 = 0
+Eint12 = 0.1
+Eint23 = 0.1
+Eint13 = 0.01
 zz12, zz23, zz13, zzz = Store_zz3T.plane(
     "Ej2", Ej2s, 1, "Ej1", Ej1s, 1, Ej3=Ej3, Eint12=Eint12, Eint23=Eint23, Eint13=Eint13, Ec2=1, Ec3=1
 )
