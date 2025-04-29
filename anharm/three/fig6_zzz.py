@@ -14,9 +14,9 @@ e = H.zzexpr("111")
 e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
 alpha = -1
-g12 = 0.4
-g23 = 0.4
-g13 = 0.02
+g12 = 0.2
+g23 = 0.2
+g13 = 0.05
 
 dd13 = np.linspace(-8, 8, 400)
 o2prims = np.linspace(-10, 10, 400)
@@ -37,6 +37,7 @@ cmap = OrBu_colormap()
 
 
 def only():
+    norm = colors.SymLogNorm(1e-5, vmin=-1e0, vmax=1e0)
     vals = f(alpha, alpha, alpha, g12, g23, g13, d12_grid, d23_grid)
     fig, ax, c = make_hoverax(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap)
     ax.set_title(rf"ZZZ $g_{{12}}$={g12} $g_{{23}}$={g23} $g_{{13}}$={g13} $\alpha$={alpha} units [-$\alpha$]")

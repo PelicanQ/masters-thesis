@@ -3,10 +3,10 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
-from exact.twotransmon.zz.zz import single_zz as zz2T
-from exact.threetransmon.zz.zz import single_zz as zz3T
-from exact.threetransmon.hamil import eig_excitation_trunc as eig3T
-from exact.twotransmon.hamil import eig_clever as eig2T
+from exact.two.zz.zz import single_zz as zz2T
+from exact.three.zz.zz import single_zz as zz3T
+from exact.three.hamil import eig_excitation_trunc as eig3T
+from exact.two.hamil import eig_clever as eig2T
 import time
 
 app = FastAPI()
