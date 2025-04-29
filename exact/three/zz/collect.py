@@ -4,7 +4,7 @@ from jobmanager.Handler import Handler3T, Handler3TEnergy
 from matplotlib import pyplot as plt
 import asyncio
 from jobmanager.util import collect_jobs
-from store.stores import Store_zz3T
+from store.stores3T import Store_zz3T
 from typing import Iterable
 
 
@@ -35,8 +35,8 @@ def local_collect():
 
 
 def collect_levels():
-    Ejs = np.arange(30, 90, 10).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=55, Ej3=60, Eint12=0.1, Eint23=0.15, Eint13=0.2, k=3)
+    Ejs = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.005, k=7)
     H = Handler3TEnergy("http://25.9.103.201:81/3T/energy", [0, 1, 2, 3, 4])
     # test = asyncio.run(H.test_remote())
     # print(test)
@@ -47,19 +47,19 @@ def collect_levels():
 
 
 def collect():
-    Ejs = np.arange(50, 65, 0.2).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.05, Eint23=0.05, Eint13=0, k=7)
+    Ejs = np.arange(30, 100, 0.5).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.01, k=7)
     print("collected", len(jobs))
     filtered = []
     for i, job in enumerate(jobs):
-        print(i)
+        print(i, len(jobs))
         if not Store_zz3T.check_exists(**job):
             filtered.append(job)
     print("filtered", len(filtered))
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
     # print(test)
-    r = asyncio.run(H.submit(filtered, batch_size=50))
+    r = asyncio.run(H.submit(filtered, batch_size=100))
     Store_zz3T.insert_many(r)
     print("Done inserting")
 

@@ -2,13 +2,9 @@
 from other.colormap import OrBu_colormap, Norm
 import numpy as np
 from matplotlib import pyplot as plt
-from jobmanager.util import collect_jobs
-from anharm.Hamiltonian import Hamil
-from matplotlib import colors
-from exact.three.zz.zz import single_zz
 from store.stores3T import Store_zz3T
 from exact.util import omega_alphas
-from anharm.three.translate import Eints_to_g_Ej
+from analysis.discover import make_hoverax
 
 Ej3 = 50
 Ej1s = np.arange(30, 100, 0.5)
@@ -34,12 +30,11 @@ def to_omega_grid(Ej1: np.ndarray, Ej2: np.ndarray, Ej3: float):
 
 o2primgrid, detunegrid = to_omega_grid(Ej1s, Ej2s, Ej3)
 
-plt.pcolormesh(o2primgrid, detunegrid, zz13, norm=Norm(1e-1), cmap=OrBu_colormap())
-plt.title(f"ZZ13 [Ec] Ej3={Ej3} Eint13={Eint13} Eint12={Eint12} Eint23={Eint23}")
+fig, ax, c = make_hoverax(o2primgrid, detunegrid, zzz, norm=Norm(1e0), cmap=OrBu_colormap())
+ax.set_title(f"ZZZ [Ec] Ej3={Ej3} Eint13={Eint13} Eint12={Eint12} Eint23={Eint23}")
 
-plt.xlabel("omega2 prim [Ec]")
-plt.ylabel("Detuning [Ec]")
-plt.colorbar()
+ax.set_xlabel("omega2 prim [Ec]")
+ax.set_ylabel("Detuning [Ec]")
 
 
 plt.show()

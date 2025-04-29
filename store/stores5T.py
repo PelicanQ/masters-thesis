@@ -19,7 +19,7 @@ class Store_zz5T_triang(StoreBase):
         "Eint45",
     ]
 
-    all_vals = ["zz13", "zz35", "zz13", "zzz135"]
+    all_vals = ["zz13", "zz35", "zz15", "zzz135"]
     model = ZZ5T_triang
 
     @classmethod
