@@ -2,6 +2,8 @@ from sympy import Matrix, kronecker_product, Symbol
 import sympy as sp
 from typing import Literal
 
+layouts = Literal["grid", "line", "triang", "4"]
+
 
 def getHintLine(a, c, numbits, statesperbit):
     # This gives the Hint for a line of qubits
@@ -14,6 +16,26 @@ def getHintLine(a, c, numbits, statesperbit):
         gs.append(g)
         Hint = Hint + g * kronecker_product(*seq)
     return Hint, gs
+
+
+def getHint4(a, c, numbits, statesperbit):
+    if numbits != 4:
+        raise Exception("Numbits must be 4")
+
+    I = Matrix.eye(statesperbit)
+    Hint = Matrix.zeros(statesperbit**numbits)
+    g01 = Symbol("g_{0,1}")
+    g12 = Symbol("g_{1,2}")
+    g02 = Symbol("g_{0,2}")
+    g23 = Symbol("g_{2,3}")
+    symbols = [g01, g12, g02, g23]
+    zum = a + c
+
+    Hint += g01 * kronecker_product(zum, zum, I, I)
+    Hint += g12 * kronecker_product(I, zum, zum, I)
+    Hint += g02 * kronecker_product(zum, I, zum, I)
+    Hint += g23 * kronecker_product(I, I, zum, zum)
+    return Hint, symbols
 
 
 def getHintTriang(a, c, numbits, statesperbit):
@@ -152,7 +174,7 @@ def Hbare(i: int, statesperbit=None, a=None, c=None):
     return H
 
 
-def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
+def Hgen(numbits, statesperbit, layout: layouts):
     """
     line layout is the only options which works with any number of bits
     Returns:
@@ -169,7 +191,7 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
     # notice that the Hamiltonian order counts the first bit as the leftmost in the kronecker products
     symbols = [Symbol(rf"\omega_{{{i}}}") for i in range(numbits)]  # order is important
     symbols.extend([Symbol(rf"\alpha_{{{i}}}") for i in range(numbits)])
-    print("Hbare done")
+    # print("Hbare done")
     Htot: sp.Matrix = Hbaretot
     if numbits >= 2:
         if layout == "line":
@@ -178,11 +200,13 @@ def Hgen(numbits, statesperbit, layout: Literal["grid", "line", "triang"]):
             Hint, moresymbols = getHintGrid(a, c, numbits, statesperbit)
         elif layout == "triang":
             Hint, moresymbols = getHintTriang(a, c, numbits, statesperbit)
+        elif layout == "4":
+            Hint, moresymbols = getHint4(a, c, numbits, statesperbit)
         else:
             raise Exception("Unrecognized layout")
         symbols.extend(moresymbols)
-        print("Hint done")
+        # print("Hint done")
         Htot += Hint
-        print("add done")
+        # print("add done")
 
     return Htot, symbols

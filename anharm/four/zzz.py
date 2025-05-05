@@ -1,4 +1,4 @@
-# recreate figure 6 in ZZ paper
+# How is the zzz123 disturbed by one extra qubit?
 from other.colormap import OrBu_colormap, my_colors
 import numpy as np
 from matplotlib import pyplot as plt
@@ -9,8 +9,8 @@ from sandbox.util import make_axslid, makeslid
 import inspect
 from analysis.discover import make_hoverax_refreshable, make_hoverax, make_mesh
 
-H = Hamil(3, 4, "triang")
-e = H.zzexpr("111")
+H = Hamil(4, 4, "4")
+e = H.zzexpr("1110")
 e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
 alpha = -1
