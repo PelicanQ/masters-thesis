@@ -3,9 +3,10 @@ import numpy as np
 from store.stores5T import Store_zz5T_triang
 from matplotlib import pyplot as plt
 from other.colormap import Norm, OrBu_colormap
+from analysis.discover import make_hoverax
 
-Ej1 = np.arange(30, 100, 5)
-Ej2 = np.arange(30, 100, 5)
+Ej1 = np.arange(30, 100, 4)
+Ej2 = np.arange(30, 100, 4)
 Ej3 = 50
 Ej4 = 38
 Ej5 = 42
@@ -47,14 +48,13 @@ def to_omega_grid(Ej1: np.ndarray, Ej2: np.ndarray, Ej3: float):
 
 o2primgrid, detunegrid = to_omega_grid(Ej1, Ej2, Ej3)
 
-plt.pcolormesh(o2primgrid, detunegrid, zz13, norm=Norm(1e-1), cmap=OrBu_colormap())
-plt.title(
-    f"ZZ13 5T triang Ej3={Ej3} Ej4={Ej4} Ej5={Ej5} Eints={Eint12} {Eint23} {Eint13} {Eint34} {Eint45} {Eint35} units [Ec]"
+fig, ax, c = make_hoverax(o2primgrid, detunegrid, zzz135, norm=Norm(1e-1), cmap=OrBu_colormap())
+ax.set_title(
+    f"ZZZ123 5T triang Ej3={Ej3} Ej4={Ej4} Ej5={Ej5} Eints=({Eint12} {Eint23} {Eint13} {Eint34} {Eint45} {Eint35}) units [Ec]"
 )
 
-plt.xlabel("omega2 prim [Ec]")
-plt.ylabel("Detuning [Ec]")
-plt.colorbar()
+ax.set_xlabel("omega2 prim [Ec]")
+ax.set_ylabel("Detuning [Ec]")
 
 
 plt.show()

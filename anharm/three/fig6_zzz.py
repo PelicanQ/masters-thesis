@@ -49,16 +49,16 @@ def only():
 def zzzfunctions():
     s = H.get_subspace(3)
 
-    e1 = s.getedge("111", "021") + s.get_all_edge_corrections("111", "021")
-    e2 = s.getedge("111", "201") + s.get_all_edge_corrections("111", "201")
+    e1 = s.get_edge("111", "021") + s.get_all_edge_corrections("111", "021")
+    e2 = s.get_edge("111", "201") + s.get_all_edge_corrections("111", "201")
     e3 = s.get_4loop_contraction("111", "021") + s.get_4loop_contraction("111", "201")
     group01 = e1 + e2 + e3
-    e1 = s.getedge("111", "120") + s.get_all_edge_corrections("111", "120")
-    e2 = s.getedge("111", "102") + s.get_all_edge_corrections("111", "102")
+    e1 = s.get_edge("111", "120") + s.get_all_edge_corrections("111", "120")
+    e2 = s.get_edge("111", "102") + s.get_all_edge_corrections("111", "102")
     e3 = s.get_4loop_contraction("111", "120") + s.get_4loop_contraction("111", "102")
     group12 = e1 + e2 + e3
-    e1 = s.getedge("111", "210") + s.get_all_edge_corrections("111", "210")
-    e2 = s.getedge("111", "012") + s.get_all_edge_corrections("111", "012")
+    e1 = s.get_edge("111", "210") + s.get_all_edge_corrections("111", "210")
+    e2 = s.get_edge("111", "012") + s.get_all_edge_corrections("111", "012")
     e3 = s.get_4loop_contraction("111", "210") + s.get_4loop_contraction("111", "012")
     group02 = e1 + e2 + e3
     group3 = s.get_3cycles("111")

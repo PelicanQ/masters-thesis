@@ -1,11 +1,9 @@
 # recreate figure 6 in ZZ paper
-from other.colormap import OrBu_colormap, my_colors
+from other.colormap import OrBu_colormap
 import numpy as np
 from matplotlib import pyplot as plt
-from jobmanager.util import collect_jobs
 from anharm.Hamiltonian import Hamil
 from matplotlib import colors
-from sandbox.util import make_axslid, makeslid
 import inspect
 from analysis.discover import make_hoverax_refreshable, make_hoverax, make_mesh
 

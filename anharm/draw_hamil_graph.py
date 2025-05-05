@@ -42,9 +42,9 @@ def plot3d(G: nx.Graph):
 
 # matrix has to be in order i.e. (0,0) (0,1) (0,2) (1,0) (1,1) (1,2) ...
 
-N = 5  # number of qubits
-statesperbit = 3
-mat, symbols = Hgen(N, statesperbit, "triang")
+N = 4  # number of qubits
+statesperbit = 4
+mat, symbols = Hgen(N, statesperbit, "4")
 
 # file = pathlib.Path("hamil_square4_5.csv").resolve()
 # statesperbit = round(mat.shape[0] ** (1 / N))  # num states per qubit
@@ -60,19 +60,22 @@ for i in range(adjecency.shape[0]):
     for j in range(i + 1, adjecency.shape[1]):
         if adjecency[i, j]:
             g.add_edge(subspace_names[i], subspace_names[j])
-todel = set()
-for n in list(g.nodes):
-    todel.add(n)
-print(todel)
-# remove double neighbors
-for n in g.neighbors("10100"):
-    print(n)
-    todel.discard(n)
-    for nn in g.neighbors(n):
-        todel.discard(nn)
-for n in todel:
-    print(g.nodes)
-    g.remove_node(n)
+
+
+def trim(graph, state):
+    """Remove nodes which are separated by more than 2"""
+    todel = set()
+    for n in list(graph.nodes):
+        todel.add(n)
+
+    # remove double neighbors
+    for n in graph.neighbors(state):
+        todel.discard(n)
+        for nn in graph.neighbors(n):
+            todel.discard(nn)
+    for n in todel:
+        graph.remove_node(n)
+
 
 plane, embedding = nx.check_planarity(g)
 print("Is planar?", plane)

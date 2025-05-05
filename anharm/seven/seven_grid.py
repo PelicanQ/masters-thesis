@@ -17,9 +17,11 @@ g26 = 0.02
 
 d23 = -2.1
 d34 = 1.5
-d45 = 1.5
-d56 = -1
 
+d25 = 0.7  # special
+d56 = -0.4
+
+d45 = d25 - d23 - d34
 
 dd13 = np.linspace(-8, 8, 500)
 o2prims = np.linspace(-10, 10, 500)
@@ -31,9 +33,9 @@ d01_grid = dd13_grid - d12_grid
 vals = f(alpha, alpha, alpha, g01, g12, g02, g23, g24, g25, g26, d01_grid, d12_grid, d23, d34, d45, d56)
 
 plt.pcolormesh(o2prims, dd13_grid, vals, norm=Norm(1e-1), cmap=OrBu_colormap())
-plt.title(f"ZZ13 ({g01},{g12},{g02},{g23},{g24},{g25},{g26}) ({d23},{d34},{d45},{d56})")
-plt.xlabel("$\omega_2^\prime$")
-plt.ylabel("$\Delta_{13}$")
+plt.title(rf"$ZZ_{{13}}$ g=({g01},{g12},{g02},{g23},{g24},{g25},{g26}) $\Delta=({d23},{d34},{d25},{d56})$ [-$\alpha$]")
+plt.xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
+plt.ylabel(r"$\Delta_{13}$ [-$\alpha$]")
 plt.colorbar()
 plt.show()
 

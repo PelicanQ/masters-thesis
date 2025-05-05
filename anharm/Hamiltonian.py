@@ -1,5 +1,5 @@
 from anharm.util import proc, subspace, proc_subspace, extract_subscript
-from anharm.Hgen import Hgen
+from anharm.Hgen import Hgen, layouts
 from sympy import Symbol
 import sympy as sp
 import itertools
@@ -10,7 +10,7 @@ import pandas as pd
 
 
 class Hamil:
-    def __init__(self, numbits: int, statesperbit: int, layout: Literal["line", "triang", "grid"]):
+    def __init__(self, numbits: int, statesperbit: int, layout: layouts):
         # Only use 2 or more bits. For one use Hgen directly
         self.layout = layout
         self.numbits = numbits
@@ -65,16 +65,16 @@ class Hamil:
         return self.state2space(state).get_all_second_edges(state, keep_2nd_coupling)
 
     def get_legs(self, state):
-        return self.state2space(state).getlegs(state)
+        return self.state2space(state).get_all_legs(state)
 
     def get_birds(self, state):
-        return self.state2space(state).getbirds(state)
+        return self.state2space(state).get_all_birds(state)
 
     def get_3cycles(self, state):
         return self.state2space(state).get_3cycles(state)
 
     def get_4cycles(self, state):
-        return self.state2space(state).get4cycles(state)
+        return self.state2space(state).get_all_4_cycles(state)
 
     def get_subspace(self, excitation: int):
         # lazily create subspaces to unburden constructor
@@ -86,7 +86,7 @@ class Hamil:
 
     @staticmethod
     def omega_to_delta(expr):
-        """Meant to combine omegas to (qubit) deltas in a simple denominator. Assumptions are made about expression"""
+        """Meant to combine a pair of omegas to one delta in a simple denominator."""
         # find the omegas in expression.
         nums = set()  # the set of unique number e.g. omega1 omega2 ...
         for sym in expr.free_symbols:
@@ -95,7 +95,7 @@ class Hamil:
                 nums.add(num)
         nums = sorted(list(nums))
         if len(nums) < 2:
-            return expr  # if there is only one unique omega in expression
+            return expr  # if there is only one unique omega in expression we cannot make it into delta
         delta = Symbol(rf"\Delta_{{{nums[0]},{nums[1]}}}")
 
         return expr.subs(Symbol(rf"\omega_{{{nums[0]}}}"), delta + Symbol(rf"\omega_{{{nums[1]}}}"))
@@ -131,6 +131,7 @@ class Hamil:
         return expr
 
     def to_delta(self, expr: sp.Expr):
+        """Not used but meant to be a more general than the other one"""
         # substitute differences of omegas with deltas (qubit frequency detuning)
         replace_pairs = []
         # important, we use the "combination" order here
@@ -181,15 +182,17 @@ class Hamil:
                 if type == "edges":
                     return space.getedges(state)
                 elif type == "legs":
-                    return space.getlegs(state)
+                    return space.get_all_legs(state)
                 elif type == "birds":
-                    return space.getbirds(state)
+                    return space.get_all_birds(state)
                 elif type == "3loop":
                     return space.get_3cycles(state)
                 elif type == "4loop":
-                    return space.get4cycles(state)
+                    return space.get_all_4_cycles(state)
                 elif type == "second":
                     return space.get_all_second_edges(state, keep_second_coupling)
+                else:
+                    raise Exception("Unrecognized type")
             else:
                 return space.get_all(state, keep_second_coupling)
 
@@ -224,8 +227,9 @@ class Subspace:
                     graph.add_edge(self.basisnames[i], self.basisnames[j])
         self.graph = graph
 
-    def getcorrectedrepulsion(self, state1: str, state2: str):
-        total = self.getedge(state1, state2) + self.getedgecorrection(state1, state2)
+    def get_corrected_edge(self, state1: str, state2: str):
+        """edge + half-bird corrections"""
+        return self.get_edge(state1, state2) + self.get_all_edge_corrections(state1, state2)
 
     def getorder2(self, state):
         # get total SW energy expression
@@ -238,9 +242,9 @@ class Subspace:
     def getorder4(self, state, keep_second_coupling: bool):
         # get total SW energy expression
         return (
-            self.get4cycles(state)
-            + self.getlegs(state)
-            + self.getbirds(state)
+            self.get_all_4_cycles(state)
+            + self.get_all_legs(state)
+            + self.get_all_birds(state)
             + self.getedges(state, order=4)
             + self.get_all_second_edges(state, keep_second_coupling)
         )
@@ -249,10 +253,10 @@ class Subspace:
         # get total SW energy expression
         return (
             self.getedges(state)
-            + self.getlegs(state)
-            + self.getbirds(state)
+            + self.get_all_legs(state)
+            + self.get_all_birds(state)
             + self.get_3cycles(state)
-            + self.get4cycles(state)
+            + self.get_all_4_cycles(state)
             + self.get_all_second_edges(state, keep_second_coupling)
         )
 
@@ -271,7 +275,6 @@ class Subspace:
                 if nn == state2:
                     middle_states.append(n)
 
-        print("Middle states", middle_states)
         if len(middle_states) > 3:
             raise Exception("We have not proven this contraction for more than 3 middle states")
         summ = sp.sympify(0)
@@ -305,7 +308,7 @@ class Subspace:
         ex = -(g12**2) / delta12 * (g13 / delta13) ** 2
         return ex
 
-    def getedge(self, state1, state2, order=None):
+    def get_edge(self, state1, state2, order=None):
         gconst = self.statemat.loc[state1, state2]
         delta = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
         delta = Hamil.omega_to_delta(delta)
@@ -321,7 +324,7 @@ class Subspace:
         """If order not given: both 2nd 4th order terms"""
         totalexpr = sp.sympify(0)
         for n in nx.neighbors(self.graph, state):
-            totalexpr += self.getedge(state, n, order)
+            totalexpr += self.get_edge(state, n, order)
         return totalexpr
 
     def secondcoupling(self, state: str, target: str):
@@ -351,7 +354,6 @@ class Subspace:
 
     def get_second_edge(self, state1, state2, keep_2nd_coupling: bool):
         """Get the second order edge from state1 to state2"""
-
         if keep_2nd_coupling:
             s1, s2 = self.order_states(state1, state2)
             # We can choose
@@ -380,7 +382,17 @@ class Subspace:
             totalexpr += self.get_second_edge(state, nn, keep_2nd_coupling)
         return totalexpr
 
-    def getlegs(self, state):
+    def get_leg(self, state, n, nn):
+        g1 = self.statemat.loc[state, n]
+        g2 = self.statemat.loc[n, nn]
+        delta1 = self.statemat.loc[state, state] - self.statemat.loc[n, n]
+        delta2 = self.statemat.loc[n, n] - self.statemat.loc[nn, nn]
+
+        delta1 = Hamil.omega_to_delta(delta1)
+        delta2 = Hamil.omega_to_delta(delta2)
+        return -(g1**2) / delta1 / 4 * (g2 / delta2) ** 2 + 3 * g2**2 / delta2 / 4 * (g1 / delta1) ** 2
+
+    def get_all_legs(self, state):
         totalexpr = sp.sympify(0)
         num = 0
         for n in nx.neighbors(self.graph, state):
@@ -389,32 +401,26 @@ class Subspace:
                     continue
                 num += 1
                 # create leg between these
-                g1 = self.statemat.loc[state, n]
-                g2 = self.statemat.loc[n, nn]
-                delta1 = self.statemat.loc[state, state] - self.statemat.loc[n, n]
-                delta2 = self.statemat.loc[n, n] - self.statemat.loc[nn, nn]
+                totalexpr += self.get_leg(state, n, nn)
 
-                delta1 = Hamil.omega_to_delta(delta1)
-                delta2 = Hamil.omega_to_delta(delta2)
-                ex = -(g1**2) / delta1 / 4 * (g2 / delta2) ** 2 + 3 * g2**2 / delta2 / 4 * (g1 / delta1) ** 2
-                totalexpr += ex
-        # print("# legs: ", num)
         return totalexpr
 
-    def getbirds(self, state):
+    def get_bird(self, state, n1, n2):
+        g1 = self.statemat.loc[state, n1]
+        g2 = self.statemat.loc[state, n2]
+        delta1 = self.statemat.loc[state, state] - self.statemat.loc[n1, n1]
+        delta2 = self.statemat.loc[state, state] - self.statemat.loc[n2, n2]
+        delta1 = Hamil.omega_to_delta(delta1)
+        delta2 = Hamil.omega_to_delta(delta2)
+
+        return -(g1**2) / delta1 * (g2 / delta2) ** 2 - g2**2 / delta2 * (g1 / delta1) ** 2
+
+    def get_all_birds(self, state):
         totalexpr = sp.sympify(0)
         num = 0
         for n1, n2 in itertools.combinations(nx.neighbors(self.graph, state), 2):
             num += 1
-            g1 = self.statemat.loc[state, n1]
-            g2 = self.statemat.loc[state, n2]
-            delta1 = self.statemat.loc[state, state] - self.statemat.loc[n1, n1]
-            delta2 = self.statemat.loc[state, state] - self.statemat.loc[n2, n2]
-            delta1 = Hamil.omega_to_delta(delta1)
-            delta2 = Hamil.omega_to_delta(delta2)
-
-            ex = -(g1**2) / delta1 * (g2 / delta2) ** 2 - g2**2 / delta2 * (g1 / delta1) ** 2
-            totalexpr += ex
+            totalexpr += self.get_bird(state, n1, n2)
 
         # print("# birds: ", num)
         return totalexpr
@@ -443,7 +449,36 @@ class Subspace:
             total += ex
         return total
 
-    def get4cycles(self, state):
+    def get_4_cycle(self, cycle):
+        state, n1, n2, n3 = cycle
+        g1 = self.statemat.loc[state, n1]
+        g2 = self.statemat.loc[n1, n2]
+        g3 = self.statemat.loc[n2, n3]
+        g4 = self.statemat.loc[state, n3]
+        delta1 = self.statemat.loc[state, state] - self.statemat.loc[n1, n1]
+        delta2 = self.statemat.loc[n1, n1] - self.statemat.loc[n2, n2]
+        delta3 = self.statemat.loc[n2, n2] - self.statemat.loc[n3, n3]
+        delta4 = self.statemat.loc[state, state] - self.statemat.loc[n3, n3]
+
+        delta1 = Hamil.omega_to_delta(delta1)
+        delta2 = Hamil.omega_to_delta(delta2)
+        delta3 = Hamil.omega_to_delta(delta3)
+        delta4 = Hamil.omega_to_delta(delta4)
+        ex = (
+            g1
+            * g2
+            * g3
+            * g4
+            * (
+                1 / (delta2 * delta3 * delta4) / 4
+                + 1 / (delta1 * delta2 * delta3) / 4
+                - 3 / (delta1 * delta3 * delta4) / 4
+                + 3 / (delta1 * delta2 * delta4) / 4
+            )
+        )
+        return ex
+
+    def get_all_4_cycles(self, state):
         total = sp.sympify(0)
         cycles: Generator[list[str], None, None] = nx.simple_cycles(self.graph, length_bound=4)
         filt = list(filter(lambda c: state in c, cycles))
@@ -452,35 +487,10 @@ class Subspace:
 
         for c_in in four:
             c = c_in.copy()
+
             while c[0] != state:  # permute unitil desired state is first
                 c.insert(0, c.pop())
-            n1, n2, n3 = c[1:]
-            g1 = self.statemat.loc[state, n1]
-            g2 = self.statemat.loc[n1, n2]
-            g3 = self.statemat.loc[n2, n3]
-            g4 = self.statemat.loc[state, n3]
-            delta1 = self.statemat.loc[state, state] - self.statemat.loc[n1, n1]
-            delta2 = self.statemat.loc[n1, n1] - self.statemat.loc[n2, n2]
-            delta3 = self.statemat.loc[n2, n2] - self.statemat.loc[n3, n3]
-            delta4 = self.statemat.loc[state, state] - self.statemat.loc[n3, n3]
-
-            delta1 = Hamil.omega_to_delta(delta1)
-            delta2 = Hamil.omega_to_delta(delta2)
-            delta3 = Hamil.omega_to_delta(delta3)
-            delta4 = Hamil.omega_to_delta(delta4)
-            ex = (
-                g1
-                * g2
-                * g3
-                * g4
-                * (
-                    1 / (delta2 * delta3 * delta4) / 4
-                    + 1 / (delta1 * delta2 * delta3) / 4
-                    - 3 / (delta1 * delta3 * delta4) / 4
-                    + 3 / (delta1 * delta2 * delta4) / 4
-                )
-            )
-            total += ex
+            total += self.get_4_cycle(c)
         return total
 
 

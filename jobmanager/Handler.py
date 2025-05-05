@@ -1,8 +1,8 @@
 # Here we manage numeric jobs
-from exact.twotransmon.zz.zz import single_zz as zz2T
-from exact.threetransmon.zz.zz import single_zz as zz3T
-from exact.twotransmon.hamil import eig_clever as energy2T
-from exact.threetransmon.hamil import eig_excitation_trunc as energy3T
+from exact.two.zz.zz import single_zz as zz2T
+from exact.three.zz.zz import single_zz as zz3T
+from exact.two.hamil import eig_clever as energy2T
+from exact.three.hamil import eig_excitation_trunc as energy3T
 import aiohttp
 import asyncio
 import timeit
