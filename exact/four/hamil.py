@@ -124,7 +124,6 @@ def eig(Ej1, Ej2, Ej3, Ej4, E12, E23, E13, E34, only_energy=False, N=15, M=20, C
 
     # now that Hamiltonian is small enough to keep on GPU we can bring it into CuPy
     H = sparse.csr_matrix(H_cpu).toarray()
-    return H.shape[0]
     print(H.shape)
 
     cp.get_default_memory_pool().free_all_blocks()

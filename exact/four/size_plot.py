@@ -4,8 +4,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
 
-NN = np.arange(8, 16, 1)
-MM = np.arange(10, 22, 2)
+NN = np.arange(8, 18, 1)
+MM = np.arange(10, 26, 2)
 C = 100
 sizes = np.zeros((len(NN), len(MM)))
 for i, N in enumerate(NN):
