@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from exact.twotransmon.zz.zz import single_zz
+from exact.two.zz.zz import single_zz
 import numpy as np
 from store.stores import Store_zz3T
 from other.colormap import OrBu_colormap, Norm

@@ -1,44 +1,53 @@
 # how different is the clever vs the naive translation of parameters
-from exact.util import omega_alphas, gconstant, Eint_to_g_Eint, Eint_to_g_Ej, gconstant
+from exact.util import omega_alphas, gconstant, Eint_to_g
 from matplotlib import pyplot as plt
 import numpy as np
 
 # here we compare different ways to translate different parameters
 
-plt.title("Omega [Ec] comparison, Ec=1")
-Ej = np.linspace(0, 80, 20)
+Ej = np.linspace(0, 100, 40)
 fancyo, fancya = omega_alphas(1, Ej, True)
-simpleo, simplea = omega_alphas(1, Ej, False)
-plt.plot(Ej, simpleo, label="simple")
+simpleo, _ = omega_alphas(1, Ej, False)
+
+# Omega
+plt.title("Omega from fancy mathieu or sqrt approx, Ec=1")
+plt.plot(Ej, simpleo, label="simple approx")
 plt.plot(Ej, fancyo, label="fancy")
+plt.xlabel("Ej [Ec]")
 plt.legend()
 
+# Alpha
 plt.figure()
-plt.title("Alpha comparison")
+plt.title("Alpha from matheiu energies Ec=1")
 plt.xlabel("Ej")
-plt.plot(Ej, simplea, label="simple")
-plt.plot(Ej, fancya, label="fancy")
+plt.ylabel("alpha")
+plt.plot(Ej, fancya)
+
+# g
+Ej1 = 50
+Ej2 = 50
+Eints = np.linspace(0, 0.6, 40)
+gs_fancy = [Eint_to_g(Ej1, Ej2, Eint) for Eint in Eints]
+gs_approx = [gconstant(1, Ej1, 1, Ej2, Eint) for Eint in Eints]
 
 plt.figure()
-plt.title("g vs Eint [Ec]=Ec1=Ec2=1")
-Eints = np.linspace(0, 2, 40)
-gs = Eint_to_g_Eint(50, 50, Eints)
-gs_app = [gconstant(1, 50, 1, 50, Eint) for Eint in Eints]
-
 plt.xlabel("Eint")
-plt.plot(Eints, gs, marker=".", label="num")
-plt.plot(Eints, gs_app, marker=".", label="approx")
+plt.title(f"g from approx or fancy numeric Ec1=Ec2=1 Ej1={Ej1} Ej2={Ej2}")
+plt.plot(Eints, gs_fancy, label="Fancy num")
+plt.plot(Eints, gs_approx, label="Approx model")
 plt.legend()
 
-plt.figure()
+# g again
 Ej2 = 50
 Eint = 0.1
-plt.title(f"g vs Ej1 [Ec1=Ec2], Ej2={Ej2}, Eint={Eint}")
-Ej1 = np.linspace(0, 90, 100)
-gs_app = gconstant(1, Ej1, 1, Ej2, Eint)
-gs = Eint_to_g_Ej(Ej1, Ej2, 0.1)
-plt.plot(Ej1, gs, label="num")
-plt.plot(Ej1, gs_app, label="approx")
+Ejs = np.linspace(0, 100, 100)
+gs_fancy = [Eint_to_g(Ej1, Ej2, Eint) for Ej1 in Ejs]
+gs_approx = [gconstant(1, Ej1, 1, Ej2, Eint) for Ej1 in Ejs]
+
+plt.figure()
 plt.xlabel("Ej1")
+plt.title(f"g from approx or fancy numeric Ec1=Ec2=1 Eint={Eint} Ej2={Ej2}")
+plt.plot(Ejs, gs_fancy, label="Fancy num")
+plt.plot(Ejs, gs_approx, label="Approx model")
 plt.legend()
 plt.show()

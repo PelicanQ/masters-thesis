@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 from anharm.Hamiltonian import Hamil
-from exact.twotransmon.hamil import eig_clever
+from exact.two.hamil import eig_clever
 from exact.util import omega_alphas
 from anharm.two.translate import Eint_to_g_Ej
 

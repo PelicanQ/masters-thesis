@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import cupy as cp
 import cupyx.scipy.sparse
+import scipy.linalg as spalg
 
 
 def getsparsegpumem(mat):
@@ -63,6 +64,22 @@ def gconstant(Ec1, Ej1: np.ndarray, Ec2, Ej2, Eint):
     # if we feed in one of the Ec's as the unit, this g gets that unit
     g = 4 * Eint * (Ej1 * Ej2 / (32**2 * Ec1 * Ec2)) ** (1 / 4)
     return g
+
+
+def Eint_to_g(Ej1, Ej2, Eint):
+    """Beware of the absolute. Introduce your own sign"""
+    C = 30
+    nstates = np.arange(-C, C + 1, step=1)
+    ndiag = np.square(nstates)
+    _, vecs1 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej1 / 2)
+    _, vecs2 = spalg.eigh_tridiagonal(ndiag * 4 * 1, -np.ones(2 * C) * Ej2 / 2)
+
+    ndiag = np.diag(nstates)
+    n1 = vecs1.T @ ndiag @ vecs1  # change into transmon bare basis
+    n2 = vecs2.T @ ndiag @ vecs2
+
+    g12 = 4 * Eint * np.abs(n1[1, 0] * n2[0, 1])
+    return g12
 
 
 def omega_alphas(Ec, Ej: np.ndarray, fancy: bool):
