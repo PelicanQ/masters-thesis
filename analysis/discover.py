@@ -69,10 +69,10 @@ def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cm
         axslid = make_axslid(0.15, y, fig_ctl, 0.75)
         if arg[0] == "g":
             slid = makeslid(
-                axslid, arg, 0, 0.002 if is_cross_coupling(arg) else 0.01, 0.1 if is_cross_coupling(arg) else 0.5, init
+                axslid, arg, 0, 0.002 if is_cross_coupling(arg) else 0.01, 0.1 if is_cross_coupling(arg) else 2, init
             )
         elif arg[0] == "d":
-            slid = makeslid(axslid, arg, 0, 0.1, 4, init)
+            slid = makeslid(axslid, arg, 0, 0.1, 5, init)
         else:
             raise Exception("This is not a g or delta")
         slids[arg] = slid

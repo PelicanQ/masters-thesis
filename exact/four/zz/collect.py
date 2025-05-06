@@ -16,11 +16,11 @@ def local_collect():
         Ej1=Ej1s,
         Ej2=Ej1s,
         Ej3=50,
-        Ej4=56.5,
-        Eint12=0.085,
-        Eint23=0.085,
-        Eint13=0.0046,
-        Eint34=0.085,
+        Ej4=57,
+        Eint12=0.1,
+        Eint23=0.1,
+        Eint13=0.01,
+        Eint34=0,
     )
     for i, job in enumerate(jobs):
         print(i, len(jobs))
@@ -50,9 +50,9 @@ def local_collect():
 
 
 def plot_plane():
-    Ejs = np.arange(30, 100, 4).tolist()  # numpy types cannot be json serialized
+    Ejs = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
     results = Store_zz4T.plane(
-        "Ej2", Ejs, 1, "Ej1", Ejs, 1, Ej3=50, Ej4=50, Eint12=0.1, Eint23=0.1, Eint13=0.002, Eint34=0.1
+        "Ej2", Ejs, 1, "Ej1", Ejs, 1, Ej3=50, Ej4=56.5, Eint12=0.085, Eint23=0.085, Eint13=0.0046, Eint34=0.085
     )
     plt.pcolor(Ejs, Ejs, results["zz13"], norm=Norm(1e-1), cmap=OrBu_colormap())
     # plt.pcolor(Ej1s, Ej3s, np.abs(zzz) < 0.01)
@@ -65,5 +65,5 @@ def plot_plane():
 
 
 if __name__ == "__main__":
-    # local_collect()
-    plot_plane()
+    local_collect()
+    # plot_plane()

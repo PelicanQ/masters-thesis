@@ -18,8 +18,8 @@ g13 = 0.05
 g34 = 0.4
 d34 = 1.1
 
-dd13 = np.linspace(-10, 10, 400)
-o2prim = np.linspace(-10, 10, 400)
+dd13 = np.linspace(-10, 10, 200)
+o2prim = np.linspace(-10, 10, 200)
 o2prim_grid, dd13_grid = np.meshgrid(o2prim, dd13)
 d23_grid = o2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid
