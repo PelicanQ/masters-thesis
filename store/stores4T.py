@@ -1,15 +1,13 @@
 from matplotlib import pyplot as plt
 import numpy as np
 from store.models4T import ZZ4T
-from functools import reduce
-from operator import or_
 from typing import Iterable
-import math
 from store.util import line_query, get_missing_key, get_where_query, filter_grid, meshline_query
+from store.stores import StoreBase
 
 
-class Store_zz4T:
-    all_keys = ["Ej1", "Ej2", "Ej3", "Ej4" "Eint12", "Eint23", "Eint13", "Eint34"]
+class Store_zz4T(StoreBase):
+    all_keys = ["Ej1", "Ej2", "Ej3", "Ej4", "Eint12", "Eint23", "Eint13", "Eint34"]
     all_vals = [
         "zz12",
         "zz23",
@@ -60,10 +58,10 @@ class Store_zz4T:
             Ej2=round(Ej2, 1),
             Ej3=round(Ej3, 1),
             Ej4=round(Ej4, 1),
-            Eint12=round(Eint12, 3),
-            Eint23=round(Eint23, 3),
-            Eint13=round(Eint13, 3),
-            Eint34=round(Eint34, 3),
+            Eint12=round(Eint12, 4),
+            Eint23=round(Eint23, 4),
+            Eint13=round(Eint13, 4),
+            Eint34=round(Eint34, 4),
             zz12=zz12,
             zz23=zz23,
             zz34=zz34,
@@ -102,9 +100,7 @@ class Store_zz4T:
         return results
 
     @classmethod
-    def plane_fast(
-        cls, var1: str, val1: np.ndarray, ndigits1: int, var2: str, val2: np.ndarray, ndigits2: int, **kwargs
-    ):
+    def plane(cls, var1: str, val1: np.ndarray, ndigits1: int, var2: str, val2: np.ndarray, ndigits2: int, **kwargs):
         """val1 and val2 must be 1D numpy vectors. Val2 == row dimension"""
         points, index_map1, index_map2 = filter_grid(cls, kwargs, var1, val1, ndigits1, var2, val2, ndigits2)
         val_mat = np.zeros((len(val2), len(val1)))

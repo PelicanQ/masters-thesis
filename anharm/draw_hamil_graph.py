@@ -77,6 +77,7 @@ def trim(graph, state):
         graph.remove_node(n)
 
 
+# trim(g, "1110")
 plane, embedding = nx.check_planarity(g)
 print("Is planar?", plane)
 embedding: nx.PlanarEmbedding = embedding
@@ -86,12 +87,12 @@ embedding: nx.PlanarEmbedding = embedding
 # ff = dict([(a, poses[a]) for a in ll])
 # poses = nx.(g)
 # poses = nx.spring_layout(g, pos=poses)
-nx.draw_networkx(g)
-plt.show()
-# net = pvn.Network(notebook=True)
-# net.from_nx(g)
-# net.force_atlas_2based()
-# net.show("graph.html")
+# nx.draw_networkx(g)
+# plt.show()
+net = pvn.Network(notebook=True)
+net.from_nx(g)
+net.force_atlas_2based()
+net.show("graph.html")
 
 
 # draw with graphviz, probably useful for pretty visual using lattice vectors on graphs where it works

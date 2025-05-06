@@ -31,8 +31,6 @@ def single_zz(Ej1, Ej2, Ej3, Ej4, Eint12, Eint23, Eint13, Eint34):
     def get_zz(zzstate: str):
         top_energy = gslevel(str2state(zzstate))
         bottom_states = get_bottom_states(zzstate)
-        print(str2state(zzstate))
-        print(bottom_states)
         bottom_energies = sum(map(gslevel, bottom_states))
         # print(bottom_energies)
         return top_energy - bottom_energies

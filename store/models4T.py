@@ -1,4 +1,5 @@
 from peewee import Model, DoubleField, CompositeKey, SqliteDatabase
+from store.db import db
 
 
 class ZZ4T(Model):
@@ -28,3 +29,8 @@ class ZZ4T(Model):
     zzz134 = DoubleField()
 
     zzzz = DoubleField()
+
+    class Meta:
+        database = db
+        strict_tables = True
+        primary_key = CompositeKey("Ej1", "Ej2", "Ej3", "Ej4", "Eint12", "Eint23", "Eint13", "Eint34")

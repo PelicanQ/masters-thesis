@@ -1,6 +1,7 @@
 # Let's make a Postgres storage system for sim data
 from peewee import Model, DoubleField, CompositeKey, SqliteDatabase
 from store.models5T import ZZ5T_triang
+from store.models4T import ZZ4T
 from store.db import db
 
 
@@ -39,5 +40,5 @@ class ZZ2T(Model):
 
 
 if __name__ == "__main__":
-    db.create_tables([ZZ5T_triang])
+    db.create_tables([ZZ4T])
     pass

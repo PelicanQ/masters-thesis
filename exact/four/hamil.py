@@ -51,7 +51,7 @@ def eig(Ej1, Ej2, Ej3, Ej4, E12, E23, E13, E34, only_energy=False, N=11, M=14, C
     Returns:
         eigenvalues and eigenvectors in bare basis
     """
-    t1 = time.perf_counter()
+    # t1 = time.perf_counter()
 
     nstates = np.arange(-C, C + 1, step=1)
     ndiagsqr = np.square(nstates)
@@ -95,14 +95,14 @@ def eig(Ej1, Ej2, Ej3, Ej4, E12, E23, E13, E34, only_energy=False, N=11, M=14, C
     H = H[:, keep_idx][keep_idx, :]
 
     print(H.shape)
-    t2 = time.perf_counter()
+    # t2 = time.perf_counter()
 
     if only_energy:
         vals = cp.linalg.eigvalsh(H)
         return cp.asnumpy(vals)
     vals, vecs = cp.linalg.eigh(H)
-    t3 = time.perf_counter()
-    print(t2 - t1, t3 - t2)
+    # t3 = time.perf_counter()
+    # print(t2 - t1, t3 - t2)
 
     # Note that with excitation trunc we get have to count differently
     return cp.asnumpy(vals), cp.asnumpy(vecs), get_excitation_idx_map(N, M)
