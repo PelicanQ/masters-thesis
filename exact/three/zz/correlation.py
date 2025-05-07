@@ -1,5 +1,5 @@
 # Let's see if ZZZ correlates with the other 3 ZZ
-from store.stores import Store_zz3T
+from store.stores3T import Store_zz3T
 import numpy as np
 from matplotlib.widgets import Button
 from matplotlib import pyplot as plt
@@ -60,14 +60,14 @@ def proj3(A):
     return R, v1, v2, v3
 
 
-R, v1, v2 = proj2(A)
-planes.append((v1, v2))
-ax = fig.add_subplot(1, 1, 1)
-plot = ax.scatter(R[0, :], R[1, :])
+# R, v1, v2 = proj2(A)
+# planes.append((v1, v2))
+# ax = fig.add_subplot(1, 1, 1)
+# plot = ax.scatter(R[0, :], R[1, :])
 # else:
-#     R = proj3(A)
-#     ax = fig.add_subplot(1, 1, 1, projection="3d")
-#     t = ax.scatter(R[0, :], R[1, :], R[2, :])
+# R, v1, v2, v3 = proj3(A)
+# ax = fig.add_subplot(1, 1, 1, projection="3d")
+# plot = ax.scatter(R[0, :], R[1, :], R[2, :])
 
 
 def on_next(val):

@@ -57,7 +57,7 @@ def is_cross_coupling(arg: str):
     return True
 
 
-def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cmap):
+def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cmap=None):
     fig_ctl = plt.figure()
     fig_ctl.suptitle("Controls")
     y = 0.9
@@ -72,7 +72,7 @@ def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cm
                 axslid, arg, 0, 0.002 if is_cross_coupling(arg) else 0.01, 0.1 if is_cross_coupling(arg) else 2, init
             )
         elif arg[0] == "d":
-            slid = makeslid(axslid, arg, 0, 0.1, 5, init)
+            slid = makeslid(axslid, arg, 0, 0.05, 10, init)
         else:
             raise Exception("This is not a g or delta")
         slids[arg] = slid

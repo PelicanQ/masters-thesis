@@ -69,7 +69,6 @@ class HandlerBase:
         if hasattr(self, "level_select"):
             json["level_select"] = self.level_select
         async with aiohttp.ClientSession() as session:
-            print(json)
             post = session.post(self.url, json=json)
             async with post as response:
                 response = await response.json()

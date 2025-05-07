@@ -1,7 +1,7 @@
 from exact.three.zz.zz import single_zz
 import numpy as np
 from jobmanager.Handler import Handler3T, Handler3TEnergy
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, colors
 import asyncio
 from jobmanager.util import collect_jobs
 from store.stores3T import Store_zz3T
@@ -36,7 +36,7 @@ def local_collect():
 
 def collect_levels():
     Ejs = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.005, k=7)
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.105, Eint23=0.105, Eint13=0.002, k=7)
     H = Handler3TEnergy("http://25.9.103.201:81/3T/energy", [0, 1, 2, 3, 4])
     # test = asyncio.run(H.test_remote())
     # print(test)
@@ -47,14 +47,14 @@ def collect_levels():
 
 
 def collect():
-    Ejs = np.arange(30, 100, 0.5).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.01, k=7)
+    Eints = np.arange(-0.2, 0.2, 0.005).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=89, Ej2=57, Ej3=40, Eint12=Eints, Eint23=Eints, Eint13=0, k=7)
     print("collected", len(jobs))
     filtered = []
     for i, job in enumerate(jobs):
         print(i, len(jobs))
-        if not Store_zz3T.check_exists(**job):
-            filtered.append(job)
+        # if not Store_zz3T.check_exists(**job):
+        filtered.append(job)
     print("filtered", len(filtered))
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
@@ -85,24 +85,26 @@ def plot_allzz(var1: Iterable, var2: Iterable, *args):
 
 
 def plot_plane():
-    Ejs = np.arange(30, 80, 0.5).tolist()  # numpy types cannot be json serialized
-    Eints = np.arange(0, 0.8, 0.05)
-    zz12, zz2, zz3, zzz = Store_zz3T.plane(
-        "Ej1", Ejs, "Eint12", Eints, Ec2=1, Ec3=1, Ej2=50, Ej3=140, Eint23=0.2, Eint13=0
+    Eints = np.arange(-0.2, 0.2, 0.005).tolist()  # numpy types cannot be json serialized
+    zz12, zz23, zz13, zzz = Store_zz3T.plane(
+        "Eint12", Eints, 3, "Eint23", Eints, 3, Ec2=1, Ec3=1, Ej1=89, Ej2=57, Ej3=40, Eint13=0
     )
-    plt.pcolor(Ejs, Eints, zz12)
+    Z = zzz - (zz12 + zz23 + zz13)
+    Z = np.abs(Z)
+    X, Y = np.meshgrid(Eints, Eints)
+    plt.pcolormesh(X, Y, Z, norm=colors.LogNorm(1e-6, 1))
     # plt.pcolor(Ej1s, Ej3s, np.abs(zzz) < 0.01)
-    plt.xlabel("Ej1")
-    plt.title(f"zz12 [Ec1], Line, Ej3=140 Ej2=50 Eint23=0.2")
-    plt.ylabel("Eint12")
+    plt.xlabel("Eint12")
+    plt.ylabel("Eint23")
+    plt.title(f"|ZZZ - all ZZ| [Ec], Ej1=89 Ej2=57 Ej3=40 Eint13=0")
     plt.colorbar()
     plt.show()
     # plot_allzz(Ej1s, Ej3s, zz1, zz2, zz3, zzz)
 
 
 if __name__ == "__main__":
-    collect()
-    # local_collect()
+    plot_plane()
+    # collect()
     # plot_plane()
     # collect_levels(
     # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=2, Eint12=0.1, Eint23=0.1, Eint13=0.1)
