@@ -1,8 +1,10 @@
 # Here we manage numeric jobs
 from exact.two.zz.zz import single_zz as zz2T
 from exact.three.zz.zz import single_zz as zz3T
+from exact.four.zz.zz import single_zz as zz4T
 from exact.two.hamil import eig_clever as energy2T
 from exact.three.hamil import eig_excitation_trunc as energy3T
+from store.stores4T import Store_zz4T
 import aiohttp
 import asyncio
 import timeit
@@ -56,7 +58,6 @@ class HandlerBase:
                 await asyncio.sleep(0)
 
         res = await self.task
-        print("residual task done")
         results.extend(res)
         print(f"All done. Num results: {len(results)}/{numjobs}")
         return results
@@ -68,6 +69,7 @@ class HandlerBase:
         if hasattr(self, "level_select"):
             json["level_select"] = self.level_select
         async with aiohttp.ClientSession() as session:
+            print(json)
             post = session.post(self.url, json=json)
             async with post as response:
                 response = await response.json()
@@ -122,7 +124,15 @@ class Handler3T(HandlerBase):
         return current
 
 
+class Handler4T(HandlerBase):
+    def local_run(self, job: dict):
+        current = job.copy()
+        results = zz4T(**current)
+        current.update([(val, results[val]) for val in Store_zz4T.all_vals])
+        return current
+
+
 if __name__ == "__main__":
-    h = Handler2T("http://127.0.0.1:81/2T", 12)
+    h = Handler4T("http://127.0.0.1:81/4T")
     d1 = {"Ej1": 1, "Ej2": 1, "Ec2": 1, "Eint": 1, "k": 10}
     asyncio.run(h.submit([d1 for _ in range(20)]))

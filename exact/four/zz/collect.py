@@ -7,6 +7,7 @@ import asyncio
 from jobmanager.util import collect_jobs
 from store.stores4T import Store_zz4T
 from typing import Iterable
+from jobmanager.Handler import Handler4T
 from other.colormap import Norm, OrBu_colormap
 
 
@@ -31,22 +32,29 @@ def local_collect():
         Store_zz4T.insert(**job, **result)
 
 
-# def collect():
-#     Ejs = np.arange(30, 100, 0.5).tolist()  # numpy types cannot be json serialized
-#     jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.01, k=7)
-#     print("collected", len(jobs))
-#     filtered = []
-#     for i, job in enumerate(jobs):
-#         print(i, len(jobs))
-#         if not Store_zz4T.check_exists(**job):
-#             filtered.append(job)
-#     print("filtered", len(filtered))
-#     H = Handler4T("http://25.9.103.201:81/3T")
-#     # test = asyncio.run(H.test_remote())
-#     # print(test)
-#     r = asyncio.run(H.submit(filtered, batch_size=100))
-#     Store_zz4T.insert_many(r)
-#     print("Done inserting")
+def collect():
+    Ejs = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(
+        Ej1=Ejs,
+        Ej2=Ejs,
+        Ej3=50,
+        Ej4=57,
+        Eint12=0.1,
+        Eint23=0.1,
+        Eint13=0.01,
+        Eint34=0,
+    )
+    print("collected", len(jobs))
+    filtered = []
+    for i, job in enumerate(jobs):
+        print(i, len(jobs))
+        # if not Store_zz4T.check_exists(**job):
+        filtered.append(job)
+    print("filtered", len(filtered))
+    H = Handler4T("http://25.9.103.201:81/4T")
+    r = asyncio.run(H.submit(filtered, batch_size=100))
+    # Store_zz4T.insert_many(r)
+    print("Done inserting")
 
 
 def plot_plane():
@@ -65,5 +73,6 @@ def plot_plane():
 
 
 if __name__ == "__main__":
-    local_collect()
+    # local_collect()
+    collect()
     # plot_plane()
