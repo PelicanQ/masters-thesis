@@ -43,7 +43,7 @@ def to_omega_grid(Ej1: np.ndarray, Ej2: np.ndarray, Ej3: float):
 
 o2primgrid, detunegrid = to_omega_grid(Ej1, Ej2, Ej3)
 
-fig, ax, c = make_hoverax(o2primgrid, detunegrid, results["zz13"], norm=Norm(1e-1), cmap=OrBu_colormap())
+fig, ax, c = make_hoverax(o2primgrid, detunegrid, results["zzzz"], norm=Norm(1e1), cmap=OrBu_colormap())
 ax.set_title(f"ZZ13 4T triang Ej3={Ej3} Ej4={Ej4}  Eints=({Eint12} {Eint23} {Eint13} {Eint34} ) units [Ec]")
 
 ax.set_xlabel("omega2 prim [Ec]")

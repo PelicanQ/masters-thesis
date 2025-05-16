@@ -5,12 +5,12 @@ from matplotlib.widgets import Button
 from matplotlib import pyplot as plt
 
 
-vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.01)
-_, zz12_, zz23_, zz13_, zzz_ = Store_zz3T.line(Ec2=1, Ec3=1, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.005)
-zz12.extend(zz12_)
-zz23.extend(zz23_)
-zz13.extend(zz13_)
-zzz.extend(zzz_)
+vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej1=50, Ej2=50, Ej3=50, Eint23=0.2, Eint13=0)
+# _, zz12_, zz23_, zz13_, zzz_ = Store_zz3T.line(Ec2=1, Ec3=1, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.005)
+# zz12.extend(zz12_)
+# zz23.extend(zz23_)
+# zz13.extend(zz13_)
+# zzz.extend(zzz_)
 A = np.array([zz12, zz23, zz13, zzz])
 
 fig = plt.figure()
