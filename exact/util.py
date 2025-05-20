@@ -94,6 +94,16 @@ def omega_alphas(Ec, Ej: np.ndarray, fancy: bool):
     return omegas, alphas  # given that Ec is unit, these also get the unit Ec
 
 
+def to_omega_grid(Ej1: np.ndarray, Ej2: np.ndarray, Ej3: float):
+    Ej2grid, Ej1grid = np.meshgrid(Ej2, Ej1)
+    o3, _ = omega_alphas(1, Ej3, True)
+    o1, _ = omega_alphas(1, Ej1grid, True)
+    o2, _ = omega_alphas(1, Ej2grid, True)
+    o2primgrid = o2 - (o3 + o1) / 2
+    detunegrid = o1 - o3
+    return o2primgrid, detunegrid
+
+
 def index_map2T(N):
     """
     map for two qubits.

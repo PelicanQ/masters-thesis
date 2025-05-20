@@ -2,7 +2,6 @@
 from other.colormap import OrBu_colormap, my_colors
 import numpy as np
 from matplotlib import pyplot as plt
-from jobmanager.util import collect_jobs
 from anharm.Hamiltonian import Hamil
 from matplotlib import colors
 from sandbox.util import make_axslid, makeslid
@@ -16,16 +15,13 @@ f, vars = H.lambdify_expr(e)
 alpha = -1
 g12 = 0.4
 g23 = 0.4
-g13 = 0.02
+g13 = 0.01
 
 dd13 = np.linspace(-8, 8, 200)
-o2prims = np.linspace(-10, 10, 200)
+o2prims = np.linspace(-8, 8, 200)
 d2prim_grid, dd13_grid = np.meshgrid(o2prims, dd13)
 d23_grid = d2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid
-
-
-args = (alpha, alpha, alpha, g12, g23, g13, d12_grid, d23_grid)
 
 
 @np.vectorize
@@ -33,6 +29,42 @@ def snapto0(v):
     if np.abs(v) < 1e-5:
         return 0
     return v
+
+
+def zzzfunctions():
+    s = H.get_subspace(3)
+
+    e1 = s.get_edge("111", "021") + s.get_all_edge_corrections("111", "021")
+    e2 = s.get_edge("111", "201") + s.get_all_edge_corrections("111", "201")
+    e3 = s.get_4loop_contraction("111", "021") + s.get_4loop_contraction("111", "201")
+    group01 = e1 + e2 + e3
+    e1 = s.get_edge("111", "120") + s.get_all_edge_corrections("111", "120")
+    e2 = s.get_edge("111", "102") + s.get_all_edge_corrections("111", "102")
+    e3 = s.get_4loop_contraction("111", "120") + s.get_4loop_contraction("111", "102")
+    group12 = e1 + e2 + e3
+    e1 = s.get_edge("111", "210") + s.get_all_edge_corrections("111", "210")
+    e2 = s.get_edge("111", "012") + s.get_all_edge_corrections("111", "012")
+    e3 = s.get_4loop_contraction("111", "210") + s.get_4loop_contraction("111", "012")
+    group02 = e1 + e2 + e3
+    group3 = s.get_3cycles("111")
+    group4 = (
+        s.get_4loop_contraction("111", "003")
+        + s.get_4loop_contraction("111", "030")
+        + s.get_4loop_contraction("111", "300")
+    )
+
+    group01 = H.split_deltas(group01)
+    group12 = H.split_deltas(group12)
+    group02 = H.split_deltas(group02)
+    group3 = H.split_deltas(group3)
+    group4 = H.split_deltas(group4)
+
+    f01, vars01 = H.lambdify_expr(group01 + group12 + group02 + group4)
+    f12, vars12 = H.lambdify_expr(group12)
+    f02, vars02 = H.lambdify_expr(group02)
+    f3, vars3 = H.lambdify_expr(group3)
+    f4, vars4 = H.lambdify_expr(group4)
+    return f01, f12, f02, f3, f4
 
 
 f01, f12, f02, f3, f4 = zzzfunctions()

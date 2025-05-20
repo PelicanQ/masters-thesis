@@ -26,7 +26,7 @@ def make_format_coord_refreshable(X, Y, vals, key):
     return functools.partial(format_coord, X, Y, lambda: vals[key])
 
 
-def make_mesh(X, Y, Z, norm, cmap, format_coord, ax=None):
+def make_mesh(X, Y, Z, format_coord, norm=None, cmap=None, ax=None):
     if ax:
         c = ax.pcolormesh(X, Y, Z, norm=norm, cmap=cmap)
         ax.format_coord = format_coord
@@ -34,19 +34,19 @@ def make_mesh(X, Y, Z, norm, cmap, format_coord, ax=None):
     fig, ax = plt.subplots()
     c = ax.pcolormesh(X, Y, Z, norm=norm, cmap=cmap)
     ax.format_coord = format_coord
-    fig.colorbar(c)
-    return fig, ax, c
+    cbar = fig.colorbar(c)
+    return fig, ax, c, cbar
 
 
 def make_hoverax_refreshable(X, Y, vals: dict, key: str, norm, cmap, ax=None):
     """Improvement of make_hoverax where a dict supplies values so that hover shows updated values"""
     format_coord = make_format_coord_refreshable(X, Y, vals, key)
-    return make_mesh(X, Y, vals[key], norm, cmap, format_coord, ax=ax)
+    return make_mesh(X, Y, vals[key], format_coord, norm=norm, cmap=cmap, ax=ax)
 
 
-def make_hoverax(X, Y, Z, norm, cmap, ax=None):
+def make_hoverax(X, Y, Z, norm=None, cmap=None, ax=None):
     """In addtion to x,y with this you see z value when hovering"""
-    return make_mesh(X, Y, Z, norm, cmap, make_format_coord(X, Y, Z), ax=ax)
+    return make_mesh(X, Y, Z, make_format_coord(X, Y, Z), norm=norm, cmap=cmap, ax=ax)
 
 
 def is_cross_coupling(arg: str):
@@ -69,7 +69,7 @@ def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cm
         axslid = make_axslid(0.15, y, fig_ctl, 0.75)
         if arg[0] == "g":
             slid = makeslid(
-                axslid, arg, 0, 0.002 if is_cross_coupling(arg) else 0.01, 0.1 if is_cross_coupling(arg) else 2, init
+                axslid, arg, 0, 0.002 if is_cross_coupling(arg) else 0.01, 0.1 if is_cross_coupling(arg) else 1, init
             )
         elif arg[0] == "d":
             slid = makeslid(axslid, arg, 0, 0.05, 10, init)

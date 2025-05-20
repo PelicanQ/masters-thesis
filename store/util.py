@@ -47,7 +47,7 @@ def line_query(cls, kwargs):
             results[column].append(getattr(entry, column))
     if len(vars) < 1:
         raise Exception("It seems no line was not found for given values")
-    return np.array(vars), *(results[val] for val in cls.all_vals)
+    return np.array(vars), *(np.array(results[val]) for val in cls.all_vals)
 
 
 def get_missing_key(kwargs, cls):
@@ -113,10 +113,13 @@ def filter_grid(cls, kwargs, var1: str, val1: Iterable, ndigits1: int, var2: str
         candidates.append(entry)
         var1_candidates[i] = getattr(entry, var1)
         var2_candidates[i] = getattr(entry, var2)
-    # filter out those rows entries which are not at one of the grid points of val1 x val2
+    # Imagine a 2D lattice formed by the cartesian product of val1 * val2
+    # We form two 1D arrays. One such indicates whether a db point has its var1 value to some val1 value. Likewise for var2 val2
     var1_mask = filter_points(var1_candidates, val1)
     var2_mask = filter_points(var2_candidates, val2)
-    keep = np.all(np.array([var1_mask, var2_mask]), axis=0)  # both vars have be at a grid point
+    keep = np.all(
+        np.array([var1_mask, var2_mask]), axis=0
+    )  # this indicates whether a db point intersect in both dimensions
     if np.count_nonzero(keep) != grid_size:
         raise Exception("Number of found points don't match grid size")
     print(np.count_nonzero(keep), grid_size)

@@ -62,9 +62,9 @@ class Store_zz3T(StoreBase):
             Ej1=round(Ej1, 1),
             Ej2=round(Ej2, 1),
             Ej3=round(Ej3, 1),
-            Eint12=round(Eint12, 3),
-            Eint23=round(Eint23, 3),
-            Eint13=round(Eint13, 3),
+            Eint12=round(Eint12, 4),
+            Eint23=round(Eint23, 4),
+            Eint13=round(Eint13, 4),
             zzGS12=zzGS12,
             zzGS23=zzGS23,
             zzGS13=zzGS13,
@@ -98,7 +98,7 @@ class Store_zz3T(StoreBase):
     @classmethod
     def plane(cls, var1: str, val1: np.ndarray, ndigits1: int, var2: str, val2: np.ndarray, ndigits2: int, **kwargs):
         """val1 and val2 must be 1D numpy vectors"""
-        points, index_map1, index_map2 = filter_grid(cls, kwargs, var1, val2, ndigits1, var2, val2, ndigits2)
+        points, index_map1, index_map2 = filter_grid(cls, kwargs, var1, val1, ndigits1, var2, val2, ndigits2)
 
         zz12 = np.zeros((len(val2), len(val1)))
         zz12[:] = np.nan

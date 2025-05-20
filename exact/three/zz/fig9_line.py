@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from jobmanager.util import collect_jobs
 from anharm.Hamiltonian import Hamil
 from matplotlib import colors
-from exact.threetransmon.zz.zz import single_zz
+from exact.three.zz.zz import single_zz
 from store.stores import Store_zz3T
 from exact.util import omega_alphas
 from anharm.three.translate import Eints_to_g_Ej

@@ -6,20 +6,13 @@ import asyncio
 from jobmanager.util import collect_jobs
 from store.stores3T import Store_zz3T
 from typing import Iterable
+from other.colormap import Norm, OrBu_colormap
 
 
 def local_collect():
-    Ej1s = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(
-        Ec2=1,
-        Ec3=1,
-        Ej1=Ej1s,
-        Ej2=np.arange(30, 100, 1),
-        Ej3=50,
-        Eint12=0.1,
-        Eint23=0.05,
-        Eint13=0,
-    )
+    Ejs = np.arange(56, 62, 0.1).tolist()  # numpy types cannot be json serialized
+    # Eints = np.arange(0.02, 0.06, 0.01).tolist()
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=50, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.035)
     for i, job in enumerate(jobs):
         print(i, len(jobs))
         if Store_zz3T.check_exists(**job):
@@ -29,14 +22,9 @@ def local_collect():
         Store_zz3T.insert(**job, zzGS12=zz12, zzGS23=zz23, zzGS13=zz13, zzzGS=zzz)
 
 
-# using numba enhances gale shapely
-# Laptop: Total 15.8. Eig 14.7 Gale 0.7
-# runpod  SXM: Total 1.7. Eig 1.1 Gale 0.49
-
-
 def collect_levels():
-    Ejs = np.arange(30, 100, 1).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=0.105, Eint23=0.105, Eint13=0.002, k=7)
+    Ejs = np.arange(56, 62, 0.1).tolist()  # numpy types cannot be json serialized
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=50, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.035)
     H = Handler3TEnergy("http://25.9.103.201:81/3T/energy", [0, 1, 2, 3, 4])
     # test = asyncio.run(H.test_remote())
     # print(test)
@@ -46,22 +34,24 @@ def collect_levels():
     print("Done inserting")
 
 
+E = 0.04
+E13 = 0.0013
+
+
 def collect():
-    Eints = np.arange(-0.2, 0.2, 0.005).tolist()  # numpy types cannot be json serialized
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=89, Ej2=57, Ej3=40, Eint12=Eints, Eint23=Eints, Eint13=0, k=7)
+    Ejs = np.arange(30, 100, 1).tolist()
+    Ejs2 = np.arange(30, 140, 0.1).tolist()
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=50, Ej2=Ejs2, Ej3=50, Eint12=E, Eint23=E, Eint13=E13, k=7)
     print("collected", len(jobs))
-    filtered = []
-    for i, job in enumerate(jobs):
-        print(i, len(jobs))
-        # if not Store_zz3T.check_exists(**job):
-        filtered.append(job)
-    print("filtered", len(filtered))
+    filtered = Store_zz3T.filter_existing(jobs)
+    print("Before", len(jobs))
+    print("After filter", len(filtered))
     H = Handler3T("http://25.9.103.201:81/3T")
     # test = asyncio.run(H.test_remote())
     # print(test)
     r = asyncio.run(H.submit(filtered, batch_size=100))
     Store_zz3T.insert_many(r)
-    print("Done inserting")
+    print("Done inserting. ", len(r))
 
 
 def plot_allzz(var1: Iterable, var2: Iterable, *args):
@@ -85,39 +75,34 @@ def plot_allzz(var1: Iterable, var2: Iterable, *args):
 
 
 def plot_plane():
-    Eints = np.arange(-0.2, 0.2, 0.005).tolist()  # numpy types cannot be json serialized
+    Ejs = np.arange(45, 60, 1)
+    Ejs2 = np.arange(60, 100, 1)
     zz12, zz23, zz13, zzz = Store_zz3T.plane(
-        "Eint12", Eints, 3, "Eint23", Eints, 3, Ec2=1, Ec3=1, Ej1=89, Ej2=57, Ej3=40, Eint13=0
+        "Ej2", Ejs2, 1, "Ej1", Ejs, 1, Ec2=1, Ec3=1, Ej3=50, Eint12=E, Eint23=E, Eint13=E13
     )
-    Z = zzz - (zz12 + zz23 + zz13)
-    Z = np.abs(Z)
-    X, Y = np.meshgrid(Eints, Eints)
-    plt.pcolormesh(X, Y, Z, norm=colors.LogNorm(1e-6, 1))
-    # plt.pcolor(Ej1s, Ej3s, np.abs(zzz) < 0.01)
-    plt.xlabel("Eint12")
-    plt.ylabel("Eint23")
-    plt.title(f"|ZZZ - all ZZ| [Ec], Ej1=89 Ej2=57 Ej3=40 Eint13=0")
+    plt.pcolor(Ejs2, Ejs, zz13, cmap=OrBu_colormap(), norm=Norm(1e-1))
+    plt.title(f"ZZ13 [Ec]")
     plt.colorbar()
     plt.show()
-    # plot_allzz(Ej1s, Ej3s, zz1, zz2, zz3, zzz)
 
 
 if __name__ == "__main__":
-    plot_plane()
-    # collect()
+    # local_collect()
+    # plot_line()
+    collect()
     # plot_plane()
-    # collect_levels(
-    # vars, zz1, zz2, zz3, zzz = Store_zz3t.line(Ec2=1, Ec3=1, Ej2=50, Ej3=2, Eint12=0.1, Eint23=0.1, Eint13=0.1)
-    # plt.rc("lines", marker=".", lw=0)
-    # plt.plot(vars, zz1, label="zz1", lw=0, marker=".")
-    # plt.plot(vars, zz2, label="zz2", lw=0, marker=".")
-    # plt.plot(vars, zz3, label="zz3", lw=0, marker=".")
-    # plt.plot(vars, zzz, label="zzz", marker=".", lw=0)
-    # plt.title("units Ec Ej1=50 Ej3=55, Line layout, Eints=0.2")
-    # # plt.title("units Ec, triangle layout, Ej2=50 Ej3=62 Eints=0.1")
-    # plt.legend()
-    # plt.xlabel("Ej2")
-    # plt.show()
 
-# def plane():
-#     res = Store_zz3t.plane("Ec2", Ecs, "Ej2", Ejs, Ej1=50, Eint=0.2)
+
+def plot_line():
+    vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej1=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.035)
+    # plt.rc("lines", marker=".", lw=0, markersize=5)
+    plt.rc("lines", markersize=5)
+    plt.semilogy(vars, np.abs(zz13), label="zz13")
+    plt.semilogy(vars, np.abs(zzz), label="zzz")
+    # plt.yscale("symlog", linthresh=1e-5)
+    plt.title("Magnitude of ZZZ and ZZ13 Ej1=Ej3=50 E12=E23=0.1 E13=0.035. Units Ec")
+    # plt.title("units Ec, triangle layout, Ej2=50 Ej3=62 Eints=0.1")
+    plt.legend()
+    plt.xlabel("Ej2")
+    plt.ylabel("Magnitude [Ec]")
+    plt.show()

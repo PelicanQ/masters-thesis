@@ -4,7 +4,7 @@ from matplotlib import colors
 
 
 def Norm(ceil):
-    return colors.SymLogNorm(1e-5, vmin=-ceil, vmax=ceil)
+    return colors.SymLogNorm(1e-6, vmin=-ceil, vmax=ceil)
 
 
 def OrBu_colormap():

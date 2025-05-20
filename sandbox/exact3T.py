@@ -5,7 +5,7 @@ from matplotlib.widgets import Slider
 from util import makeslid, make_axslid, makeline
 from gale_shapley import state_assignment
 from matplotlib.widgets import CheckButtons
-from exact.threetransmon.hamil import eig_clever_vis
+from exact.three.hamil import eig_clever_vis
 from exact.util import omega_alphas
 import cupy as cp
 
@@ -30,13 +30,13 @@ num_levels = 19
 
 
 # we assume we start with 1 state lower than 2 state
-lines = []
+# lines = []
 linesbare = []
 
 for i in range(num_levels):
     (line,) = makeline(0, "gray", "XXX", ax=ax)
     (linebare,) = makeline(0, "gray", f"{i}", True, ax=ax)
-    lines.append(line)
+    # lines.append(line)
     linesbare.append(linebare)
 
 # ax.legend(loc="upper right")
@@ -52,18 +52,22 @@ ax_slidEj1 = make_axslid(x2, 0.05, fig)
 ax_slidEj2 = make_axslid(x2, 0.1, fig)
 ax_slidEj3 = make_axslid(x2, 0.15, fig)
 
-slid_Eint12 = makeslid(ax_slid_Eint12, "Eint12", 0.5, 0.01, 0.5)
-slid_Eint23 = makeslid(ax_slid_Eint23, "Eint23", 0.5, 0.01, 0.5)
-slid_Eint13 = makeslid(ax_slid_Eint13, "Eint13", 0.5, 0.01, 0.5)
-slidEj1 = makeslid(ax_slidEj1, "Ej1", Ej1_init, 0.1, 30)
-slidEj2 = makeslid(ax_slidEj2, "Ej2", Ej2_init, 0.1, 30)
-slidEj3 = makeslid(ax_slidEj3, "Ej3", Ej3_init, 0.1, 30)
+slid_Eint12 = makeslid(ax_slid_Eint12, "Eint12", 0, 0.01, 0.5, 0)
+slid_Eint23 = makeslid(ax_slid_Eint23, "Eint23", 0, 0.01, 0.5, 0)
+slid_Eint13 = makeslid(ax_slid_Eint13, "Eint13", 0, 0.01, 0.1, 0)
+slidEj1 = makeslid(ax_slidEj1, "Ej1", 50, 1, 30, Ej1_init)
+slidEj2 = makeslid(ax_slidEj2, "Ej2", 50, 1, 30, Ej2_init)
+slidEj3 = makeslid(ax_slidEj3, "Ej3", 50, 1, 30, Ej3_init)
 
 textbares = []
+texts = []
 dx = 0.1
 for i in range(len(linesbare)):
     text = ax.text(-0.95 + i * dx, 0, f"{i}", fontsize=fontsize)
     textbares.append(text)
+    # text = ax.text(0.95 - i * dx, 0, f"{i}")
+    # texts.append(text)
+
 # text2 = ax.text(-0.9, w2_init, "2", fontsize=fontsize)
 # text3 = ax.text(-0.85, w3_init, "3", fontsize=fontsize)
 # textbare1 = ax.text(0, w1_init, "bare 1", fontsize=fontsize)
@@ -88,9 +92,6 @@ def update(val):
     Eint12 = slid_Eint12.val
     Eint23 = slid_Eint23.val
     Eint13 = slid_Eint13.val
-    Eint12 = 0
-    Eint23 = 0
-    Eint13 = 0
     levels, sortedbare = eig_clever_vis(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=True, k=7, M=20)
     # ignore ground state
     levels = levels - levels[0]
@@ -102,10 +103,12 @@ def update(val):
         bareE = bare_levels[i]
         E = levels[i]
         linesbare[i].set_ydata([bareE, bareE])
-        lines[i].set_ydata([E, E])
+        # lines[i].set_ydata([E, E])
+
     for i in range(len(textbares)):
         textbares[i].set_text("".join(map(str, states[i])))
         textbares[i].set_y(bare_levels[i])
+        # texts[i].
 
     o1, _ = omega_alphas(1, Ej1, True)
     o2, _ = omega_alphas(1, Ej2, True)

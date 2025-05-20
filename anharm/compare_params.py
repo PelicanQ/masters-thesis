@@ -5,7 +5,7 @@ import numpy as np
 
 # here we compare different ways to translate different parameters
 
-Ej = np.linspace(0, 100, 40)
+Ej = np.linspace(0, 150, 40)
 fancyo, fancya = omega_alphas(1, Ej, True)
 simpleo, _ = omega_alphas(1, Ej, False)
 
