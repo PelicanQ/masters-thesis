@@ -14,12 +14,12 @@ e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
 print(vars)
 alpha = -1
-g12 = 0.5
-g23 = 0.5
-g13 = 0.02
+g12 = 0.2
+g23 = 0.2
+g13 = 0.002
 
-dd13 = np.linspace(-8, 8, 200)
-o2prims = np.linspace(-8, 8, 200)
+dd13 = np.linspace(-4, 8, 200)
+o2prims = np.linspace(-6, 14, 200)
 o2_grid, d13_grid = np.meshgrid(o2prims, dd13)
 d23_grid = o2_grid + d13_grid / 2
 d12_grid = d13_grid - d23_grid
@@ -36,7 +36,7 @@ def snapto0(v):
     return v
 
 
-norm = colors.SymLogNorm(1e-5, vmin=-1e-1, vmax=1e-1)
+norm = colors.SymLogNorm(1e-6, vmin=-1e0, vmax=1e0)
 cmap = OrBu_colormap()
 
 

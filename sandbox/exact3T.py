@@ -22,6 +22,7 @@ ax2.set_ylim(-6, 6)
 ax2.set_xlim(-6, 6)
 ax.set_ylim([10, 80])
 ax.set_title("3 transmon")
+
 Ej1_init = 50
 Ej2_init = 50
 Ej3_init = 50
@@ -92,7 +93,7 @@ def update(val):
     Eint12 = slid_Eint12.val
     Eint23 = slid_Eint23.val
     Eint13 = slid_Eint13.val
-    levels, sortedbare = eig_clever_vis(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=True, k=7, M=20)
+    levels, sortedbare = eig_clever_vis(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, only_energy=True, k=7, M=15)
     # ignore ground state
     levels = levels - levels[0]
     levels = levels[1:]

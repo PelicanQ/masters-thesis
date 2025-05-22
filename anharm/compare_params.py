@@ -26,7 +26,7 @@ plt.plot(Ej, fancya)
 # g
 Ej1 = 50
 Ej2 = 50
-Eints = np.linspace(0, 0.6, 40)
+Eints = np.linspace(0, 0.5, 50)
 gs_fancy = [Eint_to_g(Ej1, Ej2, Eint) for Eint in Eints]
 gs_approx = [gconstant(1, Ej1, 1, Ej2, Eint) for Eint in Eints]
 

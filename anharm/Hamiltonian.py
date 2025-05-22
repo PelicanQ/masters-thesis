@@ -101,6 +101,13 @@ class Hamil:
         return expr.subs(Symbol(rf"\omega_{{{nums[0]}}}"), delta + Symbol(rf"\omega_{{{nums[1]}}}"))
 
     @staticmethod
+    def harmonize_alphas(expr: sp.Expr):
+        """Meant for manual post processing"""
+        MAX_ALPHA = 25  # hard coded max value might need change later
+        alpha_list = [(sp.Symbol(rf"\alpha_{{{i}}}"), sp.Symbol(r"\alpha")) for i in range(MAX_ALPHA)]
+        return expr.subs(alpha_list)
+
+    @staticmethod
     def split_deltas(expr: sp.Expr):
         """Meant for manual post processing, e.g. before lambdify"""
         for sym in expr.free_symbols:

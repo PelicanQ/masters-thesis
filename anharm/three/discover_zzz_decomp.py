@@ -6,7 +6,7 @@ from anharm.Hamiltonian import Hamil
 from matplotlib import colors
 from sandbox.util import make_axslid, makeslid
 from analysis.discover import make_hoverax_refreshable
-from anharm.three.fig6_zzz import zzzfunctions
+from anharm.three.swt_zzz_only import zzzfunctions
 
 H = Hamil(3, 4, "triang")
 e = H.zzexpr("111")

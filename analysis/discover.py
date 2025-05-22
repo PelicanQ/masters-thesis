@@ -69,7 +69,12 @@ def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cm
         axslid = make_axslid(0.15, y, fig_ctl, 0.75)
         if arg[0] == "g":
             slid = makeslid(
-                axslid, arg, 0, 0.002 if is_cross_coupling(arg) else 0.01, 0.1 if is_cross_coupling(arg) else 1, init
+                axslid,
+                arg,
+                0,
+                0.0001 if is_cross_coupling(arg) else 0.01,
+                0.01 if is_cross_coupling(arg) else 0.5,
+                init,
             )
         elif arg[0] == "d":
             slid = makeslid(axslid, arg, 0, 0.05, 10, init)
@@ -80,7 +85,7 @@ def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cm
 
     initval = calculate(**dict(zip(args, inits))) * np.nan
     val_dict = {"val": initval}
-    fig, ax, c = make_hoverax_refreshable(X, Y, val_dict, "val", norm=norm, cmap=cmap)
+    fig, ax, c, cbar = make_hoverax_refreshable(X, Y, val_dict, "val", norm=norm, cmap=cmap)
 
     def update(val):
         kwargs = {}

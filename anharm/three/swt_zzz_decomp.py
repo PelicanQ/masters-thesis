@@ -8,29 +8,22 @@ import inspect
 from analysis.discover import make_hoverax
 
 H = Hamil(3, 4, "triang")
-e = H.zzexpr("111")
-e = H.split_deltas(e)
-f, vars = H.lambdify_expr(e)
-alpha = -1
-g12 = 0.5
-g23 = 0.5
-g13 = 0.0
+e = H.split_deltas(H.zzexpr("111"))
+f_zzz, vars = H.lambdify_expr(e)
 
-dd13 = np.linspace(-8, 8, 400)
-o2prims = np.linspace(-8, 8, 400)
+alpha = -1
+g12 = 0.19
+g23 = 0.19
+g13 = 0.003
+
+dd13 = np.linspace(-4, 8, 500)
+o2prims = np.linspace(-6, 14, 500)
 d2prim_grid, dd13_grid = np.meshgrid(o2prims, dd13)
 d23_grid = d2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid
 
 
-@np.vectorize
-def snapto0(v):
-    if np.abs(v) < 1e-5:
-        return 0
-    return v
-
-
-norm = colors.SymLogNorm(1e-5, vmin=-1e0, vmax=1e0)
+norm = colors.SymLogNorm(1e-6, vmin=-1e0, vmax=1e0)
 cmap = OrBu_colormap()
 
 
@@ -67,6 +60,11 @@ def zzzfunctions():
     f02, vars02 = H.lambdify_expr(group02)
     f3, vars3 = H.lambdify_expr(group3)
     f4, vars4 = H.lambdify_expr(group4)
+    print(vars01)
+    print(vars12)
+    print(vars02)
+    print(vars3)
+    print(vars4)
     return f01, f12, f02, f3, f4
 
 
@@ -75,11 +73,11 @@ def decomp():
 
     def calculate(alpha, g12, g23, g13, d12, d23):
         args = (alpha, alpha, alpha, g12, g23, g13, d12, d23)
-        return snapto0(f(*args)), f01(*args), f12(*args), f02(*args), f3(*args), f4(*args)
+        return f_zzz(*args), f01(*args), f12(*args), f02(*args), f3(*args), f4(*args)
 
     vals, vals01, vals12, vals02, vals3, vals4 = calculate(alpha, g12, g23, g13, d12_grid, d23_grid)
 
-    fig = plt.figure()
+    fig = plt.figure(constrained_layout=True, figsize=(10, 7))
     ((ax1, ax2, ax3), (ax4, ax5, ax6)) = fig.subplots(2, 3)
     fig.suptitle(
         rf"Grouped contributions to ZZZ $g_{{12}}$={g12} $g_{{23}}$={g23} $g_{{13}}$={g13} $\alpha$={alpha} units [-$\alpha$]"
