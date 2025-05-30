@@ -1,5 +1,5 @@
 # in the case of line layout, equal Ej1,3 and good bit lower Ej2, this is the bare ordering
-from exact.threetransmon.hamil import eig_excitation_trunc
+from exact.three.hamil import eig_excitation_trunc
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -9,7 +9,7 @@ r23 = []
 r13 = []
 rzzz = []
 for Ej in Ejs:
-    levels, _ = eig_excitation_trunc(1, 1, Ej, 50, 52, 0.1, 0.1, 0.1, only_energy=True)
+    levels = eig_excitation_trunc(1, 1, Ej, 50, 52, 0.1, 0.1, 0.01, only_energy=True)
     levels = levels - levels[0]
     zz12 = levels[5] - (levels[1] + levels[2])
     zz23 = levels[9] - (levels[2] + levels[3])
@@ -19,11 +19,15 @@ for Ej in Ejs:
     r23.append(zz23)
     r13.append(zz13)
     rzzz.append(zzz)
-
+r12 = np.array(r12)
+r23 = np.array(r23)
+r13 = np.array(r13)
+rzzz = np.array(rzzz)
 plt.plot(Ejs, r12, label="zz12")
 plt.plot(Ejs, r23, label="zz23")
 plt.plot(Ejs, r13, label="zz13")
 plt.plot(Ejs, rzzz, label="zzz")
+plt.plot(Ejs, r12 + r23 + r13, label="sum")
 plt.title("adiabatic starting from Ej1=40 Ej2=50 Ej3=52 triang Eints=0.1")
 # plt.title("adiabatic  starting from Ej2=30 Line Eints12,23=0.2 Ej1=50 Ej3=55")
 plt.xlabel("Ej1")

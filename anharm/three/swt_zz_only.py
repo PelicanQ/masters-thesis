@@ -6,7 +6,9 @@ from anharm.Hamiltonian import Hamil
 from matplotlib import colors
 import inspect
 from analysis.discover import make_hoverax_refreshable, make_hoverax, make_mesh
+import scienceplots
 
+plt.style.use(["science", "nature"])
 H = Hamil(3, 4, "triang")
 e = H.zzexpr("101")
 e = H.split_deltas(e)
@@ -16,8 +18,8 @@ g12 = 0.19
 g23 = 0.19
 g13 = 0.003
 
-dd13 = np.linspace(-4, 8, 400)
-o2prims = np.linspace(-6, 14, 400)
+dd13 = np.linspace(-8, 8, 400)
+o2prims = np.linspace(-14, 14, 400)
 d2prim_grid, dd13_grid = np.meshgrid(o2prims, dd13)
 d23_grid = d2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid

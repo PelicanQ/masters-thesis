@@ -122,7 +122,7 @@ def filter_grid(cls, kwargs, var1: str, val1: Iterable, ndigits1: int, var2: str
     )  # this indicates whether a db point intersect in both dimensions
     if np.count_nonzero(keep) != grid_size:
         raise Exception("Number of found points don't match grid size")
-    print(np.count_nonzero(keep), grid_size)
+    # print(np.count_nonzero(keep), grid_size)
     # for faster insert, form map between vars and index in query
     index_map1 = parameter_index_map(val1, ndigits1)
     index_map2 = parameter_index_map(val2, ndigits2)

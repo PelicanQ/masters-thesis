@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from store.stores3T import Store_zz3T
 from exact.util import omega_alphas
+import scienceplots
 
 
 def plot_line():
@@ -14,7 +15,7 @@ def plot_line():
 
     o2prim, _ = omega_alphas(1, Ejs, True)
     # o2prim_2, _ = omega_alphas(1, Ejs_2, True)
-
+    plt.figure(figsize=(1, 1))
     plt.rc("lines", markersize=5)
     # plt.semilogy(o2prim, np.abs(zz12), label="zz12")
     # plt.semilogy(o2prim, np.abs(zz23), label="zz23")
@@ -27,6 +28,8 @@ def plot_line():
     plt.xlabel("omega2 [Ec]")
     plt.ylabel("Magnitude [Ec]")
     plt.legend()
+    plt.savefig("figs/o2-cut.png", dpi=300, bbox_inches="tight")
+
     plt.show()
 
 

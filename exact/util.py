@@ -41,6 +41,14 @@ def kron(*mats):
     return total
 
 
+def exact_energy_num(Ec, Ej, C=30):
+    # m=0,1,2,3,... should give the single transmon energies in acending order
+    nstates = np.arange(-C, C + 1, step=1)
+    ndiag = np.square(nstates)
+    vals, _ = spalg.eigh_tridiagonal(ndiag * 4 * Ec, -np.ones(2 * C) * Ej / 2)
+    return vals - vals[0]
+
+
 def exact_energy(m, Ec, Ej):
     # m=0,1,2,3,... should give the single transmon energies in acending order
     if m % 2 == 0:

@@ -12,7 +12,7 @@ Ej3 = 50
 Ej1s = np.arange(30, 100, 1)
 Ej2s = np.arange(30, 140, 1)
 Eint = 0.04
-Eint13 = 0.0013
+Eint13 = 0.008
 _, _, zz13, zzz = Store_zz3T.plane(
     "Ej2", Ej2s, 1, "Ej1", Ej1s, 1, Ej3=Ej3, Eint12=Eint, Eint23=Eint, Eint13=Eint13, Ec2=1, Ec3=1
 )
@@ -50,7 +50,7 @@ ax3.set_ylabel("Energy [$E_C$]")
 fig.suptitle(
     rf"ZZZ and $\text{{ZZ}}_{{13}}$ for $E_{{J3}}=50$, $E_{{12}}=E_{{23}}={Eint}$, $E_{{13}}={Eint13}$ units $E_C$"
 )
-fig.savefig("figs/zz-zzz-compare.png", dpi=300, bbox_inches="tight")
+fig.savefig("figs/zz-zzz-compare-strong13.png", dpi=300, bbox_inches="tight")
 
 # plt.colorbar()
 plt.show()

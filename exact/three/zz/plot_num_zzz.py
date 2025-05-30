@@ -10,7 +10,7 @@ Ej1s = np.arange(30, 100, 1)
 Ej2s = np.arange(30, 140, 1)
 Eint12 = 0.04
 Eint23 = 0.04
-Eint13 = 0.03
+Eint13 = 0.0013
 _, _, _, zzz = Store_zz3T.plane(
     "Ej2", Ej2s, 1, "Ej1", Ej1s, 1, Ej3=Ej3, Eint12=Eint12, Eint23=Eint23, Eint13=Eint13, Ec2=1, Ec3=1
 )
@@ -27,6 +27,14 @@ def to_omega_grid(Ej1: np.ndarray, Ej2: np.ndarray, Ej3: float):
 
 
 o2primgrid, detunegrid = to_omega_grid(Ej1s, Ej2s, Ej3)
+plt.pcolormesh(o2primgrid, detunegrid, zzz, norm=Norm(1e-0), cmap=OrBu_colormap())
+
+# m = np.zeros_like(o2primgrid)
+# for i in range(o2primgrid.shape[0]):
+#     for j in range(o2primgrid.shape[1]):
+#         o2prim = o2primgrid[i,j]
+#         if
+#             m=1
 plt.pcolormesh(o2primgrid, detunegrid, zzz, norm=Norm(1e-0), cmap=OrBu_colormap())
 
 plt.title(rf"ZZZ Ej3={Ej3}  Eint12={Eint12} Eint23={Eint23} Eint13={Eint13} units [Ec]")

@@ -10,16 +10,16 @@ from exact.util import omega_alphas, exact_energy
 import itertools
 
 
-def sort_bare(Ej1, Ej2, Ej3):
+def sort_bare(o1, o2, o3):
     """For visualize only"""
     lis = []
-    sortvals1 = np.array([exact_energy(i, 1, Ej1) for i in range(4)])
-    sortvals2 = np.array([exact_energy(i, 1, Ej2) for i in range(4)])
-    sortvals3 = np.array([exact_energy(i, 1, Ej3) for i in range(4)])
-    sortvals1 = sortvals1 - sortvals1[0]
-    sortvals2 = sortvals2 - sortvals2[0]
-    sortvals3 = sortvals3 - sortvals3[0]
-    for comb in itertools.product(range(4), repeat=3):
+    alpha = -1
+
+    sortvals1 = np.array([0, o1, 2 * o1 + alpha, 3 * o1 + 3 * alpha])
+    sortvals2 = np.array([0, o2, 2 * o2 + alpha, 3 * o2 + 3 * alpha])
+    sortvals3 = np.array([0, o3, 2 * o3 + alpha, 3 * o3 + 3 * alpha])
+
+    for comb in itertools.product(range(5), repeat=3):
         n1 = comb[0]
         n2 = comb[1]
         n3 = comb[2]
@@ -31,17 +31,6 @@ def sort_bare(Ej1, Ej2, Ej3):
     return levels, states
 
 
-def sort_dressed(vals, vecs, idx_map):
-    btd, dtb = state_assignment(vecs)
-    lis = []
-
-    for comb in itertools.product(range(4), repeat=3):
-        lis.append((comb, vals[btd[idx_map[comb]]]))
-    lis = sorted(lis, key=lambda x: x[1])
-    states = np.array([x[0] for x in lis])
-    return states
-
-
 # Create figure and axis
 fig = plt.figure(1)
 plt.subplots_adjust(bottom=0.2)
@@ -51,15 +40,14 @@ ax2 = fig2.subplots()
 ax2.set_xlabel("o2prim")
 ax2.set_ylabel("delta13")
 (parampoint,) = ax2.plot(0, 0, marker="*")
-ax2.set_ylim(-10, 10)
-ax2.set_xlim(-10, 10)
-
+ax2.set_ylim(-6, 6)
+ax2.set_xlim(-6, 6)
 ax.set_ylim([10, 80])
-ax.set_title("3 transmon")
+ax.set_title("3T AHO")
 
-Ej1_init = 50
-Ej2_init = 50
-Ej3_init = 50
+o1_init = 25
+o2_init = 25
+o3_init = 25
 
 num_levels = 19
 
@@ -79,19 +67,13 @@ x1 = 0.6
 x2 = 0.1
 fontsize = 12
 # Add Slider
-ax_slid_Eint12 = make_axslid(x1, 0.05, fig)
-ax_slid_Eint23 = make_axslid(x1, 0.1, fig)
-ax_slid_Eint13 = make_axslid(x1, 0.15, fig)
-ax_slidEj1 = make_axslid(x2, 0.05, fig)
-ax_slidEj2 = make_axslid(x2, 0.1, fig)
-ax_slidEj3 = make_axslid(x2, 0.15, fig)
+ax_slid_o1 = make_axslid(x2, 0.05, fig)
+ax_slid_o2 = make_axslid(x2, 0.1, fig)
+ax_slid_o3 = make_axslid(x2, 0.15, fig)
 
-slid_Eint12 = makeslid(ax_slid_Eint12, "Eint12", 0, 0.001, 0.15, 0)
-slid_Eint23 = makeslid(ax_slid_Eint23, "Eint23", 0, 0.001, 0.15, 0)
-slid_Eint13 = makeslid(ax_slid_Eint13, "Eint13", 0, 0.0001, 0.05, 0)
-slidEj1 = makeslid(ax_slidEj1, "Ej1", 50, 1, 30, Ej1_init)
-slidEj2 = makeslid(ax_slidEj2, "Ej2", 50, 1, 30, Ej2_init)
-slidEj3 = makeslid(ax_slidEj3, "Ej3", 50, 1, 30, Ej3_init)
+slid_o1 = makeslid(ax_slid_o1, "o1", o1_init, 0.1, 10, o1_init)
+slid_o2 = makeslid(ax_slid_o2, "o2", o2_init, 0.1, 10, o2_init)
+slid_o3 = makeslid(ax_slid_o3, "o3", o3_init, 0.1, 10, o3_init)
 
 textbares = []
 texts = []
@@ -114,47 +96,29 @@ for i in range(len(linesbare)):
 # checkbox = CheckButtons(ax_checkbox, ["Gale Shapely"], [False])  # Checked by default
 
 
-galeshap = False
-
-
 # Update function
 def update(val):
 
-    Ej1 = slidEj1.val
-    Ej2 = slidEj2.val
-    Ej3 = slidEj3.val
-    Eint12 = slid_Eint12.val
-    Eint23 = slid_Eint23.val
-    Eint13 = slid_Eint13.val
-    dressed_levels, vecs, idx_map = eig_excitation_trunc(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=7, M=15)
+    o1 = slid_o1.val
+    o2 = slid_o2.val
+    o3 = slid_o3.val
 
-    bare_levels, bare_states = sort_bare(Ej1, Ej2, Ej3)
-    dressed_states = sort_dressed(dressed_levels, vecs, idx_map)
+    bare_levels, bare_states = sort_bare(o1, o2, o3)
     # ignore ground state
-    bare_levels = bare_levels - bare_levels[0]
-    dressed_levels = dressed_levels - dressed_levels[0]
     bare_states = bare_states[1:]
     bare_levels = bare_levels[1:]
-    dressed_levels = dressed_levels[1:]
-    dressed_states = dressed_states[1:]
 
     for i in range(len(linesbare)):
         linesbare[i].set_ydata([bare_levels[i], bare_levels[i]])
-        lines[i].set_ydata([dressed_levels[i], dressed_levels[i]])
 
         textbares[i].set_text("".join(map(str, bare_states[i])))
         textbares[i].set_y(bare_levels[i])
-        texts[i].set_y(dressed_levels[i])
-        texts[i].set_text("".join(map(str, dressed_states[i])))
 
     # param plot
-    o1, _ = omega_alphas(1, Ej1, True)
-    o2, _ = omega_alphas(1, Ej2, True)
-    o3, _ = omega_alphas(1, Ej3, True)
     d13 = o1 - o3
     o2prim = o2 - (o3 + o1) / 2
-    print(d13, o2prim)
-    parampoint.set_data([o2prim, o2prim + 1e-6], [d13, d13])
+    parampoint.set_data([o2prim, o2prim], [d13, d13])
+    # update
     fig.canvas.draw_idle()
     ax.relim()
     ax.autoscale_view()
@@ -172,7 +136,8 @@ def toggle(val):
 
 # checkbox.on_clicked(toggle)  # Attach function to checkbox
 
-for s in [slid_Eint12, slid_Eint23, slid_Eint13, slidEj1, slidEj2, slidEj3]:
+# for s in [slid_g12, slid_g23, slid_g13, slid_o1, slid_o2, slid_o3]:
+for s in [slid_o1, slid_o2, slid_o3]:
     s.on_changed(update)
 
 

@@ -35,13 +35,13 @@ def collect_levels():
 
 
 E = 0.04
-E13 = 0.0013
+E13 = 0.008
 
 
 def collect():
-    Ejs = np.arange(30, 100, 1).tolist()
-    Ejs2 = np.arange(30, 140, 0.1).tolist()
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=50, Ej2=Ejs2, Ej3=50, Eint12=E, Eint23=E, Eint13=E13, k=7)
+    Ejs = np.arange(30, 100, 1.1).tolist()
+    # Ejs2 = np.arange(30, 140, 0.2).tolist()
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=Ejs, Ej2=Ejs, Ej3=50, Eint12=E, Eint23=E, Eint13=E13, k=7)
     print("collected", len(jobs))
     filtered = Store_zz3T.filter_existing(jobs)
     print("Before", len(jobs))
