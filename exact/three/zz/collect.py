@@ -10,9 +10,9 @@ from other.colormap import Norm, OrBu_colormap
 
 
 def local_collect():
-    Ejs = np.arange(56, 62, 0.1).tolist()  # numpy types cannot be json serialized
+    Ejs = np.arange(58.8, 59, 0.01).tolist()  # numpy types cannot be json serialized
     # Eints = np.arange(0.02, 0.06, 0.01).tolist()
-    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=50, Ej2=Ejs, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.035)
+    jobs = collect_jobs(Ec2=1, Ec3=1, Ej1=50, Ej2=Ejs, Ej3=50, Eint12=0.04, Eint23=0.04, Eint13=0.008)
     for i, job in enumerate(jobs):
         print(i, len(jobs))
         if Store_zz3T.check_exists(**job):
@@ -86,15 +86,8 @@ def plot_plane():
     plt.show()
 
 
-if __name__ == "__main__":
-    # local_collect()
-    # plot_line()
-    collect()
-    # plot_plane()
-
-
 def plot_line():
-    vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej1=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.035)
+    vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej1=50, Ej3=50, Eint12=0.04, Eint23=0.04, Eint13=0.008)
     # plt.rc("lines", marker=".", lw=0, markersize=5)
     plt.rc("lines", markersize=5)
     plt.semilogy(vars, np.abs(zz13), label="zz13")
@@ -106,3 +99,10 @@ def plot_line():
     plt.xlabel("Ej2")
     plt.ylabel("Magnitude [Ec]")
     plt.show()
+
+
+if __name__ == "__main__":
+    local_collect()
+    plot_line()
+    # collect()
+    # plot_plane()

@@ -123,9 +123,9 @@ def update(val):
     Ej1 = slidEj1.val
     Ej2 = slidEj2.val
     Ej3 = slidEj3.val
-    Eint12 = slid_Eint12.val
-    Eint23 = slid_Eint23.val
-    Eint13 = slid_Eint13.val
+    Eint12 = slid_Eint12.val * 0
+    Eint23 = slid_Eint23.val * 0
+    Eint13 = slid_Eint13.val * 0
     dressed_levels, vecs, idx_map = eig_excitation_trunc(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=7, M=15)
 
     bare_levels, bare_states = sort_bare(Ej1, Ej2, Ej3)
@@ -140,12 +140,13 @@ def update(val):
 
     for i in range(len(linesbare)):
         linesbare[i].set_ydata([bare_levels[i], bare_levels[i]])
-        lines[i].set_ydata([dressed_levels[i], dressed_levels[i]])
+        # lines[i].set_ydata([dressed_levels[i], dressed_levels[i]])
+        lines[i].set_ydata([0, 0])
 
         textbares[i].set_text("".join(map(str, bare_states[i])))
         textbares[i].set_y(bare_levels[i])
-        texts[i].set_y(dressed_levels[i])
-        texts[i].set_text("".join(map(str, dressed_states[i])))
+        # texts[i].set_y(dressed_levels[i])
+        # texts[i].set_text("".join(map(str, dressed_states[i])))
 
     # param plot
     o1, _ = omega_alphas(1, Ej1, True)

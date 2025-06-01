@@ -42,11 +42,11 @@ cmap = OrBu_colormap()
 def only():
     plt.figure(constrained_layout=True, figsize=(5.9 / 2, 5.9 * 3 / 4 / 2))
     plt.pcolormesh(d2prim_grid, dd13_grid, vals, norm=norm, cmap=cmap)
-    plt.title(rf"$\text{{ZZ}}_{{13}}$ $g_{{12}}g_{{23}}={g12}$, $g_{{13}}$={g13} unit [-$\alpha$]")
+    plt.title(rf"$\text{{ZZ}}_{{13}}$ for $g_{{12}}=g_{{23}}={g12}$, $g_{{13}}$={g13} units [-$\alpha$]")
     plt.xlabel(r"$\omega_2^\prime$ [-$\alpha$]")
     plt.ylabel(r"$\Delta_{13}$ [-$\alpha$]")
     plt.colorbar()
-    plt.savefig("figs/zz13-recreate", dpi=300, bbox_inches="tight")
+    plt.savefig("figs/zz13-recreate.png", dpi=300, bbox_inches="tight")
     plt.show()
 
 
