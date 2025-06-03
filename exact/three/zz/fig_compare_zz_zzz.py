@@ -9,8 +9,8 @@ import scienceplots
 plt.style.use(["science", "nature"])
 
 Ej3 = 50
-Ej1s = np.arange(30, 100, 1)
-Ej2s = np.arange(30, 140, 1)
+Ej1s = np.arange(30, 100, 0.2)
+Ej2s = np.arange(30, 140, 0.2)
 Eint = 0.04
 Eint13 = 0.0013
 _, _, zz13, zzz = Store_zz3T.plane(
@@ -34,6 +34,10 @@ ax2.pcolormesh(o2primgrid, detunegrid, zzz, norm=Norm(1e-0), cmap=OrBu_colormap(
 ax2.set_ylabel("$\Delta_{13}$ [$E_C$]")
 
 fig.colorbar(c1, ax=[ax1, ax2])
+
+for x in np.arange(-20, 20, 1):
+    ax1.axline(xy1=(x, 0), color="lightgray", linestyle="-", linewidth=0.8, zorder=0, slope=-2)
+    ax2.axline(xy1=(x, 0), color="lightgray", linestyle="-", linewidth=0.8, zorder=0, slope=-2)
 
 # Line
 omega_mid, _ = omega_alphas(1, 50, True)

@@ -9,8 +9,8 @@ import scienceplots
 plt.style.use(["science", "nature"])
 
 Ej3 = 50
-Ej1s = np.arange(30, 100, 1)
-Ej2s = np.arange(30, 140, 1)
+Ej1s = np.arange(30, 100, 0.2)
+Ej2s = np.arange(30, 140, 0.2)
 Eint = 0.04
 Eint13 = 0.008
 _, _, zz13, zzz = Store_zz3T.plane(
@@ -41,6 +41,11 @@ o2prim, _ = omega_alphas(1, Ejs_line, True)
 o2prim -= omega_mid
 ax3.semilogy(o2prim, np.abs(zz13_line), label=r"$|\text{ZZ}_{13}|$")
 ax3.semilogy(o2prim, np.abs(zzz_line), label=r"$|\text{ZZZ}|$")
+
+for x in np.arange(-20, 20, 1):
+    ax1.axline(xy1=(x, 0), color="lightgray", linestyle="-", linewidth=0.8, zorder=0, slope=-2)
+    ax2.axline(xy1=(x, 0), color="lightgray", linestyle="-", linewidth=0.8, zorder=0, slope=-2)
+
 ax3.set_ylim([1e-7, 1e0])
 ax3.set_xlim(-6, 14)
 ax3.legend(loc="lower left")
@@ -51,6 +56,7 @@ fig.suptitle(
     rf"ZZZ and $\text{{ZZ}}_{{13}}$ for $E_{{J3}}=50$, $E_{{12}}=E_{{23}}={Eint}$, $E_{{13}}={Eint13}$ units $E_C$"
 )
 fig.savefig("figs/zz-zzz-compare-strong13.png", dpi=300, bbox_inches="tight")
+
 
 # plt.colorbar()
 plt.show()
