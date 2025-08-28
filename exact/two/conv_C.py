@@ -1,6 +1,6 @@
 # It's time I investigate convergence of levels wrt charge basis truncation
 import numpy as np
-from exact.twotransmon.hamil import eig_clever
+from exact.two.hamil import eig_clever
 from analysis.plot import plot
 from matplotlib import pyplot as plt
 

@@ -88,7 +88,7 @@ ax_slidEj3 = make_axslid(x2, 0.15, fig)
 
 slid_Eint12 = makeslid(ax_slid_Eint12, "Eint12", 0, 0.001, 0.15, 0)
 slid_Eint23 = makeslid(ax_slid_Eint23, "Eint23", 0, 0.001, 0.15, 0)
-slid_Eint13 = makeslid(ax_slid_Eint13, "Eint13", 0, 0.0001, 0.05, 0)
+slid_Eint13 = makeslid(ax_slid_Eint13, "Eint13", 0, 0.0001, 0.01, 0)
 slidEj1 = makeslid(ax_slidEj1, "Ej1", 50, 1, 30, Ej1_init)
 slidEj2 = makeslid(ax_slidEj2, "Ej2", 50, 1, 30, Ej2_init)
 slidEj3 = makeslid(ax_slidEj3, "Ej3", 50, 1, 30, Ej3_init)
@@ -123,9 +123,9 @@ def update(val):
     Ej1 = slidEj1.val
     Ej2 = slidEj2.val
     Ej3 = slidEj3.val
-    Eint12 = slid_Eint12.val * 0
-    Eint23 = slid_Eint23.val * 0
-    Eint13 = slid_Eint13.val * 0
+    Eint12 = slid_Eint12.val
+    Eint23 = slid_Eint23.val
+    Eint13 = slid_Eint13.val
     dressed_levels, vecs, idx_map = eig_excitation_trunc(1, 1, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=7, M=15)
 
     bare_levels, bare_states = sort_bare(Ej1, Ej2, Ej3)
