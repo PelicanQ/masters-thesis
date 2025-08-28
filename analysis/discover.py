@@ -78,6 +78,8 @@ def make_discover(args: list[str], inits: list[float], X, Y, calculate, norm, cm
             )
         elif arg[0] == "d":
             slid = makeslid(axslid, arg, 0, 0.05, 10, init)
+        elif arg[0] == "a":
+            slid = makeslid(axslid, arg, -2, 0.01, 1.8, init)
         else:
             raise Exception("This is not a g or delta")
         slids[arg] = slid

@@ -13,9 +13,9 @@ e = H.zzexpr("111")
 e = H.split_deltas(e)
 f, vars = H.lambdify_expr(e)
 alpha = -1
-g12 = 0.5
-g23 = 0.5
-g13 = 0.02
+g12 = 0.19
+g23 = 0.19
+g13 = 0.003
 
 dd13 = np.linspace(-8, 8, 200)
 o2prims = np.linspace(-8, 8, 200)
@@ -24,20 +24,13 @@ d23_grid = o2_grid + d13_grid / 2
 d12_grid = d13_grid - d23_grid
 
 
-def calculate(g12, g23, g13):
-    return f(-1, -1, -1, g12, g23, g13, d12_grid, d23_grid)
+def calculate(a1, a2, g12, g23, g13):
+    return f(a1, a2, -1, g12, g23, g13, d12_grid, d23_grid)
 
 
-@np.vectorize
-def snapto0(v):
-    if np.abs(v) < 1e-5:
-        return 0
-    return v
-
-
-norm = colors.SymLogNorm(1e-5, vmin=-1e0, vmax=1e0)
+norm = colors.SymLogNorm(1e-6, vmin=-1e0, vmax=1e0)
 cmap = OrBu_colormap()
 
 
-ax = make_discover(["g12", "g23", "g13"], [g12, g23, g13], o2_grid, d13_grid, calculate, norm, cmap)
+ax = make_discover(["g12", "g23", "g13", "a1", "a2"], [g12, g23, g13, -1, -1], o2_grid, d13_grid, calculate, norm, cmap)
 plt.show()

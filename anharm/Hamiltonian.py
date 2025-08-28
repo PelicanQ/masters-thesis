@@ -58,7 +58,7 @@ class Hamil:
         return self.state2space(state).getorder4(state)
 
     def get_edges(self, state, order: int | None = None):
-        return self.state2space(state).getedges(state, order)
+        return self.state2space(state).get_all_edges(state, order)
 
     def get_second_edges(self, state, keep_2nd_coupling: bool):
         """2nd order couplings can be kept but not lambdified"""
@@ -71,7 +71,7 @@ class Hamil:
         return self.state2space(state).get_all_birds(state)
 
     def get_3cycles(self, state):
-        return self.state2space(state).get_3cycles(state)
+        return self.state2space(state).get_all_3loops(state)
 
     def get_4cycles(self, state):
         return self.state2space(state).get_all_4_cycles(state)
@@ -187,13 +187,13 @@ class Hamil:
                 return space.getorder4(state, keep_second_coupling)
             elif type != None:
                 if type == "edges":
-                    return space.getedges(state)
+                    return space.get_all_edges(state)
                 elif type == "legs":
                     return space.get_all_legs(state)
                 elif type == "birds":
                     return space.get_all_birds(state)
                 elif type == "3loop":
-                    return space.get_3cycles(state)
+                    return space.get_all_3loops(state)
                 elif type == "4loop":
                     return space.get_all_4_cycles(state)
                 elif type == "second":
@@ -234,17 +234,47 @@ class Subspace:
                     graph.add_edge(self.basisnames[i], self.basisnames[j])
         self.graph = graph
 
-    def get_corrected_edge(self, state1: str, state2: str):
-        """edge + half-bird corrections"""
-        return self.get_edge(state1, state2) + self.get_all_edge_corrections(state1, state2)
+    def get_all_corrected_edges(self, state, together=False, correction_as_symbol=False):
+        """All corrected edges from state. Choose to factor all together or separate"""
+        if together:
+            if correction_as_symbol:
+                c = sp.Symbol(f"c_{{{state}}}")  # as symbol
+            else:
+                c = self.get_repulsion_correction(state)  # evaluated
+            return (sp.sympify(1) + c) * (self.get_all_edges(state, 2))
+
+        summ = sp.sympify(0)
+        for n in self.graph.neighbors(state):
+            summ += self.get_corrected_edge(state, n, correction_as_symbol)
+        return summ
+
+    def get_corrected_edge(self, state1: str, state2: str, correction_as_symbol=False):
+        """
+        Corrected edge where all half-birds are factored in.
+        Choose to keep these half-bird correction as a symbol or have them evaluated
+        """
+        gconst = self.statemat.loc[state1, state2]
+        delta = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta = Hamil.omega_to_delta(delta)
+
+        if correction_as_symbol:
+            return gconst**2 / delta * (1 - (gconst**2 / delta**2) + sp.Symbol(f"c_{{{state1}}}"))
+
+        half_bird_corrections = sp.sympify(0)
+        for n in self.graph.neighbors(state1):
+            if n == state2:
+                continue
+            half_bird_corrections += self.get_half_bird(state1, state2, n, True)
+
+        return gconst**2 / delta * (1 - (gconst**2 / delta**2) + half_bird_corrections)
 
     def getorder2(self, state):
         # get total SW energy expression
-        return self.getedges(state, order=2)
+        return self.get_all_edges(state, order=2)
 
     def getorder3(self, state):
         # get total SW energy expression
-        return self.get_3cycles(state)
+        return self.get_all_3loops(state)
 
     def getorder4(self, state, keep_second_coupling: bool):
         # get total SW energy expression
@@ -252,20 +282,44 @@ class Subspace:
             self.get_all_4_cycles(state)
             + self.get_all_legs(state)
             + self.get_all_birds(state)
-            + self.getedges(state, order=4)
+            + self.get_all_edges(state, order=4)
             + self.get_all_second_edges(state, keep_second_coupling)
         )
 
     def get_all(self, state, keep_second_coupling: bool):
         # get total SW energy expression
         return (
-            self.getedges(state)
+            self.get_all_edges(state)
             + self.get_all_legs(state)
             + self.get_all_birds(state)
-            + self.get_3cycles(state)
+            + self.get_all_3loops(state)
             + self.get_all_4_cycles(state)
             + self.get_all_second_edges(state, keep_second_coupling)
         )
+
+    def get_2prime_contraction(self, state1, state2):
+        """
+        Get the 2prime contraction from state1 to state2.
+        """
+        delta12 = self.statemat.loc[state1, state1] - self.statemat.loc[state2, state2]
+        delta12 = Hamil.omega_to_delta(delta12)
+        delta12 = Hamil.omega_to_delta(delta12)
+
+        middle_states: list[str] = []
+        for n in self.graph.neighbors(state1):
+            for nn in self.graph.neighbors(n):
+                if nn == state2:
+                    middle_states.append(n)
+
+        summ = sp.sympify(0)
+        for m in middle_states:
+            g1m = self.statemat.loc[state1, m]
+            gm2 = self.statemat.loc[m, state2]
+            delta1m = self.statemat.loc[state1, state1] - self.statemat.loc[m, m]
+            delta1m = Hamil.omega_to_delta(delta1m)
+            delta1m = Hamil.omega_to_delta(delta1m)
+            summ += g1m * gm2 / delta1m
+        return 1 / delta12 * summ**2
 
     def get_4loop_contraction(self, state1, state2):
         """
@@ -294,16 +348,17 @@ class Subspace:
             summ += g1m * gm2 / delta1m
         return 1 / delta12 * summ**2
 
-    def get_all_edge_corrections(self, state1, state2):
-        """Get all half-birds which correct the edgee state1 to state2"""
-        total = sp.sympify(0)
-        for n in self.graph.neighbors(state1):
-            if n == state2:
-                continue
-            total += self.get_edge_correction(state1, state2, n)
-        return total
+    def get_repulsion_correction(self, state):
+        """Get the repulsion correction to state"""
+        summ = sp.sympify(0)
+        for n in self.graph.neighbors(state):
+            delta = self.statemat.loc[state, state] - self.statemat.loc[n, n]
+            delta = Hamil.omega_to_delta(delta)
+            gconst = self.statemat.loc[state, n]
+            summ += -((gconst / delta) ** 2)
+        return summ
 
-    def get_edge_correction(self, state1, state2, state3):
+    def get_half_bird(self, state1, state2, state3, as_correction=False):
         """Get half-bird to state3 which corrects edge from state1 to state2"""
         g12 = self.statemat.loc[state1, state2]
         g13 = self.statemat.loc[state1, state3]
@@ -312,8 +367,10 @@ class Subspace:
         delta12 = Hamil.omega_to_delta(delta12)
         delta13 = Hamil.omega_to_delta(delta13)
 
-        ex = -(g12**2) / delta12 * (g13 / delta13) ** 2
-        return ex
+        # either return as a half bird or as a part of the "repulsion/edge correction"
+        if as_correction:
+            return -((g13 / delta13) ** 2)
+        return -(g12**2) / delta12 * (g13 / delta13) ** 2
 
     def get_edge(self, state1, state2, order=None):
         gconst = self.statemat.loc[state1, state2]
@@ -327,7 +384,7 @@ class Subspace:
         else:
             return gconst**2 / delta * (1 - (gconst**2 / delta**2))
 
-    def getedges(self, state, order: None | int = None):
+    def get_all_edges(self, state, order: None | int = None):
         """If order not given: both 2nd 4th order terms"""
         totalexpr = sp.sympify(0)
         for n in nx.neighbors(self.graph, state):
@@ -432,7 +489,19 @@ class Subspace:
         # print("# birds: ", num)
         return totalexpr
 
-    def get_3cycles(self, state):
+    def get_3loop(self, state, neigbor1, neighbor2):
+        """Get the three loop involving neighbors. Neighbors are not checked against the Hamiltonian graph."""
+        g1 = self.statemat.loc[state, neigbor1]
+        g2 = self.statemat.loc[neigbor1, neighbor2]
+        g3 = self.statemat.loc[state, neighbor2]
+        delta1 = self.statemat.loc[state, state] - self.statemat.loc[neigbor1, neigbor1]
+        delta2 = self.statemat.loc[state, state] - self.statemat.loc[neighbor2, neighbor2]
+        delta1 = Hamil.omega_to_delta(delta1)
+        delta2 = Hamil.omega_to_delta(delta2)
+
+        return 2 * g1 * g2 * g3 / (delta1 * delta2)
+
+    def get_all_3loops(self, state):
         total = sp.sympify(0)
 
         cycles: Generator[list[str], None, None] = nx.simple_cycles(self.graph, length_bound=3)
@@ -444,16 +513,7 @@ class Subspace:
             while c[0] != state:  # permute unitil desired state is first
                 c.insert(0, c.pop())
             n1, n2 = c[1:]
-            g1 = self.statemat.loc[state, n1]
-            g2 = self.statemat.loc[n1, n2]
-            g3 = self.statemat.loc[state, n2]
-            delta1 = self.statemat.loc[state, state] - self.statemat.loc[n1, n1]
-            delta2 = self.statemat.loc[state, state] - self.statemat.loc[n2, n2]
-            delta1 = Hamil.omega_to_delta(delta1)
-            delta2 = Hamil.omega_to_delta(delta2)
-
-            ex = 2 * g1 * g2 * g3 / (delta1 * delta2)
-            total += ex
+            total += self.get_3loop(state, n1, n2)
         return total
 
     def get_4_cycle(self, cycle):

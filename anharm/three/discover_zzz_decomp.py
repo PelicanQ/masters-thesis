@@ -47,7 +47,7 @@ def zzzfunctions():
     e2 = s.get_edge("111", "012") + s.get_all_edge_corrections("111", "012")
     e3 = s.get_4loop_contraction("111", "210") + s.get_4loop_contraction("111", "012")
     group02 = e1 + e2 + e3
-    group3 = s.get_3cycles("111")
+    group3 = s.get_all_3loops("111")
     group4 = (
         s.get_4loop_contraction("111", "003")
         + s.get_4loop_contraction("111", "030")

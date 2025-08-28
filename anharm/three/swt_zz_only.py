@@ -25,13 +25,6 @@ d23_grid = d2prim_grid + dd13_grid / 2
 d12_grid = dd13_grid - d23_grid
 
 
-# @np.vectorize
-# def snapto0(v):
-#     if np.abs(v) < 1e-5:
-#         return 0
-#     return v
-
-
 vals = f(alpha, alpha, alpha, g12, g23, g13, d12_grid, d23_grid)
 
 
