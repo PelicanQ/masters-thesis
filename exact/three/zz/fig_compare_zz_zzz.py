@@ -4,9 +4,8 @@ from matplotlib import pyplot as plt
 from store.stores3T import Store_zz3T
 from exact.util import omega_alphas, to_omega_grid
 from matplotlib import colors
-import scienceplots
+import initplots
 
-plt.style.use(["science", "nature"])
 
 Ej3 = 50
 Ej1s = np.arange(30, 100, 0.2)
@@ -26,14 +25,15 @@ fig, (ax1, ax2, ax3) = plt.subplots(
 )
 o2primgrid, detunegrid = to_omega_grid(Ej1s, Ej2s, Ej3)
 # ZZ
-c1 = ax1.pcolormesh(o2primgrid, detunegrid, zz13, norm=Norm(1e-0), cmap=OrBu_colormap())
+c1 = ax1.pcolormesh(o2primgrid, detunegrid, zz13, norm=Norm(1e-0), cmap=OrBu_colormap(), rasterized=True)
 ax1.set_ylabel("$\Delta_{13}$ [$E_C$]")
 
 # ZZZ
-ax2.pcolormesh(o2primgrid, detunegrid, zzz, norm=Norm(1e-0), cmap=OrBu_colormap())
+ax2.pcolormesh(o2primgrid, detunegrid, zzz, norm=Norm(1e-0), cmap=OrBu_colormap(), rasterized=True)
 ax2.set_ylabel("$\Delta_{13}$ [$E_C$]")
 
-fig.colorbar(c1, ax=[ax1, ax2])
+cbar = fig.colorbar(c1, ax=[ax1, ax2])
+cbar.set_label(r"$\text{ZZ}_{13}$/ZZZ [$E_C$]")
 
 for x in np.arange(-20, 20, 1):
     ax1.axline(xy1=(x, 0), color="lightgray", linestyle="-", linewidth=0.8, zorder=0, slope=-2)
@@ -49,12 +49,10 @@ ax3.set_ylim([1e-7, 1e0])
 ax3.set_xlim(-6, 14)
 ax3.legend(loc="lower left")
 ax3.set_xlabel("$\omega_2^\prime$ [$E_C$]")
-ax3.set_ylabel("Energy [$E_C$]")
+ax3.set_ylabel(r"Magnitude [$E_C$]")
 
-fig.suptitle(
-    rf"ZZZ and $\text{{ZZ}}_{{13}}$ for $E_{{J3}}=50$, $E_{{12}}=E_{{23}}={Eint}$, $E_{{13}}={Eint13}$ units $E_C$"
-)
-fig.savefig("figs/zz-zzz-compare.png", dpi=300, bbox_inches="tight")
+
+fig.savefig("figs/zz-zzz-compare.pdf", dpi=300, bbox_inches="tight")
 
 # plt.colorbar()
 plt.show()

@@ -4,9 +4,8 @@ from matplotlib import pyplot as plt
 from store.stores3T import Store_zz3T
 from exact.util import omega_alphas, to_omega_grid
 from matplotlib import colors
-import scienceplots
+import initplots
 
-plt.style.use(["science", "nature"])
 
 Ej3 = 50
 Ej1s = np.arange(30, 100, 0.2)
@@ -22,16 +21,21 @@ zz12, zz23, zz13, zzz = Store_zz3T.plane(
 
 
 fig, (ax1, ax2) = plt.subplots(
-    2, 1, gridspec_kw={"height_ratios": [1, 1]}, figsize=(5.9, 5.9 * 3 / 4), constrained_layout=True, sharex=True
+    2,
+    1,
+    gridspec_kw={"height_ratios": [1, 1]},
+    figsize=(5.9, 5.9 * 3 / 4),
+    constrained_layout=True,
+    sharex=True,
 )
 o2primgrid, detunegrid = to_omega_grid(Ej1s, Ej2s, Ej3)
 
-c1 = ax1.pcolormesh(o2primgrid, detunegrid, zz12, norm=Norm(1e-0), cmap=OrBu_colormap())
+c1 = ax1.pcolormesh(o2primgrid, detunegrid, zz12, norm=Norm(1e-0), cmap=OrBu_colormap(), rasterized=True)
 ax1.set_ylabel("$\Delta_{13}$ [$E_C$]")
 ax1.set_xlim([-6, 14])
 ax1.set_ylim([-4, 8])
 
-ax2.pcolormesh(o2primgrid, detunegrid, zz23, norm=Norm(1e-0), cmap=OrBu_colormap())
+ax2.pcolormesh(o2primgrid, detunegrid, zz23, norm=Norm(1e-0), cmap=OrBu_colormap(), rasterized=True)
 ax2.set_ylabel("$\Delta_{13}$ [$E_C$]")
 ax2.set_xlabel("$\omega_2'$ [$E_C$]")
 
@@ -43,10 +47,10 @@ for x in np.arange(-20, 20, 1):
 
 # Line
 
-fig.suptitle(
-    rf"$\text{{ZZ}}_{{12}}$ and $\text{{ZZ}}_{{23}}$ for $E_{{J3}}=50$, $E_{{12}}=E_{{23}}={Eint}$, $E_{{13}}={Eint13}$ units $E_C$"
-)
-fig.savefig("figs/zz-12-23.png", dpi=300, bbox_inches="tight")
+# fig.suptitle(
+#     rf"$\text{{ZZ}}_{{12}}$ and $\text{{ZZ}}_{{23}}$ for $E_{{J3}}=50$, $E_{{12}}=E_{{23}}={Eint}$, $E_{{13}}={Eint13}$ units $E_C$"
+# )
+fig.savefig("figs/zz-12-23.pdf", dpi=300, bbox_inches="tight")
 
 
 # plt.colorbar()

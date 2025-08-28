@@ -1,5 +1,3 @@
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
 import numpy as np
 from store.stores3T import Store_zz3T
 from exact.util import omega_alphas
@@ -35,14 +33,13 @@ def predict_fig():
     a23 = 1.06638546
     a13 = 4.09027235
 
-    pred111 = zz12 + zz23 + zz13
     preda = a12 * zz12 + a23 * zz23 + a13 * zz13
-    rel111 = np.abs(zzz - pred111) / np.abs(zzz)
     rela = np.abs(zzz - preda) / np.abs(zzz)
 
-    fig, ax1 = plt.subplots(
-        1, 1, sharex=True, sharey=True, constrained_layout=True, figsize=(5.9 * 0.8, 5.9 * 3 / 4 * 0.8)
-    )
+    pred111 = zz12 + zz23 + zz13
+    rel111 = np.abs(zzz - pred111) / np.abs(zzz)
+
+    fig, (ax1) = plt.subplots(1, 1, sharex=True, sharey=True, constrained_layout=True, figsize=(5.9, 5.9 * 5 / 8))
 
     colorss = plt.cm.Oranges(np.linspace(0, 0.8, 20))
 
@@ -52,36 +49,20 @@ def predict_fig():
         # ax2.axline(xy1=(x, 0), color="lightgray", linestyle="-", linewidth=0.8, zorder=0, slope=-2)
     # ax2.axline(x=xg, color="gray", linestyle="-", linewidth=0.5, zorder=0)
 
-    c = ax1.pcolormesh(o2primgrid, detunegrid, rel111, vmin=0.01, vmax=0.1, cmap=cmap, zorder=1, rasterized=True)
+    c = ax1.pcolormesh(o2primgrid, detunegrid, rel111, vmin=0.01, vmax=0.1, cmap=cmap, zorder=1)
     # ax2.pcolormesh(o2primgrid, detunegrid, rela, vmin=0.01, vmax=0.1, cmap=cmap)
 
     # fig.suptitle(f"Relative ZZZ prediciton error for $E_{{J3}}={Ej3}$  $E_{{12}}=E_{{23}}={E}$ $E_{{13}}={Eint13}$ ")
     ax1.set_ylabel(r"$\Delta_{13}$ [$E_C$]")
-    ax1.set_xlabel(r"$\omega_2'$ [$E_C$]")
     ax1.set_ylim([-4, 8])
     ax1.set_xlim([-6, 14])
+    ax1.set_xlabel(r"$\omega_2'$ [$E_C$]")
     # ax2.set_ylabel(r"$\Delta_{13}$ [$E_C$]")
     cbar = fig.colorbar(c, ax=[ax1])
     cbar.set_label("Relative error")
-
-    fig.savefig("figs/linear-model-error-strong13.pdf", dpi=300, bbox_inches="tight")
 
     plt.show()
 
 
 if __name__ == "__main__":
     predict_fig()
-    # 111 57.03
-    # 201 56.47
-    # 210 56.27
-    # 102 56.06
-    # 120 55.67
-    # 012 55.47
-    # 021 55.27
-    # 300 54.45
-    # 003 53.24
-    # 030 52.63
-    # A = np.array([57.03, 56.47, 56.27, 56.06, 55.67, 55.47, 55.27, 54.45, 53.24, 52.63])
-    # A = A - 52.63
-    # A = A / np.max(A) * 5.292
-    # print(A)
