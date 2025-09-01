@@ -4,6 +4,8 @@ import numpy as np
 from store.stores import Store_zz3T
 from other.colormap import OrBu_colormap, Norm
 
+# here we simply sweep some stored ZZ data
+
 Ejs = np.arange(30, 80, 0.2)
 Eints = np.arange(0, 0.5, 0.01)
 zz12, zz23, zz13, zzz = Store_zz3T.plane(

@@ -3,6 +3,8 @@ import numpy as np
 from exact.gale_shapely.gale_shapely import state_assignment
 import time
 
+# the function to get one data point of ZZ
+
 
 def single_zz(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=7):
     levels, vecs, index_map = eig_excitation_trunc(Ec2, Ec3, Ej1, Ej2, Ej3, Eint12, Eint23, Eint13, k=k)

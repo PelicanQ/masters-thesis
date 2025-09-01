@@ -1,9 +1,10 @@
-# Here I will gather what I need to make the decision on N and M
 from exact.three.hamil import eig_excitation_trunc
 from exact.gale_shapely.gale_shapely import state_assignment
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import colors
+
+# Instead of checking conv of levels, I instead check conv of ZZ here.
 # This kinda failed because GS changes a lot with N and M
 NN = np.arange(10, 15, 1)
 MM = np.arange(10, 20, 1)
@@ -26,7 +27,7 @@ for j, M in enumerate(MM):
     levels = eig_excitation_trunc(1, 1, *points[1], N=12, M=M, C=C, only_energy=True)
     levels = levels - levels[0]
 
-    zzGS13 = levels[6]-levels[2]-levels[1]
+    zzGS13 = levels[6] - levels[2] - levels[1]
     v.append(zzGS13)
 plt.plot(MM, v)
 plt.show()
@@ -42,14 +43,15 @@ for p_i, p in enumerate(points):
 
             def gslevel(n1, n2, n3):
                 return levels[bare_to_dressed_index[index_map[(n1, n2, n3)]]]
+
             zzGS13 = gslevel(1, 0, 1) - gslevel(1, 0, 0) - gslevel(0, 0, 1)
 
             v[i, j] = zzGS13
 
     final = v[-1, -1]
     relerr = (v - final) / final  # all relative to their final
-    
-    print(v- final, final,relerr)
+
+    print(v - final, final, relerr)
     err[p_i, :, :] = relerr
 
 maxed = np.mean(np.abs(err), axis=0) + 1e-30

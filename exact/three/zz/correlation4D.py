@@ -3,6 +3,8 @@ from store.stores3T import Store_zz3T
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
+# 3D plot with color as 4th dimension of ZZZ
+
 # vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.01)
 zz12, zz23, zz13, zzz = Store_zz3T.get_all()
 

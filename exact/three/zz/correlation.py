@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib.widgets import Button
 from matplotlib import pyplot as plt
 
+# Here we look to plot ZZ on axes to see correlation
 
 vars, zz12, zz23, zz13, zzz = Store_zz3T.line(Ec2=1, Ec3=1, Ej2=50, Ej3=50, Eint12=0.1, Eint23=0.1, Eint13=0.1)
 A = np.array([zz12, zz23, zz13, zzz])

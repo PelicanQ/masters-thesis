@@ -7,6 +7,8 @@ from exact.util import to_omega_grid
 from analysis.discover import make_hoverax
 from matplotlib import colors
 
+# plot numerical ZZ
+
 Ej3 = 50
 Ej1s = np.arange(30, 100, 1)
 Ej2s = np.arange(30, 140, 1)

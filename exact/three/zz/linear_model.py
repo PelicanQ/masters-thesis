@@ -5,6 +5,8 @@ from store.stores3T import Store_zz3T
 from exact.util import omega_alphas
 from matplotlib import pyplot as plt, colors
 
+# Here we plot how well ZZs predict ZZZ
+
 Ej3 = 50
 Ej1s = np.arange(30, 100, 1)
 Ej2s = np.arange(30, 140, 1)

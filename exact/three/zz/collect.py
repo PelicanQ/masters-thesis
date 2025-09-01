@@ -9,6 +9,7 @@ from typing import Iterable
 from other.colormap import Norm, OrBu_colormap
 
 
+# A file to run numerics and collect data
 def local_collect():
     Ejs = np.arange(58.8, 59, 0.01).tolist()  # numpy types cannot be json serialized
     # Eints = np.arange(0.02, 0.06, 0.01).tolist()

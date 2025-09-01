@@ -1,7 +1,9 @@
-# in the case of line layout, equal Ej1,3 and good bit lower Ej2, this is the bare ordering
 from exact.three.hamil import eig_excitation_trunc
 import numpy as np
 from matplotlib import pyplot as plt
+
+# Here, we plot "adiabatic ZZ" meaning we don't apply Gale Shapely and instead define ZZ by fixed energy indices
+#  in the case of line layout, equal Ej1,3 and good bit lower Ej2, this is the bare ordering
 
 Ejs = np.arange(40, 80, 0.5)
 r12 = []

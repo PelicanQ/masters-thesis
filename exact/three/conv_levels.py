@@ -1,10 +1,11 @@
-# let's see when the ground level stablizes with k. I wanna keep k low due to slow numerics
 import numpy as np
-from exact.threetransmon.hamil import eig_clever
+from exact.three.hamil import eig_clever
 from matplotlib import pyplot as plt
 from jobmanager.Handler import Handler3TEnergy
 import asyncio
 import time
+
+# let's see when the ground level stablizes with k. I wanna keep k low due to slow numerics
 
 level_select = np.arange(0, 10, 1)
 # level_select = [0, 1, 2, 3, 4, 10, 20, 30, 40, 50]
