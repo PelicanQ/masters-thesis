@@ -1,4 +1,4 @@
-from anharm.util import proc, subspace, proc_subspace, extract_subscript
+from anharm.util import proc_subspace, extract_subscript
 from anharm.Hgen import Hgen, layouts
 from sympy import Symbol
 import sympy as sp

@@ -2,8 +2,6 @@ from pathlib import Path
 import dill
 from anharm.Hamiltonian import Hamil
 
-# import numpy as np
-
 base = Path(__file__).parent / "__func_cache__"
 
 
